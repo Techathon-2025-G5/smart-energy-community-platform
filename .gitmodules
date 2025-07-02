@@ -1,0 +1,3 @@
+[submodule "model/model"]
+	path = model/model
+	url = https://github.com/ahalev/python-microgrid.git
