@@ -1,16 +1,16 @@
-### Proyecto: **Playground de Gestión Energética para Comunidades Sostenibles**
+# Proyecto: **Playground de Gestión Energética para Comunidades Sostenibles**
 
 ---
 
-#### Model
+## Model
 
 El modelo está construido utilizando la librería pymgrid de Python.
 
-##### Reinforcement Learning (RL) Environments
+### Reinforcement Learning (RL) Environments
 
 Environment classes using the OpenAI Gym API for reinforcement learning.
 
-###### Discrete
+#### Discrete
 A discrete env that implements priority lists as actions on a microgrid.
 The environment deploys fixed controllable modules to the extent necessary to zero out the net load (load minus renewable generation).
 
@@ -28,7 +28,7 @@ class pymgrid.envs.DiscreteMicrogridEnv(
     reset_callback=None
 )
 
-###### Continuous
+#### Continuous
 
 class pymgrid.envs.ContinuousMicrogridEnv(
     modules, 
@@ -43,13 +43,13 @@ class pymgrid.envs.ContinuousMicrogridEnv(
     reset_callback=None
 )
 
-##### Módulos
+### Modules
 
 - Timeseries Modules: GridModule, LoadModule, RenewableModule
 - Non-temporal Modules: BatteryModule, GensetModule
 - Helper Module: UnbalancedEnergyModule
 
-###### General parameters
+#### General parameters
 
 **forecaster:** callable, float, “oracle”, or None, default None.
     Function that gives a forecast n-steps ahead.
@@ -76,7 +76,6 @@ GaussianNoiseForecaster(noise_std, ...[, ...])  -> Forecaster that adds Gaussian
 UserDefinedForecaster(forecaster_function, ...)
 NoForecaster(observation_space, forecast_shape)
 
-
 **Common Methods**
 
 - as_fixed(): Convert the module to a fixed module.
@@ -92,7 +91,73 @@ NoForecaster(observation_space, forecast_shape)
 - state_dict([normalized]): Current state of the module as a dictionary.
 - step(action[, normalized]): Take one step in the module, attempting to draw or send action amount of energy.
 
-###### GridModule
+#### ModuleContainer
+Object that store’s a microgrid’s modules.
+Container of modules. Allows for indexing and viewing of a microgrids module’s in various ways.
+
+class pymgrid.modules.ModuleContainer(
+    modules, 
+    set_names=True
+)
+
+**Methods**
+- clear(): Remove all items from D.
+- copy():
+- fromkeys(iterable[, value]):
+- get(k[,d]): D[k] if k in D, else d.  d defaults to None.
+- get_attrs(*attrs[, unique, as_pandas, ...]): Get module attributes as a dictionary or pandas object.
+- items(): a set-like object providing a view on D's items
+- iterdict(): Iterable of the container's modules as a dict.
+- iteritems()
+- iterlist(): Iterable of the container's modules as a list.
+- keys(): a set-like object providing a view on D's keys
+- names():
+- pop(k[,d]): remove specified key and return the corresponding value. If key is not found, d is returned if given, otherwise KeyError is raised.
+- popitem(): remove and return some (key, value) pair as a 2-tuple; but raise KeyError if D is empty.
+- set_attrs([attr_dict]): Set the value of an attribute in all modules containing that attribute.
+- setdefault(k[,d]): D.get(k,d), also set D[k]=d if k not in D
+- to_dict([orient]): Get the modules as a dictionary.
+- to_list(): Get the modules as a list.
+- to_tuples(): Get the modules in (name, module) pairs.
+- update([E, ]**F): Update D from mapping/iterable E and F. If E present and has a .keys() method, does: for k in E: D[k] = E[k] If E present and lacks .keys() method, does: for (k, v) in E: D[k] = v In either case, this is followed by: for k, v in F.items(): D[k] = v
+- values(): an object providing a view on D's values
+
+**Attributes**
+containers: View of this container's containers.
+
+#### ModuleSpace
+Object for module action and observation spaces.
+
+class pymgrid.utils.space.ModuleSpace(
+    unnormalized_low, 
+    unnormalized_high, 
+    normalized_bounds=(0, 1), 
+    clip_vals=True, 
+    shape=None, 
+    dtype=class 'numpy.float64', 
+    seed=None, 
+    verbose=False
+)
+
+**Methods**
+- clip(val, *[, low, high, space, normalized]): Clip a value into a lower and upper bound.
+- contains(x): Check if x is a valid member of the space.
+- denormalize(val):
+- from_jsonable(sample_n): Convert a JSONable data type to a batch of samples from this space.
+- inner_clip(val, space):
+- normalize(val):
+- sample([normalized]): Randomly sample an element of this space. Can be uniform or non-uniform sampling based on boundedness of space. mask: A mask used for sampling, expected dtype=np.int8 and see sample implementation for expected shape.
+- seed([seed]): Seed the PRNG of this space and possibly the PRNGs of subspaces.
+- to_jsonable(sample_n): Convert a batch of samples from this space to a JSONable data type.
+
+**Attributes**
+- is_np_flattenable: Checks whether this space can be flattened to a spaces.Box.
+- normalized
+- np_random: Lazily seed the PRNG since this is expensive and only needed if sampling from this space.
+- shape: Return the shape of the space as an immutable property.
+- unnormalized
+
+#### GridModule
 
 An electrical grid module. By default, GridModule is a fixed module; it can be transformed to a flex module with GridModule.as_flex.
 
@@ -111,7 +176,7 @@ class pymgrid.modules.GridModule(
     raise_errors: bool = False                                  -> Whether to raise errors if bounds are exceeded in an action. If False, actions are clipped to the limit possible.
 )
 
-###### LoadModule
+#### LoadModule
 
 class pymgrid.modules.LoadModule(
     time_series: list,                      -> Time series of load demand. Shape: (n_steps, )
@@ -125,7 +190,7 @@ class pymgrid.modules.LoadModule(
     raise_errors=False
 )
 
-###### RenewableModule
+#### RenewableModule
 
 class pymgrid.modules.RenewableModule(
     time_series,                            -> Time series of renewable production. Shape: (n_steps, )
@@ -140,7 +205,7 @@ class pymgrid.modules.RenewableModule(
     provided_energy_name='renewable_used'   -> Name of the energy provided by this module, to be used in logging.
 )
 
-###### BatteryModule
+#### BatteryModule
 
 A battery module. Battery modules are fixed: when calling Microgrid.run, you must pass a control for batteries.
 
@@ -164,7 +229,7 @@ Function to model the battery’s transition. If None, BatteryTransitionModel is
 
 If you define a battery_transition_model, it must be YAML-serializable if you plan to serialize your battery module or any microgrid containing your battery. For example, you can define it as a class with a __call__ method and yaml.YAMLObject as its metaclass. See the PyYAML documentation for details and BatteryTransitionModel for an example.
 
-###### GensetModule
+#### GensetModule
 
 A genset/generator module.
 
@@ -186,7 +251,7 @@ class pymgrid.modules.GensetModule(
     provided_energy_name='genset_production'    -> Name of the energy provided by this module, to be used in logging.
 )
 
-###### UnbalancedEnergyModule
+#### UnbalancedEnergyModule
 
 class pymgrid.modules.UnbalancedEnergyModule(
     raise_errors, 
@@ -196,7 +261,7 @@ class pymgrid.modules.UnbalancedEnergyModule(
     normalized_action_bounds=(0, 1)
 )
 
-##### Control
+### Control
 
 **Rule Based Control:** Heuristic Algorithm that deploys modules via a priority list.
 In rule-based control, modules are deployed in a preset order. You can either define this order by passing a priority list or the order will be defined automatically from the module with the lowest marginal cost to the highest.
@@ -216,4 +281,21 @@ class pymgrid.algos.RuleBasedControl(
   - priority_list: Order in which to deploy controllable modules.
   - microgrid: Microgrid on which to run rule-based control.
 
+**Model Predictive Control:** Algorithm that depends on a future forecast as well as a model of state transitions to determine optimal controls.
 
+In model predictive control, a model of the microgrid is used to predict the microgrid’s response to taking certain actions. Armed with this prediction model, we can predict the microgrid’s response to simulating forward a certain number of steps (the forecast “horizon”). This results in an objective function – with the objective being the cost of running the microgrid over the entire horizon.
+
+Given the solution of this optimization problem, we apply the control we found at the current step (ignoring the rest) and then repeat.
+
+This implementation of model predictive control does not support arbitrary microgrid components. One each of load, renewable, battery, grid, and genset are allowed. Microgrids are not required to have both grid and genset but they must have one; they also must have one each of load, renewable, and battery.
+
+class pymgrid.algos.ModelPredictiveControl(
+    microgrid,      -> Microgrid on which to run model predictive control.
+    solver=None
+)
+
+- Methods:
+  - get_action([verbose])
+  - reset(): Reset the underlying microgrid.
+  - run([max_steps, verbose]): Run the model prediction control algorithm.
+  - solver_context()
