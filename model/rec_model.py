@@ -51,10 +51,10 @@ class MicrogridModel:
         return comps
 
     def get_actions(self):
-        """Return the keys for controllable components."""
+        """Return the controllable components."""
         if not self.microgrid:
             return []
-        return list(self.microgrid.get_empty_action().keys())
+        return self.microgrid.get_empty_action()
 
     def get_status(self):
         """Return current state of the microgrid as a dictionary."""
@@ -62,11 +62,11 @@ class MicrogridModel:
             return {}
         return self.microgrid.state_dict
 
-    def run(self, actions):
+    def step(self, actions):
         """Run one simulation step with provided actions."""
         if not self.microgrid:
             raise RuntimeError("Microgrid is not initialized")
-        obs, reward, done, info = self.microgrid.run(actions, normalized=False)
+        obs, reward, done, info = self.microgrid.step(actions, normalized=False)
         return {
             'observation': obs,
             'reward': reward,

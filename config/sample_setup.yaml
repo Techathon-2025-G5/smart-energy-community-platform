@@ -26,14 +26,14 @@ components:
       max_discharge: 10
       efficiency: 0.95
       init_soc: 0.5
-  - id: genset1
-    type: GensetModule
-    params:
-      running_min_production: 0
-      running_max_production: 50
-      genset_cost: 0.3
-  - id: unbalanced
-    type: UnbalancedEnergyModule
-    params:
-      loss_load_cost: 10
-      overgeneration_cost: 2
+  # - id: genset1
+  #   type: GensetModule
+  #   params:
+  #     running_min_production: 0
+  #     running_max_production: 50
+  #     genset_cost: 0.3
+  # - id: unbalanced
+  #   type: UnbalancedEnergyModule
+  #   params:
+  #     loss_load_cost: 10
+  #     overgeneration_cost: 2
