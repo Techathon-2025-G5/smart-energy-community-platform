@@ -32,10 +32,27 @@ class MicrogridModel:
             if ts_key in params:
                 import numpy as np
                 params[ts_key] = np.array(params[ts_key])
-            if cls is mod.UnbalancedEnergyModule and 'raise_errors' not in params:
-                params['raise_errors'] = False
+            # UnbalancedEnergyModule is now configured outside of components
+            if cls is mod.UnbalancedEnergyModule:
+                # support legacy configs but skip adding as regular module
+                if 'raise_errors' not in params:
+                    params['raise_errors'] = False
+                # store parameters to use when creating the microgrid
+                config.setdefault('add_unbalanced_module', True)
+                config.setdefault('loss_load_cost', params.get('loss_load_cost', 10.0))
+                config.setdefault('overgeneration_cost', params.get('overgeneration_cost', 2.0))
+                continue
             modules.append(cls(**params))
-        self.microgrid = Microgrid(modules, add_unbalanced_module=False)
+
+        add_unbalanced = config.get('add_unbalanced_module', False)
+        loss_cost = config.get('loss_load_cost', 10.0)
+        over_cost = config.get('overgeneration_cost', 2.0)
+        self.microgrid = Microgrid(
+            modules,
+            add_unbalanced_module=add_unbalanced,
+            loss_load_cost=loss_cost,
+            overgeneration_cost=over_cost,
+        )
 
     def get_components(self, type=None):
         """Return basic info about components in the microgrid."""

@@ -10,6 +10,9 @@ class SetupRequest(BaseModel):
     components: List[ComponentConfig]
     horizon: int
     timestep: int
+    add_unbalanced_module: Optional[bool] = False
+    loss_load_cost: Optional[float] = None
+    overgeneration_cost: Optional[float] = None
 
 class ActionRequest(BaseModel):
     actions: Dict[str, Any]

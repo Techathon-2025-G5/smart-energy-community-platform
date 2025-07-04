@@ -1,5 +1,8 @@
 horizon: 24
 timestep: 1
+add_unbalanced_module: true
+loss_load_cost: 10
+overgeneration_cost: 2
 components:
   - id: grid1
     type: GridModule
@@ -32,8 +35,3 @@ components:
   #     running_min_production: 0
   #     running_max_production: 50
   #     genset_cost: 0.3
-  # - id: unbalanced
-  #   type: UnbalancedEnergyModule
-  #   params:
-  #     loss_load_cost: 10
-  #     overgeneration_cost: 2
