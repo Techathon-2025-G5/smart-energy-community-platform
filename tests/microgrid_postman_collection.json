@@ -1,0 +1,204 @@
+{
+  "info": {
+    "_postman_id": "a39f2dd1-aaaa-4a33-aaaa-09aaa0a0a0aa",
+    "name": "Microgrid API Tests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Coleccion de pruebas para la API del microgrid"
+  },
+  "item": [
+    {
+      "name": "Setup",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"horizon\": 24, \"timestep\": 1, \"components\": [{\"id\": \"grid1\", \"type\": \"GridModule\", \"params\": {\"max_import\": 100.0, \"max_export\": 100.0, \"time_series\": [[0.2, 0.1, 0.5, true], [0.25, 0.15, 0.6, true]]}}, {\"id\": \"load1\", \"type\": \"LoadModule\", \"params\": {\"time_series\": [1.0, 1.2, 0.9, 1.1]}}, {\"id\": \"renewable1\", \"type\": \"RenewableModule\", \"params\": {\"time_series\": [0.5, 0.8, 0.7, 0.4]}}, {\"id\": \"battery1\", \"type\": \"BatteryModule\", \"params\": {\"min_capacity\": 0, \"max_capacity\": 50, \"max_charge\": 10, \"max_discharge\": 10, \"efficiency\": 0.95, \"init_soc\": 0.5}}, {\"id\": \"genset1\", \"type\": \"GensetModule\", \"params\": {\"running_min_production\": 0, \"running_max_production\": 50, \"genset_cost\": 0.3}}, {\"id\": \"unbalanced\", \"type\": \"UnbalancedEnergyModule\", \"params\": {\"loss_load_cost\": 10, \"overgeneration_cost\": 2}}]}"
+        },
+        "url": {
+          "raw": "{{base_url}}/setup",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "setup"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET components",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/components",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "components"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET actions",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/actions",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "actions"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET status",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/status",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "status"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Run Step",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"actions\": {\"genset\": [[0, 0]], \"grid\": [0], \"battery\": [0]}}"
+        },
+        "url": {
+          "raw": "{{base_url}}/run",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "run"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reset",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/reset",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "reset"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
