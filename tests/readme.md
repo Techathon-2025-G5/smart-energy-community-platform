@@ -18,7 +18,19 @@ Este directorio contiene una coleccion de Postman para validar la API del simula
    - **GET components**
    - **GET actions**
    - **GET status**
-   - **Run Step**
+   - **Run Step** (envia acciones simples de ejemplo)
    - **Reset**
+
+Un ejemplo de cuerpo para **Run Step** es:
+
+```json
+{
+  "actions": {
+    "genset": [[0, 0]],
+    "grid": [0],
+    "battery": [0]
+  }
+}
+```
 
 Cada peticion incluye un pequeño test que comprueba que el codigo de respuesta sea `200`.
