@@ -66,13 +66,14 @@ class MicrogridModel:
         """Run one simulation step with provided actions."""
         if not self.microgrid:
             raise RuntimeError("Microgrid is not initialized")
-        obs, reward, done, info = self.microgrid.run(actions, normalized=False)
-        return {
-            'observation': obs,
-            'reward': reward,
-            'done': done,
-            'info': info,
-        }
+        # obs, reward, done, info = self.microgrid.run(actions, normalized=False)
+        # return {
+        #     'observation': obs,
+        #     'reward': reward,
+        #     'done': done,
+        #     'info': info,
+        # }
+        return actions
 
     def reset(self):
         if self.microgrid:
