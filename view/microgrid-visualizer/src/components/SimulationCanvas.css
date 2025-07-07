@@ -1,0 +1,8 @@
+.drawing-area {
+  position: relative;
+  border: 1px dashed #ccc;
+  min-height: 400px;
+}
+.canvas-item {
+  position: absolute;
+}

@@ -1,20 +1,50 @@
-import { useState } from 'react';
-import { useDrop } from 'react-dnd';
+import { useState, useEffect, useRef } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import './App.css';
 import api from './api/client';
 import sampleSetup from './api/sampleSetup';
 import HeaderControls from './components/HeaderControls';
 import ModulePalette from './components/ModulePalette';
+import SimulationCanvas from './components/SimulationCanvas';
+import CanvasItem from './components/CanvasItem';
 import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull, FaPlug } from 'react-icons/fa';
 
 function App() {
   const [result, setResult] = useState(null);
-  const [dropped, setDropped] = useState([]);
+  const [modules, setModules] = useState([]);
+  const [selected, setSelected] = useState(null);
 
-  const [, drop] = useDrop(() => ({
-    accept: 'module',
-    drop: (item) => setDropped((prev) => [...prev, item.type]),
-  }));
+  const handleDrop = (item, left, top) => {
+    if (item.id) {
+      setModules((prev) =>
+        prev.map((m) => (m.id === item.id ? { ...m, left, top } : m))
+      );
+    } else {
+      setModules((prev) => [
+        ...prev,
+        { id: uuidv4(), type: item.type, left, top },
+      ]);
+    }
+  };
+
+  const icons = {
+    house: <FaHome />,
+    building: <FaBuilding />,
+    solar: <FaSolarPanel />,
+    battery: <FaBatteryFull />,
+    grid: <FaPlug />,
+  };
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'Delete' && selected) {
+        setModules((prev) => prev.filter((m) => m.id !== selected));
+        setSelected(null);
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [selected]);
 
   const handleSetup = async () => {
     try {
@@ -81,25 +111,29 @@ function App() {
         <button onClick={handleRunStep}>Run Step</button>
         <button onClick={handleGetComponents}>Get Components</button>
         <button onClick={handleReset}>Reset Model</button>
+        <button onClick={() => {
+          if (selected) {
+            setModules((prev) => prev.filter((m) => m.id !== selected));
+            setSelected(null);
+          }
+        }}>Delete Selected</button>
         <ModulePalette />
       </aside>
 
-      <main ref={drop} className="drawing-area" id="section-3">
-        {dropped.map((type, idx) => {
-          const icons = {
-            house: <FaHome />,
-            building: <FaBuilding />,
-            solar: <FaSolarPanel />,
-            battery: <FaBatteryFull />,
-            grid: <FaPlug />,
-          };
-          return (
-            <span key={idx} className="dropped-icon">
-              {icons[type]}
-            </span>
-          );
-        })}
-      </main>
+      <SimulationCanvas onDrop={handleDrop}>
+        {modules.map((m) => (
+          <CanvasItem
+            key={m.id}
+            id={m.id}
+            type={m.type}
+            left={m.left}
+            top={m.top}
+            icon={icons[m.type]}
+            onSelect={setSelected}
+            isSelected={selected === m.id}
+          />
+        ))}
+      </SimulationCanvas>
 
       <section className="details-panel" id="section-4">
         <pre>{result && JSON.stringify(result, null, 2)}</pre>
