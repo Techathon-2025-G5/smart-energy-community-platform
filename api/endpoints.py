@@ -26,7 +26,8 @@ def get_status():
 
 @router.post("/run")
 def run_model(payload: ActionRequest):
-    return microgrid.run(payload.actions)
+    raw = microgrid.run(payload.actions)
+    return microgrid._to_serializable(raw)  # type: ignore[attr-defined]
 
 @router.post("/reset")
 def reset_model():
