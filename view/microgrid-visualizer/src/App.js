@@ -8,22 +8,30 @@ function App() {
 
   const handleSetup = async () => {
     try {
-      const { data } = await api.setupMicrogrid(sampleSetup);
-      setResult(data);
+      const response = await api.setupMicrogrid(sampleSetup);
+      setResult(response);
     } catch (err) {
       setResult({ error: err.message });
     }
   };
 
   const handleStatus = async () => {
-    const { data } = await api.getStatus();
-    setResult(data);
+    try {
+      const response = await api.getStatus();
+      setResult(response);
+    } catch (err) {
+      setResult({ error: err.message });
+    }
   };
 
   const handleRunStep = async () => {
-    const actions = { actions: { genset: [[0, 0]], grid: [0], battery: [0] } };
-    const { data } = await api.runStep(actions);
-    setResult(data);
+    try {
+      const actions = { actions: { genset: [[0, 0]], grid: [0], battery: [0] } };
+      const response = await api.runStep(actions);
+      setResult(response);
+    } catch (err) {
+      setResult({ error: err.message });
+    }
   };
 
   return (
