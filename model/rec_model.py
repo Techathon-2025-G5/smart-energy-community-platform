@@ -110,7 +110,7 @@ class MicrogridModel:
             'done': done,
             'info': info,
         }
-        return self._to_serializable(result)
+        return result
 
     def reset(self):
         if self.microgrid:

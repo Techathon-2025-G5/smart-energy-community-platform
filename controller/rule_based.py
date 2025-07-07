@@ -39,13 +39,14 @@ class RuleBasedController:
             raise RuntimeError("Controller not initialized")
         action = self.rbc._get_action()  # type: ignore[attr-defined]
         obs, reward, done, info = microgrid.microgrid.run(action, normalized=False)
-        return {
+        result = {
             "action": action,
             "observation": obs,
             "reward": reward,
             "done": done,
             "info": info,
         }
+        return microgrid._to_serializable(result)  # type: ignore[attr-defined]
 
     def reset(self) -> None:
         if self.rbc:
