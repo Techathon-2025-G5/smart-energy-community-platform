@@ -46,7 +46,7 @@ class RuleBasedController:
             "done": done,
             "info": info,
         }
-        return microgrid._to_serializable(result)  # type: ignore[attr-defined]
+        return result
 
     def reset(self) -> None:
         if self.rbc:

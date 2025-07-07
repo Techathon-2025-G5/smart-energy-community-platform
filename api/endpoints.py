@@ -49,7 +49,8 @@ def get_priority_list():
 
 @router.post("/controller/run")
 def run_controller():
-    return rule_controller.step()
+    raw = rule_controller.step()
+    return microgrid._to_serializable(raw)
 
 
 @router.post("/controller/reset")
