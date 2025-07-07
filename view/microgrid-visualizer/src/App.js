@@ -26,7 +26,7 @@ function App() {
 
   const handleRunStep = async () => {
     try {
-      const actions = { actions: { genset: [[0, 0]], grid: [0], battery: [0] } };
+      const actions = { actions: { grid: [0], battery: [0] } };
       const response = await api.runStep(actions);
       setResult(response);
     } catch (err) {
