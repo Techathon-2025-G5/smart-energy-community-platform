@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './App.css';
 import api from './api/client';
 import sampleSetup from './api/sampleSetup';
+import HeaderControls from './components/HeaderControls';
 
 function App() {
   const [result, setResult] = useState(null);
@@ -56,6 +57,13 @@ function App() {
     <div className="app-container">
       <header className="header" id="section-1">
         <h1>Microgrid Frontend Demo</h1>
+        <HeaderControls
+          onSetup={handleSetup}
+          onRunStep={handleRunStep}
+          onStatus={handleStatus}
+          onGetComponents={handleGetComponents}
+          onReset={handleReset}
+        />
       </header>
 
       <aside className="tool-sidebar" id="section-2">
