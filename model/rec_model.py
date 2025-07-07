@@ -79,6 +79,12 @@ class MicrogridModel:
             return {}
         return self.microgrid.state_dict
 
+    def get_log(self):
+        """Return the history state of the microgrid as a dataframe."""
+        if not self.microgrid:
+            return {}
+        return self.microgrid.get_log()
+    
     def run(self, actions):
         """Run one simulation step with provided actions."""
         if not self.microgrid:
@@ -95,6 +101,7 @@ class MicrogridModel:
         if self.microgrid:
             self.microgrid.reset()
 
+            
 # Singleton instance used by API
 microgrid = MicrogridModel()
 
