@@ -1,11 +1,20 @@
 import { useState } from 'react';
+import { useDrop } from 'react-dnd';
 import './App.css';
 import api from './api/client';
 import sampleSetup from './api/sampleSetup';
 import HeaderControls from './components/HeaderControls';
+import ModulePalette from './components/ModulePalette';
+import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull, FaPlug } from 'react-icons/fa';
 
 function App() {
   const [result, setResult] = useState(null);
+  const [dropped, setDropped] = useState([]);
+
+  const [, drop] = useDrop(() => ({
+    accept: 'module',
+    drop: (item) => setDropped((prev) => [...prev, item.type]),
+  }));
 
   const handleSetup = async () => {
     try {
@@ -72,10 +81,24 @@ function App() {
         <button onClick={handleRunStep}>Run Step</button>
         <button onClick={handleGetComponents}>Get Components</button>
         <button onClick={handleReset}>Reset Model</button>
+        <ModulePalette />
       </aside>
 
-      <main className="drawing-area" id="section-3">
-        {/* Área principal de dibujo */}
+      <main ref={drop} className="drawing-area" id="section-3">
+        {dropped.map((type, idx) => {
+          const icons = {
+            house: <FaHome />,
+            building: <FaBuilding />,
+            solar: <FaSolarPanel />,
+            battery: <FaBatteryFull />,
+            grid: <FaPlug />,
+          };
+          return (
+            <span key={idx} className="dropped-icon">
+              {icons[type]}
+            </span>
+          );
+        })}
       </main>
 
       <section className="details-panel" id="section-4">
