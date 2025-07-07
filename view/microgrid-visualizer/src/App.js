@@ -53,16 +53,30 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <h1>Microgrid Frontend Demo</h1>
-      <div>
+    <div className="app-container">
+      <header className="header" id="section-1">
+        <h1>Microgrid Frontend Demo</h1>
+      </header>
+
+      <aside className="tool-sidebar" id="section-2">
         <button onClick={handleSetup}>Setup Microgrid</button>
         <button onClick={handleStatus}>Get Status</button>
         <button onClick={handleRunStep}>Run Step</button>
         <button onClick={handleGetComponents}>Get Components</button>
         <button onClick={handleReset}>Reset Model</button>
-      </div>
-      <pre>{result && JSON.stringify(result, null, 2)}</pre>
+      </aside>
+
+      <main className="drawing-area" id="section-3">
+        {/* Área principal de dibujo */}
+      </main>
+
+      <section className="details-panel" id="section-4">
+        <pre>{result && JSON.stringify(result, null, 2)}</pre>
+      </section>
+
+      <footer className="footer" id="section-5">
+        {/* Pie de página */}
+      </footer>
     </div>
   );
 }
