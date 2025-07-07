@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import './App.css';
 import api from './api/client';
@@ -7,12 +7,21 @@ import HeaderControls from './components/HeaderControls';
 import ModulePalette from './components/ModulePalette';
 import SimulationCanvas from './components/SimulationCanvas';
 import CanvasItem from './components/CanvasItem';
+import ComponentDetails from './components/ComponentDetails';
 import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull, FaPlug } from 'react-icons/fa';
 
 function App() {
   const [result, setResult] = useState(null);
   const [modules, setModules] = useState([]);
   const [selected, setSelected] = useState(null);
+
+  const defaults = {
+    house: { params: { demand: 1 }, state: {} },
+    building: { params: { demand: 2 }, state: {} },
+    solar: { params: { capacity: 5 }, state: {} },
+    battery: { params: { capacity: 10 }, state: { soc: 50 } },
+    grid: { params: { limit: 100 }, state: {} },
+  };
 
   const handleDrop = (item, left, top) => {
     if (item.id) {
@@ -22,7 +31,13 @@ function App() {
     } else {
       setModules((prev) => [
         ...prev,
-        { id: uuidv4(), type: item.type, left, top },
+        {
+          id: uuidv4(),
+          type: item.type,
+          left,
+          top,
+          ...(defaults[item.type] || { params: {}, state: {} }),
+        },
       ]);
     }
   };
@@ -136,6 +151,14 @@ function App() {
       </SimulationCanvas>
 
       <section className="details-panel" id="section-4">
+        <ComponentDetails
+          module={modules.find((m) => m.id === selected)}
+          onChange={(updated) =>
+            setModules((prev) =>
+              prev.map((m) => (m.id === updated.id ? updated : m))
+            )
+          }
+        />
         <pre>{result && JSON.stringify(result, null, 2)}</pre>
       </section>
 
