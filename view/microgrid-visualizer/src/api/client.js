@@ -15,7 +15,7 @@ export const getStatus = () => request('GET', '/status');
 export const runStep = (actions) => request('POST', '/run', actions);
 export const resetModel = () => request('POST', '/reset');
 
-export default {
+const apiClient = {
   setupMicrogrid,
   getComponents,
   getActions,
@@ -23,3 +23,5 @@ export default {
   runStep,
   resetModel,
 };
+
+export default apiClient;
