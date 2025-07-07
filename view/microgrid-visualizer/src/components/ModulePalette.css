@@ -1,0 +1,10 @@
+.module-palette {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.module-icon {
+  cursor: grab;
+  font-size: 2rem;
+}
