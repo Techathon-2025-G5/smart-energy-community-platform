@@ -34,6 +34,24 @@ function App() {
     }
   };
 
+  const handleGetComponents = async () => {
+    try {
+      const response = await api.getComponents();
+      setResult(response);
+    } catch (err) {
+      setResult({ error: err.message });
+    }
+  };
+
+  const handleReset = async () => {
+    try {
+      const response = await api.resetModel();
+      setResult(response);
+    } catch (err) {
+      setResult({ error: err.message });
+    }
+  };
+
   return (
     <div className="App">
       <h1>Microgrid Frontend Demo</h1>
@@ -41,6 +59,8 @@ function App() {
         <button onClick={handleSetup}>Setup Microgrid</button>
         <button onClick={handleStatus}>Get Status</button>
         <button onClick={handleRunStep}>Run Step</button>
+        <button onClick={handleGetComponents}>Get Components</button>
+        <button onClick={handleReset}>Reset Model</button>
       </div>
       <pre>{result && JSON.stringify(result, null, 2)}</pre>
     </div>
