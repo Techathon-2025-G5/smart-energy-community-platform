@@ -1,20 +1,19 @@
-import axios from 'axios';
+const BASE_URL = 'http://localhost:8000';
 
-const api = axios.create({
-  baseURL: 'http://localhost:8000',
-});
+const request = async (method, path, data) => {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (data) opts.body = JSON.stringify(data);
+  const res = await fetch(`${BASE_URL}${path}`, opts);
+  if (!res.ok) throw new Error(res.statusText);
+  return res.json();
+};
 
-export const setupMicrogrid = (payload) => api.post('/setup', payload);
-
-export const getComponents = (type) => api.get('/components', { params: { type } });
-
-export const getActions = () => api.get('/actions');
-
-export const getStatus = () => api.get('/status');
-
-export const runStep = (actions) => api.post('/run', actions);
-
-export const resetModel = () => api.post('/reset');
+export const setupMicrogrid = (payload) => request('POST', '/setup', payload);
+export const getComponents = (type) => request('GET', `/components${type ? `?type=${type}` : ''}`);
+export const getActions = () => request('GET', '/actions');
+export const getStatus = () => request('GET', '/status');
+export const runStep = (actions) => request('POST', '/run', actions);
+export const resetModel = () => request('POST', '/reset');
 
 export default {
   setupMicrogrid,

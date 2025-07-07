@@ -1,3 +1,23 @@
+# Microgrid Frontend Demo
+
+Esta aplicación React realiza llamadas básicas a la API de FastAPI y muestra las respuestas en pantalla.
+
+## Puesta en marcha rápida
+
+1. Inicia la API:
+   ```bash
+   pip install fastapi uvicorn
+   uvicorn api.main:app --reload
+   ```
+2. Desde este directorio instala dependencias y arranca el servidor de desarrollo de React:
+   ```bash
+   npm install
+   npm start
+   ```
+   La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
+
+---
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
