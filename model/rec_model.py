@@ -79,11 +79,11 @@ class MicrogridModel:
             return {}
         return self.microgrid.state_dict
 
-    def step(self, actions):
+    def run(self, actions):
         """Run one simulation step with provided actions."""
         if not self.microgrid:
             raise RuntimeError("Microgrid is not initialized")
-        obs, reward, done, info = self.microgrid.step(actions, normalized=False)
+        obs, reward, done, info = self.microgrid.run(actions, normalized=False)
         return {
             'observation': obs,
             'reward': reward,
