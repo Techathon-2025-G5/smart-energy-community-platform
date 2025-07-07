@@ -85,17 +85,32 @@ class MicrogridModel:
             return {}
         return self.microgrid.get_log()
     
+    def _to_serializable(self, obj):
+        """Recursively convert numpy types to Python built-ins."""
+        import numpy as np
+
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, np.generic):
+            return obj.item()
+        if isinstance(obj, dict):
+            return {k: self._to_serializable(v) for k, v in obj.items()}
+        if isinstance(obj, (list, tuple)):
+            return [self._to_serializable(v) for v in obj]
+        return obj
+
     def run(self, actions):
         """Run one simulation step with provided actions."""
         if not self.microgrid:
             raise RuntimeError("Microgrid is not initialized")
         obs, reward, done, info = self.microgrid.run(actions, normalized=False)
-        return {
+        result = {
             'observation': obs,
             'reward': reward,
             'done': done,
             'info': info,
         }
+        return self._to_serializable(result)
 
     def reset(self):
         if self.microgrid:
