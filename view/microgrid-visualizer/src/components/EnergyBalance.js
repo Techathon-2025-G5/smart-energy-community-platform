@@ -1,10 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import api from '../api/client';
 import './EnergyBalance.css';
+import { useAppState } from '../context/AppState';
 
 export default function EnergyBalance() {
-  const [points, setPoints] = useState([]);
+  const {
+    state: { energyPoints: points },
+    addEnergyPoint,
+  } = useAppState();
   const svgRef = useRef(null);
 
   useEffect(() => {
@@ -13,7 +17,7 @@ export default function EnergyBalance() {
         const status = await api.getStatus();
         const generation = status?.renewable?.[0]?.renewable_current || 0;
         const consumption = Math.abs(status?.load?.[0]?.load_current || 0);
-        setPoints((p) => [...p.slice(-19), { generation, consumption }]);
+        addEnergyPoint({ generation, consumption });
       } catch (err) {
         // ignore errors silently
       }
@@ -21,7 +25,7 @@ export default function EnergyBalance() {
     fetchData();
     const id = setInterval(fetchData, 3000);
     return () => clearInterval(id);
-  }, []);
+  }, [addEnergyPoint]);
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);

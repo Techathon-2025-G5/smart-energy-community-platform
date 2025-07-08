@@ -10,11 +10,18 @@ import CanvasItem from './components/CanvasItem';
 import ComponentDetails from './components/ComponentDetails';
 import EnergyBalance from './components/EnergyBalance';
 import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull, FaPlug } from 'react-icons/fa';
+import { useAppState } from './context/AppState';
 
 function App() {
   const [result, setResult] = useState(null);
-  const [modules, setModules] = useState([]);
-  const [selected, setSelected] = useState(null);
+  const {
+    state: { modules, selected },
+    addModule,
+    moveModule,
+    updateModule,
+    deleteModule,
+    selectModule,
+  } = useAppState();
 
   const defaults = {
     house: { params: { demand: 1 }, state: {} },
@@ -26,20 +33,15 @@ function App() {
 
   const handleDrop = (item, left, top) => {
     if (item.id) {
-      setModules((prev) =>
-        prev.map((m) => (m.id === item.id ? { ...m, left, top } : m))
-      );
+      moveModule({ id: item.id, left, top });
     } else {
-      setModules((prev) => [
-        ...prev,
-        {
-          id: uuidv4(),
-          type: item.type,
-          left,
-          top,
-          ...(defaults[item.type] || { params: {}, state: {} }),
-        },
-      ]);
+      addModule({
+        id: uuidv4(),
+        type: item.type,
+        left,
+        top,
+        ...(defaults[item.type] || { params: {}, state: {} }),
+      });
     }
   };
 
@@ -54,8 +56,7 @@ function App() {
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === 'Delete' && selected) {
-        setModules((prev) => prev.filter((m) => m.id !== selected));
-        setSelected(null);
+        deleteModule(selected);
       }
     };
     window.addEventListener('keydown', handleKey);
@@ -127,12 +128,15 @@ function App() {
         <button onClick={handleRunStep}>Run Step</button>
         <button onClick={handleGetComponents}>Get Components</button>
         <button onClick={handleReset}>Reset Model</button>
-        <button onClick={() => {
-          if (selected) {
-            setModules((prev) => prev.filter((m) => m.id !== selected));
-            setSelected(null);
-          }
-        }}>Delete Selected</button>
+        <button
+          onClick={() => {
+            if (selected) {
+              deleteModule(selected);
+            }
+          }}
+        >
+          Delete Selected
+        </button>
         <ModulePalette />
       </aside>
 
@@ -145,7 +149,7 @@ function App() {
             left={m.left}
             top={m.top}
             icon={icons[m.type]}
-            onSelect={setSelected}
+            onSelect={selectModule}
             isSelected={selected === m.id}
           />
         ))}
@@ -154,11 +158,7 @@ function App() {
       <section className="details-panel" id="section-4">
         <ComponentDetails
           module={modules.find((m) => m.id === selected)}
-          onChange={(updated) =>
-            setModules((prev) =>
-              prev.map((m) => (m.id === updated.id ? updated : m))
-            )
-          }
+          onChange={updateModule}
         />
         <pre>{result && JSON.stringify(result, null, 2)}</pre>
       </section>
