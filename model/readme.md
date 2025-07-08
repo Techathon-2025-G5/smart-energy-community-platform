@@ -161,19 +161,19 @@ class pymgrid.utils.space.ModuleSpace(
 
 An electrical grid module. By default, GridModule is a fixed module; it can be transformed to a flex module with GridModule.as_flex.  
 
-class pymgrid.modules.GridModule(  
-    max_import: float,                                          -> Maximum import at any time step.  
-    max_export: float,                                          -> Maximum export at any time step.  
-    time_series: list,                                          -> [[import_price: float, export_price: float, co2_per_kwH: float, grid_status: bool], ...]  
-    forecaster: callable, float, “oracle”, None = None,  
-    forecast_horizon: int = 23,                                 
-    forecaster_increase_uncertainty: bool = False,              
-    forecaster_relative_noise=False,  
-    initial_step: int = 0,   
-    final_step: int = -1,   
-    cost_per_unit_co2: float = 0.0,                             -> Marginal cost of grid co2 production.  
-    normalized_action_bounds: tuple of int or float = (0, 1),   -> Bounds of normalized actions. Change to (-1, 1) for e.g. an RL policy with a Tanh output activation.  
-    raise_errors: bool = False                                  -> Whether to raise errors if bounds are exceeded in an action. If False, actions are clipped to the limit possible.  
+class pymgrid.modules.GridModule(
+    max_import: float,                                          -> Maximum import at any time step.
+    max_export: float,                                          -> Maximum export at any time step.
+    cost_per_unit_co2: float = 0.0,                             -> Marginal cost of grid co2 production.
+    time_series: list,                                          -> array-like, shape (n_features, n_steps), n_features = {3, 4}. If n_features=3, (import_price, export_price, co2_per_kwH) in each column. If n_features=4, (import_price, export_price, co2_per_kwH, grid_status) in each column. time_series[:, -1] must be binary.
+    forecaster: callable, float, “oracle”, None = None,
+    forecast_horizon: int = 23,
+    forecaster_increase_uncertainty: bool = False,
+    forecaster_relative_noise=False,
+    initial_step: int = 0,
+    final_step: int = -1,
+    normalized_action_bounds: tuple of int or float = (0, 1),   -> Bounds of normalized actions. Change to (-1, 1) for e.g. an RL policy with a Tanh output activation.
+    raise_errors: bool = False                                  -> Whether to raise errors if bounds are exceeded in an action. If False, actions are clipped to the limit possible.
 )
 
 #### LoadModule
