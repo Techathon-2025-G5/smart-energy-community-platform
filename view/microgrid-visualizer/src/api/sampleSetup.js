@@ -40,6 +40,7 @@ const sampleSetup = {
         max_charge: 10,
         max_discharge: 10,
         efficiency: 0.95,
+        battery_cost_cycle: 0,
         init_soc: 0.5
       }
     }
