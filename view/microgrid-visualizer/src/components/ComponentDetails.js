@@ -1,7 +1,21 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import api from '../api/client';
 
 function ComponentDetails({ module, onChange }) {
+  const [profiles, setProfiles] = useState({});
+
+  useEffect(() => {
+    if (module && module.type) {
+      api
+        .getProfiles(module.type)
+        .then((resp) => setProfiles(resp || {}))
+        .catch(() => setProfiles({}));
+    } else {
+      setProfiles({});
+    }
+  }, [module?.type]);
+
   if (!module) {
     return <div className="component-details">Select a component</div>;
   }
@@ -15,8 +29,28 @@ function ComponentDetails({ module, onChange }) {
     <div className="component-details">
       <h3>{module.type} parameters</h3>
       <form>
+        {Object.keys(profiles).length > 0 && (
+          <div key="profile">
+            <label>
+              profile:
+              <select
+                value={module.params.time_series_profile || ''}
+                onChange={(e) =>
+                  handleParamChange('time_series_profile', e.target.value)
+                }
+              >
+                <option value="">--select--</option>
+                {Object.keys(profiles).map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        )}
         {Object.entries(module.params || {})
-          .filter(([key]) => key !== 'time_series')
+          .filter(([key]) => !['time_series', 'time_series_profile'].includes(key))
           .map(([key, value]) => (
           <div key={key}>
             <label>

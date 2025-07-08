@@ -14,6 +14,8 @@ export const getActions = () => request('GET', '/actions');
 export const getStatus = () => request('GET', '/status');
 export const runStep = (actions) => request('POST', '/run', actions);
 export const resetModel = () => request('POST', '/reset');
+export const getProfiles = (component) =>
+  request('GET', `/profiles${component ? `?component=${component}` : ''}`);
 
 const apiClient = {
   setupMicrogrid,
@@ -22,6 +24,7 @@ const apiClient = {
   getStatus,
   runStep,
   resetModel,
+  getProfiles,
 };
 
 export default apiClient;
