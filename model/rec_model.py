@@ -1,4 +1,7 @@
 import yaml
+from pathlib import Path
+import pandas as pd
+import json
 from pymgrid import Microgrid
 from pymgrid import modules as mod
 
@@ -8,6 +11,19 @@ class MicrogridModel:
     def __init__(self):
         self.microgrid = None
         self.config = None
+
+    def _load_profile(self, filename: str):
+        """Load a time series profile from the local data directory."""
+        data_dir = Path(__file__).resolve().parent.parent / "data"
+        for path in data_dir.rglob(filename):
+            if path.is_file():
+                if path.suffix.lower() == ".csv":
+                    df = pd.read_csv(path)
+                    return df.iloc[:, 0].tolist()
+                if path.suffix.lower() in {".json", ".jsn"}:
+                    with open(path, "r") as f:
+                        return json.load(f)
+        raise FileNotFoundError(f"Profile {filename} not found in {data_dir}")
 
     def setup(self, config):
         """Setup the microgrid from a dictionary or YAML string/path."""
@@ -29,6 +45,9 @@ class MicrogridModel:
             if cls is None:
                 raise ValueError(f"Unknown component type: {comp_type}")
             ts_key = 'time_series'
+            profile_key = 'time_series_profile'
+            if profile_key in params:
+                params[ts_key] = self._load_profile(params.pop(profile_key))
             if ts_key in params:
                 import numpy as np
                 params[ts_key] = np.array(params[ts_key])

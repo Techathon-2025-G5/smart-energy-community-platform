@@ -1,10 +1,18 @@
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 
+
+class ComponentParams(BaseModel):
+    time_series: Optional[List[Any]] = None
+    time_series_profile: Optional[str] = None
+
+    class Config:
+        extra = "allow"
+
 class ComponentConfig(BaseModel):
     id: str
     type: str
-    params: Dict[str, Any]
+    params: ComponentParams
 
 class SetupRequest(BaseModel):
     components: List[ComponentConfig]
