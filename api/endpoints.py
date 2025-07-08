@@ -37,7 +37,8 @@ async def get_profiles(component: Optional[str] = Query(None)):
     """Return available time series profiles.
 
     If *component* is provided, only profiles for that component type are
-    returned. Valid component types are ``building``, ``house`` and ``solar``.
+    returned. Valid component types are ``building``, ``house``, ``solar`` and
+    ``grid``.
     """
     profiles = await run_in_threadpool(load_profiles)
     if component:
