@@ -40,7 +40,14 @@ function App() {
       },
       state: { soc: 50 },
     },
-    grid: { params: { limit: 100 }, state: {} },
+    grid: {
+      params: {
+        max_import: 100,
+        max_export: 100,
+        cost_per_unit_co2: 0,
+      },
+      state: {},
+    },
   };
 
   const handleDrop = (item, left, top) => {

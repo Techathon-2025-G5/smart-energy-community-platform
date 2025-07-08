@@ -15,7 +15,9 @@ function ComponentDetails({ module, onChange }) {
     <div className="component-details">
       <h3>{module.type} parameters</h3>
       <form>
-        {Object.entries(module.params || {}).map(([key, value]) => (
+        {Object.entries(module.params || {})
+          .filter(([key]) => key !== 'time_series')
+          .map(([key, value]) => (
           <div key={key}>
             <label>
               {key}:
