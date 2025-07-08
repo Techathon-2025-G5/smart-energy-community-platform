@@ -26,6 +26,10 @@ Si se indica un nombre de archivo (por ejemplo `NewYork_744860TYA.csv`), se
 cargará automáticamente desde las carpetas `data/load`, `data/pv` o `data/co2`
 y sustituirá al listado manual de `time_series`.
 
+Los perfiles disponibles se describen en `data/profiles.yaml`. La API expone el
+endpoint `GET /profiles` (opcionalmente con el parámetro `component`) para
+consultar qué perfiles existen para cada tipo de componente.
+
 
 ---
 

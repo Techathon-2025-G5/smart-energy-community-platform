@@ -1,0 +1,14 @@
+building:
+  hospital: load/building/hospital.csv
+  large_office: load/building/large_office.csv
+  large_hotel: load/building/large_hotel.csv
+  primary_school: load/building/primary_school.csv
+  restaurant: load/building/restaurant.csv
+house:
+  house: load/house/house.csv
+solar:
+  solar_1: renewable/solar/solar_1.csv
+  solar_2: renewable/solar/solar_2.csv
+  solar_3: renewable/solar/solar_3.csv
+  solar_4: renewable/solar/solar_4.csv
+  solar_5: renewable/solar/solar_5.csv
