@@ -8,6 +8,7 @@ import ModulePalette from './components/ModulePalette';
 import SimulationCanvas from './components/SimulationCanvas';
 import CanvasItem from './components/CanvasItem';
 import ComponentDetails from './components/ComponentDetails';
+import EnergyBalance from './components/EnergyBalance';
 import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull, FaPlug } from 'react-icons/fa';
 
 function App() {
@@ -163,7 +164,7 @@ function App() {
       </section>
 
       <footer className="footer" id="section-5">
-        {/* Pie de página */}
+        <EnergyBalance />
       </footer>
     </div>
   );
