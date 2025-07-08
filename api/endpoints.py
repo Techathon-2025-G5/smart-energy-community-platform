@@ -1,12 +1,26 @@
 from fastapi import APIRouter, Query
 from fastapi.concurrency import run_in_threadpool
-from typing import Optional
+from typing import Optional, Dict
+from pathlib import Path
+import yaml
 
 from model.rec_model import microgrid
 from controller import rule_controller
 from api.schemas import SetupRequest, ActionRequest
 
 router = APIRouter()
+
+# Path to the YAML file describing available time series profiles
+PROFILES_FILE = Path(__file__).resolve().parent.parent / "data" / "profiles.yaml"
+
+
+def load_profiles() -> Dict[str, Dict[str, str]]:
+    """Load profiles.yaml and return its contents."""
+    if not PROFILES_FILE.exists():
+        return {}
+    with open(PROFILES_FILE, "r") as f:
+        data = yaml.safe_load(f) or {}
+    return data
 
 @router.post("/setup")
 async def setup_model(payload: SetupRequest):
@@ -16,6 +30,19 @@ async def setup_model(payload: SetupRequest):
 @router.get("/components")
 async def get_components(type: Optional[str] = Query(None)):
     return await run_in_threadpool(microgrid.get_components, type=type)
+
+
+@router.get("/profiles")
+async def get_profiles(component: Optional[str] = Query(None)):
+    """Return available time series profiles.
+
+    If *component* is provided, only profiles for that component type are
+    returned. Valid component types are ``building``, ``house`` and ``solar``.
+    """
+    profiles = await run_in_threadpool(load_profiles)
+    if component:
+        return profiles.get(component, {})
+    return profiles
 
 @router.get("/actions")
 async def get_actions():
