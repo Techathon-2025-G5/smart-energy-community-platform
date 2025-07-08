@@ -12,10 +12,7 @@ const sampleSetup = {
         max_import: 100.0,
         max_export: 100.0,
         cost_per_unit_co2: 0.0,
-        time_series: [
-          [0.2, 0.1, 0.5, true],
-          [0.25, 0.15, 0.6, true]
-        ]
+        time_series_profile: 'grid_1'
       }
     },
     {
