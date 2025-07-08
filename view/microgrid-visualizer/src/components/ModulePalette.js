@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
-import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull, FaPlug } from 'react-icons/fa';
+import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull } from 'react-icons/fa';
+import HighVoltageTowerIcon from './HighVoltageTowerIcon';
 import './ModulePalette.css';
 
 const modules = [
@@ -8,7 +9,7 @@ const modules = [
   { type: 'building', icon: <FaBuilding /> },
   { type: 'solar', icon: <FaSolarPanel /> },
   { type: 'battery', icon: <FaBatteryFull /> },
-  { type: 'grid', icon: <FaPlug /> },
+  { type: 'grid', icon: <HighVoltageTowerIcon /> },
 ];
 
 function DraggableIcon({ type, children }) {

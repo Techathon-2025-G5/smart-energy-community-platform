@@ -9,7 +9,8 @@ import SimulationCanvas from './components/SimulationCanvas';
 import CanvasItem from './components/CanvasItem';
 import ComponentDetails from './components/ComponentDetails';
 import EnergyBalance from './components/EnergyBalance';
-import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull, FaPlug } from 'react-icons/fa';
+import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull } from 'react-icons/fa';
+import HighVoltageTowerIcon from './components/HighVoltageTowerIcon';
 import { useAppState } from './context/AppState';
 
 function App() {
@@ -50,7 +51,7 @@ function App() {
     building: <FaBuilding />,
     solar: <FaSolarPanel />,
     battery: <FaBatteryFull />,
-    grid: <FaPlug />,
+    grid: <HighVoltageTowerIcon />,
   };
 
   useEffect(() => {
