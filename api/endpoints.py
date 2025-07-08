@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Query
+from fastapi.concurrency import run_in_threadpool
 from typing import Optional
 
 from model.rec_model import microgrid
@@ -8,52 +9,52 @@ from api.schemas import SetupRequest, ActionRequest
 router = APIRouter()
 
 @router.post("/setup")
-def setup_model(payload: SetupRequest):
-    microgrid.setup(payload.dict())
+async def setup_model(payload: SetupRequest):
+    await run_in_threadpool(microgrid.setup, payload.dict())
     return {"message": "Microgrid setup completed."}
 
 @router.get("/components")
-def get_components(type: Optional[str] = Query(None)):
-    return microgrid.get_components(type=type)
+async def get_components(type: Optional[str] = Query(None)):
+    return await run_in_threadpool(microgrid.get_components, type=type)
 
 @router.get("/actions")
-def get_actions():
-    return microgrid.get_actions()
+async def get_actions():
+    return await run_in_threadpool(microgrid.get_actions)
 
 @router.get("/status")
-def get_status():
-    return microgrid.get_status()
+async def get_status():
+    return await run_in_threadpool(microgrid.get_status)
 
 @router.post("/run")
-def run_model(payload: ActionRequest):
-    raw = microgrid.run(payload.actions)
+async def run_model(payload: ActionRequest):
+    raw = await run_in_threadpool(microgrid.run, payload.actions)
     return microgrid._to_serializable(raw)  # type: ignore[attr-defined]
 
 @router.post("/reset")
-def reset_model():
-    microgrid.reset()
+async def reset_model():
+    await run_in_threadpool(microgrid.reset)
     return {"message": "Microgrid has been reset."}
 
 
 @router.post("/controller/setup")
-def setup_controller():
+async def setup_controller():
     """Initialize rule based controller."""
-    rule_controller.setup()
+    await run_in_threadpool(rule_controller.setup)
     return {"message": "Controller initialized."}
 
 
 @router.get("/controller/priority-list")
-def get_priority_list():
-    return rule_controller.get_priority_list()
+async def get_priority_list():
+    return await run_in_threadpool(rule_controller.get_priority_list)
 
 
 @router.post("/controller/run")
-def run_controller():
-    raw = rule_controller.step()
+async def run_controller():
+    raw = await run_in_threadpool(rule_controller.step)
     return microgrid._to_serializable(raw)
 
 
 @router.post("/controller/reset")
-def reset_controller():
-    rule_controller.reset()
+async def reset_controller():
+    await run_in_threadpool(rule_controller.reset)
     return {"message": "Controller reset."}
