@@ -12,3 +12,5 @@ solar:
   solar_3: renewable/solar/solar_3.csv
   solar_4: renewable/solar/solar_4.csv
   solar_5: renewable/solar/solar_5.csv
+grid:
+  grid_1: grid/grid_1.csv
