@@ -1,10 +1,10 @@
-# Microgrid Frontend Demo
+# Microgrid Visualizer
 
-Esta aplicación React realiza llamadas básicas a la API de FastAPI y muestra las respuestas en pantalla.
+Aplicación React que sirve como interfaz para el simulador de microgrid basado en FastAPI. Permite cargar un escenario, ejecutar pasos del modelo y visualizar el estado de la red en tiempo real.
 
 ## Puesta en marcha rápida
 
-1. Inicia la API:
+1. Inicia la API del modelo en la raíz del repositorio:
    ```bash
    pip install fastapi uvicorn
    uvicorn api.main:app --reload
@@ -15,6 +15,31 @@ Esta aplicación React realiza llamadas básicas a la API de FastAPI y muestra l
    npm start
    ```
    La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
+
+---
+
+## Componentes principales
+
+- **App**: contenedor principal que gestiona la lógica de negocio y orquesta el resto de la interfaz.
+- **HeaderControls**: barra superior con botones que disparan las llamadas a la API.
+- **ModulePalette**: paleta de módulos (casa, edificio, solar, batería, red) que se pueden arrastrar al lienzo.
+- **SimulationCanvas** y **CanvasItem**: área de dibujo donde se colocan los módulos y se pueden mover con `drag & drop`.
+- **ComponentDetails**: panel lateral para editar los parámetros de cada módulo y consultar su estado.
+- **EnergyBalance**: gráfico que muestra la generación y el consumo obtenidos periódicamente desde el modelo.
+- **Contexto AppState**: almacena el estado global de módulos y selección para todos los componentes.
+
+## Conexión con la API del modelo
+
+El archivo [`src/api/client.js`](src/api/client.js) centraliza las llamadas al backend FastAPI. Los principales endpoints son:
+
+- `POST /setup` – configura la microgrid con un payload similar al de [`sampleSetup.js`](src/api/sampleSetup.js).
+- `GET /components` – recupera la lista de componentes existentes.
+- `GET /actions` – devuelve las acciones disponibles para cada módulo.
+- `GET /status` – obtiene el estado actual del modelo (niveles de batería, consumo, etc.).
+- `POST /run` – ejecuta un paso de simulación enviando las acciones deseadas.
+- `POST /reset` – reinicia la simulación.
+
+`App.js` utiliza estas funciones para enviar las acciones desde la interfaz y actualizar el resultado mostrado al usuario. El componente `EnergyBalance` consulta de forma periódica el endpoint `/status` para actualizar el gráfico con la generación y el consumo.
 
 ---
 
