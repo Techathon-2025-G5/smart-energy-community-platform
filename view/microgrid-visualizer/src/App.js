@@ -27,7 +27,18 @@ function App() {
     house: { params: { demand: 1 }, state: {} },
     building: { params: { demand: 2 }, state: {} },
     solar: { params: { capacity: 5 }, state: {} },
-    battery: { params: { capacity: 10 }, state: { soc: 50 } },
+    battery: {
+      params: {
+        min_capacity: 0,
+        max_capacity: 50,
+        max_charge: 10,
+        max_discharge: 10,
+        efficiency: 0.95,
+        battery_cost_cycle: 0,
+        init_soc: 0.5,
+      },
+      state: { soc: 50 },
+    },
     grid: { params: { limit: 100 }, state: {} },
   };
 
