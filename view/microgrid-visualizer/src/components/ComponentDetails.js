@@ -9,7 +9,13 @@ function ComponentDetails({ module, onChange }) {
     if (module && module.type) {
       api
         .getProfiles(module.type)
-        .then((resp) => setProfiles(resp || {}))
+        .then((resp) => {
+          setProfiles(resp || {});
+          const names = Object.keys(resp || {});
+          if (names.length > 0 && !module.params.time_series_profile) {
+            handleParamChange('time_series_profile', names[0]);
+          }
+        })
         .catch(() => setProfiles({}));
     } else {
       setProfiles({});
@@ -34,12 +40,11 @@ function ComponentDetails({ module, onChange }) {
             <label>
               profile:
               <select
-                value={module.params.time_series_profile || ''}
+                value={module.params.time_series_profile || Object.keys(profiles)[0] || ''}
                 onChange={(e) =>
                   handleParamChange('time_series_profile', e.target.value)
                 }
               >
-                <option value="">--select--</option>
                 {Object.keys(profiles).map((name) => (
                   <option key={name} value={name}>
                     {name}
@@ -50,7 +55,12 @@ function ComponentDetails({ module, onChange }) {
           </div>
         )}
         {Object.entries(module.params || {})
-          .filter(([key]) => !['time_series', 'time_series_profile'].includes(key))
+          .filter(([key]) => {
+            if (['time_series', 'time_series_profile'].includes(key)) return false;
+            if (['house', 'building'].includes(module.type) && key === 'demand') return false;
+            if (module.type === 'solar' && key === 'capacity') return false;
+            return true;
+          })
           .map(([key, value]) => (
           <div key={key}>
             <label>
