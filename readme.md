@@ -19,6 +19,14 @@ El objetivo del usuario (o del agente de IA) será **satisfacer toda la demanda 
 | **API / Backend**           | Expone endpoints REST/WS para que el frontend reciba la simulación en vivo y envíe acciones.                                    | FastAPI, Pydantic.                                                                       |
 | **Gestor de escenarios**    | Permite definir tipos de viviendas, tarifas, tamaños de batería, perfiles solares y climáticos.                                 | Archivos YAML/JSON; interfaz gráfica sencilla.                                           |
 
+### Perfiles de series temporales
+
+Los parámetros de cada componente aceptan el nuevo campo `time_series_profile`.
+Si se indica un nombre de archivo (por ejemplo `NewYork_744860TYA.csv`), se
+cargará automáticamente desde las carpetas `data/load`, `data/pv` o `data/co2`
+y sustituirá al listado manual de `time_series`.
+
+
 ---
 
 #### 3. Flujo de juego / simulación
