@@ -25,9 +25,9 @@ function App() {
   } = useAppState();
 
   const defaults = {
-    house: { params: { demand: 1 }, state: {} },
-    building: { params: { demand: 2 }, state: {} },
-    solar: { params: { capacity: 5 }, state: {} },
+    house: { params: {}, state: {} },
+    building: { params: {}, state: {} },
+    solar: { params: {}, state: {} },
     battery: {
       params: {
         min_capacity: 0,
