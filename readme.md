@@ -89,3 +89,9 @@ Se pueden comparar reglas vs. RL en un “torneo” de escenarios.
 * **Educación**: servir como laboratorio docente para cursos de renovables y smart-grids.
 * **Investigación**: probar algoritmos de gestión antes de implementarlos en hardware real.
 * **Escalabilidad**: añadir eólica, VE (vehículo eléctrico), precios spot, mercados P2P.
+
+---
+
+### Licencia
+
+Este proyecto se distribuye bajo la licencia MIT. Consulta el archivo [LICENSE](LICENSE) para mas detalles.
