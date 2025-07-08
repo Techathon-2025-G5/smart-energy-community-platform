@@ -49,6 +49,11 @@ class pymgrid.envs.ContinuousMicrogridEnv(
 - Non-temporal Modules: BatteryModule, GensetModule
 - Helper Module: UnbalancedEnergyModule
 
+Las configuraciones pueden incluir el campo `time_series_profile` dentro de los
+parámetros de un módulo de series temporales. El valor debe ser el nombre de un
+archivo presente en `data/load`, `data/pv` o `data/co2`; su contenido se cargará
+automáticamente y reemplazará a la lista proporcionada en `time_series`.
+
 #### General parameters
 
 **forecaster:** callable, float, “oracle”, or None, default None.
