@@ -2,29 +2,8 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import api from '../api/client';
 import ComponentChart from './ComponentChart';
+import { parseLog } from '../utils/log';
 import './ComponentDetails.css';
-
-function parseLog(log) {
-  const result = {};
-  if (!log) return result;
-  Object.entries(log).forEach(([k, v]) => {
-    let parts;
-    try {
-      parts = JSON.parse(k);
-    } catch (_) {
-      parts = k.replace(/[()]/g, '')
-        .split(',')
-        .map((p) => p.trim().replace(/^['"]|['"]$/g, ''));
-    }
-    if (parts.length !== 3) return;
-    const [type, idxStr, field] = parts;
-    const idx = parseInt(idxStr, 10);
-    if (!result[type]) result[type] = {};
-    if (!result[type][idx]) result[type][idx] = {};
-    result[type][idx][field] = v;
-  });
-  return result;
-}
 
 function ComponentDetails({ module, onChange }) {
   const [profiles, setProfiles] = useState({});
@@ -44,33 +23,49 @@ function ComponentDetails({ module, onChange }) {
           }
         })
         .catch(() => setProfiles({}));
-
-      const fetchInfo = async () => {
-        try {
-          const status = await api.getStatus();
-          const log = await api.getLog();
-          const parsed = parseLog(log);
-          const [type, idxStr] = module.id.split('_');
-          const idx = parseInt(idxStr, 10);
-          setCurrentState(status?.[type]?.[idx] || {});
-          const hist = parsed[type]?.[idx] || {};
-          setHistory(hist);
-          const fields = Object.keys(hist);
-          setField((f) => (fields.includes(f) ? f : fields[0] || ''));
-        } catch (_) {
-          setCurrentState({});
-          setHistory({});
-          setField('');
-        }
-      };
-      fetchInfo();
     } else {
       setProfiles({});
+    }
+  }, [module?.type]);
+
+  useEffect(() => {
+    if (!module) {
       setCurrentState({});
       setHistory({});
       setField('');
+      return undefined;
     }
-  }, [module?.type, module?.id]);
+
+    const fetchInfo = async () => {
+      try {
+        const log = await api.getLog();
+        const parsed = parseLog(log);
+        const [type, idxStr] = module.id.split('_');
+        const idx = parseInt(idxStr, 10);
+        const hist = parsed[type]?.[idx] || {};
+        setHistory(hist);
+        const state = {};
+        Object.entries(hist).forEach(([metric, values]) => {
+          const steps = Object.keys(values).map(Number);
+          if (steps.length > 0) {
+            const last = Math.max(...steps);
+            state[metric] = Number(values[last]);
+          }
+        });
+        setCurrentState(state);
+        const fields = Object.keys(hist);
+        setField((f) => (fields.includes(f) ? f : fields[0] || ''));
+      } catch (_) {
+        setCurrentState({});
+        setHistory({});
+        setField('');
+      }
+    };
+
+    fetchInfo();
+    const id = setInterval(fetchInfo, 3000);
+    return () => clearInterval(id);
+  }, [module?.id]);
 
   if (!module) {
     return <div className="component-details">Select a component</div>;
