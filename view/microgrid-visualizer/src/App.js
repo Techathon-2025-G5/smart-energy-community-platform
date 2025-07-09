@@ -14,8 +14,6 @@ import ConnectionIndicator from './components/ConnectionIndicator';
 import { useAppState } from './context/AppState';
 
 function App() {
-  const [result, setResult] = useState(null);
-  const [setupStatus, setSetupStatus] = useState('');
   const [stepEnabled, setStepEnabled] = useState(false);
   const [playEnabled, setPlayEnabled] = useState(false);
   const [pauseEnabled, setPauseEnabled] = useState(false);
@@ -144,16 +142,13 @@ function App() {
     try {
       payload = buildSetup();
       const response = await api.setupMicrogrid(payload);
-      setResult(response);
-      setSetupStatus('Setup completed successfully');
       setResetEnabled(true);
       setStepEnabled(false);
       setPlayEnabled(false);
       setPauseEnabled(false);
       addLog({ method: 'POST', endpoint: '/setup', payload, response });
     } catch (err) {
-      setResult({ error: err.message });
-      setSetupStatus('Setup failed');
+      
       addLog({ method: 'POST', endpoint: '/setup', payload, response: { error: err.message } });
     }
   };
@@ -161,10 +156,9 @@ function App() {
   const handleStatus = async () => {
     try {
       const response = await api.getStatus();
-      setResult(response);
       addLog({ method: 'GET', endpoint: '/status', payload: null, response });
     } catch (err) {
-      setResult({ error: err.message });
+      
       addLog({ method: 'GET', endpoint: '/status', payload: null, response: { error: err.message } });
     }
   };
@@ -173,10 +167,9 @@ function App() {
     try {
       const actions = { actions: { grid: [0], battery: [0] } };
       const response = await api.runStep(actions);
-      setResult(response);
       addLog({ method: 'POST', endpoint: '/run', payload: actions, response });
     } catch (err) {
-      setResult({ error: err.message });
+      
       addLog({ method: 'POST', endpoint: '/run', payload: { actions: { grid: [0], battery: [0] } }, response: { error: err.message } });
     }
   };
@@ -184,10 +177,9 @@ function App() {
   const handleGetComponents = async () => {
     try {
       const response = await api.getComponents();
-      setResult(response);
       addLog({ method: 'GET', endpoint: '/components', payload: null, response });
     } catch (err) {
-      setResult({ error: err.message });
+      
       addLog({ method: 'GET', endpoint: '/components', payload: null, response: { error: err.message } });
     }
   };
@@ -195,13 +187,12 @@ function App() {
   const handleReset = async () => {
     try {
       const response = await api.resetModel();
-      setResult(response);
       setStepEnabled(true);
       setPlayEnabled(true);
       setPauseEnabled(true);
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response });
     } catch (err) {
-      setResult({ error: err.message });
+      
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response: { error: err.message } });
     }
   };
@@ -225,11 +216,6 @@ function App() {
       </header>
 
       <aside className="tool-sidebar" id="section-2">
-        <button onClick={handleSetup}>Setup Microgrid</button>
-        <button onClick={handleStatus}>Get Status</button>
-        <button onClick={handleRunStep}>Run Step</button>
-        <button onClick={handleGetComponents}>Get Components</button>
-        <button onClick={handleReset}>Reset Model</button>
         <button
           onClick={() => {
             if (selected) {
@@ -262,8 +248,6 @@ function App() {
           module={modules.find((m) => m.id === selected)}
           onChange={updateModule}
         />
-        {setupStatus && <p>{setupStatus}</p>}
-        <pre>{result && JSON.stringify(result, null, 2)}</pre>
       </section>
 
       <footer className="footer" id="section-5">
