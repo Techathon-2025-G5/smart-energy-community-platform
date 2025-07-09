@@ -115,8 +115,9 @@ function App() {
   }, [selected]);
 
   const handleSetup = async () => {
+    let payload = null;
     try {
-      const payload = buildSetup();
+      payload = buildSetup();
       const response = await api.setupMicrogrid(payload);
       setResult(response);
       setSetupStatus('Setup completed successfully');
