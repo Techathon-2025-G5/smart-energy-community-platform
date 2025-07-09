@@ -133,6 +133,35 @@
       ]
     },
     {
+      "name": "GET log",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/log",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "log"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "Run Step",
       "request": {
         "method": "POST",

@@ -36,6 +36,7 @@ El archivo [`src/api/client.js`](src/api/client.js) centraliza las llamadas al b
 - `GET /components` – recupera la lista de componentes existentes.
 - `GET /actions` – devuelve las acciones disponibles para cada módulo.
 - `GET /status` – obtiene el estado actual del modelo (niveles de batería, consumo, etc.).
+- `GET /log` – recupera el histórico de controles y respuestas del microgrid.
 - `POST /run` – ejecuta un paso de simulación enviando las acciones deseadas.
 - `POST /reset` – reinicia la simulación.
 
