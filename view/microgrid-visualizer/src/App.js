@@ -23,6 +23,7 @@ function App() {
     addModule,
     moveModule,
     updateModule,
+    setBackendId,
     deleteModule,
     selectModule,
     addLog,
@@ -142,6 +143,29 @@ function App() {
     try {
       payload = buildSetup();
       const response = await api.setupMicrogrid(payload);
+      try {
+        const comps = await api.getComponents();
+        const byType = {};
+        comps.forEach((c) => {
+          const [t] = c.id.split('_');
+          if (!byType[t]) byType[t] = [];
+          byType[t].push(c.id);
+        });
+        const typeMap = {
+          house: 'load',
+          building: 'load',
+          solar: 'renewable',
+          battery: 'battery',
+          grid: 'grid',
+        };
+        modules.forEach((m) => {
+          const key = typeMap[m.type];
+          const bid = byType[key] && byType[key].shift();
+          if (bid) setBackendId(m.id, bid);
+        });
+      } catch (_) {
+        // ignore component fetch errors
+      }
       setResetEnabled(true);
       setStepEnabled(false);
       setPlayEnabled(false);

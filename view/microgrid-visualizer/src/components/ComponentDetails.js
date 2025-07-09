@@ -40,7 +40,7 @@ function ComponentDetails({ module, onChange }) {
       try {
         const log = await api.getLog();
         const parsed = parseLog(log);
-        const [type, idxStr] = module.id.split('_');
+        const [type, idxStr] = (module.backendId || '').split('_');
         const idx = parseInt(idxStr, 10);
         const hist = parsed[type]?.[idx] || {};
         setHistory(hist);
@@ -146,6 +146,7 @@ function ComponentDetails({ module, onChange }) {
 ComponentDetails.propTypes = {
   module: PropTypes.shape({
     id: PropTypes.string,
+    backendId: PropTypes.string,
     type: PropTypes.string,
     params: PropTypes.object,
     state: PropTypes.object,
