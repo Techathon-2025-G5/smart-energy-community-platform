@@ -25,6 +25,13 @@ function reducer(state, action) {
         ...state,
         modules: state.modules.map((m) => (m.id === action.module.id ? action.module : m)),
       };
+    case 'SET_BACKEND_ID':
+      return {
+        ...state,
+        modules: state.modules.map((m) =>
+          m.id === action.id ? { ...m, backendId: action.backendId } : m
+        ),
+      };
     case 'DELETE_MODULE':
       return {
         ...state,
@@ -50,6 +57,8 @@ export function AppStateProvider({ children }) {
   const addModule = (module) => dispatch({ type: 'ADD_MODULE', module });
   const moveModule = (module) => dispatch({ type: 'MOVE_MODULE', module });
   const updateModule = (module) => dispatch({ type: 'UPDATE_MODULE', module });
+  const setBackendId = (id, backendId) =>
+    dispatch({ type: 'SET_BACKEND_ID', id, backendId });
   const deleteModule = (id) => dispatch({ type: 'DELETE_MODULE', id });
   const selectModule = (id) => dispatch({ type: 'SELECT_MODULE', id });
   const addEnergyPoint = (point) => dispatch({ type: 'ADD_ENERGY_POINT', point });
@@ -57,7 +66,7 @@ export function AppStateProvider({ children }) {
 
   return (
     <AppStateContext.Provider
-      value={{ state, addModule, moveModule, updateModule, deleteModule, selectModule, addEnergyPoint, addLog }}
+      value={{ state, addModule, moveModule, updateModule, setBackendId, deleteModule, selectModule, addEnergyPoint, addLog }}
     >
       {children}
     </AppStateContext.Provider>
