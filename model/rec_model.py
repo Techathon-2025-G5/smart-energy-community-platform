@@ -12,18 +12,40 @@ class MicrogridModel:
         self.microgrid = None
         self.config = None
 
-    def _load_profile(self, filename: str):
-        """Load a time series profile from the local data directory."""
+    def _load_profile(self, profile: str):
+        """Load a time series profile by name using ``profiles.yaml``."""
         data_dir = Path(__file__).resolve().parent.parent / "data"
-        for path in data_dir.rglob(filename):
-            if path.is_file():
-                if path.suffix.lower() == ".csv":
-                    df = pd.read_csv(path)
-                    return df.iloc[:, 0].tolist()
-                if path.suffix.lower() in {".json", ".jsn"}:
-                    with open(path, "r") as f:
-                        return json.load(f)
-        raise FileNotFoundError(f"Profile {filename} not found in {data_dir}")
+        profiles_file = data_dir / "profiles.yaml"
+
+        if not profiles_file.exists():
+            raise FileNotFoundError(f"Profiles file not found: {profiles_file}")
+
+        with open(profiles_file, "r") as f:
+            profiles = yaml.safe_load(f) or {}
+
+        rel_path = None
+        for category in profiles.values():
+            if isinstance(category, dict) and profile in category:
+                rel_path = category[profile]
+                break
+
+        if rel_path is None:
+            raise FileNotFoundError(
+                f"Profile {profile} not defined in {profiles_file}"
+            )
+
+        file_path = data_dir / rel_path
+        if not file_path.exists():
+            raise FileNotFoundError(f"Profile file not found: {file_path}")
+
+        if file_path.suffix.lower() == ".csv":
+            df = pd.read_csv(file_path)
+            return df.iloc[:, 0].tolist()
+        if file_path.suffix.lower() in {".json", ".jsn"}:
+            with open(file_path, "r") as f:
+                return json.load(f)
+
+        raise ValueError(f"Unsupported profile file format: {file_path.suffix}")
 
     def setup(self, config):
         """Setup the microgrid from a dictionary or YAML string/path."""
