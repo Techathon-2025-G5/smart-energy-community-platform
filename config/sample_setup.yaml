@@ -10,15 +10,15 @@ components:
       max_import: 100.0
       max_export: 100.0
       cost_per_unit_co2: 0.0
-      time_series_profile: grid_1.csv
+      time_series_profile: grid_1
   - id: load1
     type: LoadModule
     params:
-      time_series_profile: house.csv
+      time_series_profile: house
   - id: renewable1
     type: RenewableModule
     params:
-      time_series_profile: solar_1.csv
+      time_series_profile: solar_1
   - id: battery1
     type: BatteryModule
     params:
