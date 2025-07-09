@@ -59,6 +59,7 @@ class MicrogridModel:
             except FileNotFoundError:
                 config = yaml.safe_load(config)
         self.config = config
+        print(config)
         modules = []
         for comp in config.get('components', []):
             comp_type = comp.get('type')
