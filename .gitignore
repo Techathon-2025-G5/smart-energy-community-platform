@@ -127,3 +127,4 @@ dmypy.json
 /api/__pycache__
 node_modules/
 view/microgrid-visualizer/node_modules/
+/api/__pycache__

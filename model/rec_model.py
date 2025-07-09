@@ -40,7 +40,7 @@ class MicrogridModel:
 
         if file_path.suffix.lower() == ".csv":
             df = pd.read_csv(file_path)
-            return df.iloc[:, 0].tolist()
+            return df.values
         if file_path.suffix.lower() in {".json", ".jsn"}:
             with open(file_path, "r") as f:
                 return json.load(f)
