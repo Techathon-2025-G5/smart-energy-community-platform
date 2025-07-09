@@ -1,9 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import api from '../api/client';
+import ComponentChart from './ComponentChart';
+import './ComponentDetails.css';
+
+function parseLog(log) {
+  const result = {};
+  if (!log) return result;
+  Object.entries(log).forEach(([k, v]) => {
+    let parts;
+    try {
+      parts = JSON.parse(k);
+    } catch (_) {
+      parts = k.replace(/[()]/g, '')
+        .split(',')
+        .map((p) => p.trim().replace(/^['"]|['"]$/g, ''));
+    }
+    if (parts.length !== 3) return;
+    const [type, idxStr, field] = parts;
+    const idx = parseInt(idxStr, 10);
+    if (!result[type]) result[type] = {};
+    if (!result[type][idx]) result[type][idx] = {};
+    result[type][idx][field] = v;
+  });
+  return result;
+}
 
 function ComponentDetails({ module, onChange }) {
   const [profiles, setProfiles] = useState({});
+  const [currentState, setCurrentState] = useState({});
+  const [history, setHistory] = useState({});
+  const [field, setField] = useState('');
 
   useEffect(() => {
     if (module && module.type) {
@@ -17,10 +44,33 @@ function ComponentDetails({ module, onChange }) {
           }
         })
         .catch(() => setProfiles({}));
+
+      const fetchInfo = async () => {
+        try {
+          const status = await api.getStatus();
+          const log = await api.getLog();
+          const parsed = parseLog(log);
+          const [type, idxStr] = module.id.split('_');
+          const idx = parseInt(idxStr, 10);
+          setCurrentState(status?.[type]?.[idx] || {});
+          const hist = parsed[type]?.[idx] || {};
+          setHistory(hist);
+          const fields = Object.keys(hist);
+          setField((f) => (fields.includes(f) ? f : fields[0] || ''));
+        } catch (_) {
+          setCurrentState({});
+          setHistory({});
+          setField('');
+        }
+      };
+      fetchInfo();
     } else {
       setProfiles({});
+      setCurrentState({});
+      setHistory({});
+      setField('');
     }
-  }, [module?.type]);
+  }, [module?.type, module?.id]);
 
   if (!module) {
     return <div className="component-details">Select a component</div>;
@@ -76,8 +126,24 @@ function ComponentDetails({ module, onChange }) {
       </form>
       <div className="component-state">
         <h4>State</h4>
-        <pre>{JSON.stringify(module.state || {}, null, 2)}</pre>
+        <pre>{JSON.stringify(currentState || {}, null, 2)}</pre>
       </div>
+      {Object.keys(history).length > 0 && (
+        <div className="component-history">
+          <ComponentChart
+            data={Object.entries(history[field] || {})
+              .sort(([a], [b]) => Number(a) - Number(b))
+              .map(([, v]) => ({ value: Number(v) }))}
+          />
+          <select value={field} onChange={(e) => setField(e.target.value)}>
+            {Object.keys(history).map((f) => (
+              <option key={f} value={f}>
+                {f}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </div>
   );
 }
