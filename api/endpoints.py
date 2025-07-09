@@ -60,6 +60,21 @@ async def get_actions():
 async def get_status():
     return await run_in_threadpool(microgrid.get_status)
 
+
+@router.get("/log")
+async def get_log(
+    as_frame: bool = Query(True),
+    drop_singleton_key: bool = Query(False),
+):
+    """Return the execution log of the microgrid."""
+    log = await run_in_threadpool(
+        microgrid.get_log, as_frame, drop_singleton_key
+    )
+    if hasattr(log, "to_dict"):
+        # Convert DataFrame to a serializable structure
+        log = log.to_dict()
+    return log
+
 @router.post("/run")
 async def run_model(payload: ActionRequest):
     raw = await run_in_threadpool(microgrid.run, payload.actions)

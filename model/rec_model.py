@@ -120,11 +120,23 @@ class MicrogridModel:
             return {}
         return self.microgrid.state_dict
 
-    def get_log(self):
-        """Return the history state of the microgrid as a dataframe."""
+    def get_log(self, as_frame: bool = True, drop_singleton_key: bool = False):
+        """Return the history state of the microgrid.
+
+        Parameters
+        ----------
+        as_frame : bool, optional
+            Whether to return the log as a :class:`pandas.DataFrame`. If ``False``
+            a nested dictionary is returned. Defaults to ``True``.
+        drop_singleton_key : bool, optional
+            Whether to drop the index level enumerating modules if each module
+            name only has one instance. Defaults to ``False``.
+        """
         if not self.microgrid:
-            return {}
-        return self.microgrid.get_log()
+            return {} if as_frame else {}
+        return self.microgrid.get_log(
+            as_frame=as_frame, drop_singleton_key=drop_singleton_key
+        )
     
     def _to_serializable(self, obj):
         """Recursively convert numpy types to Python built-ins."""
