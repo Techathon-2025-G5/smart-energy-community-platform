@@ -8,7 +8,9 @@ export default function EnergyBalance() {
   const {
     state: { energyPoints: points },
     addEnergyPoint,
+    addLog,
   } = useAppState();
+  const lastStatusRef = useRef(null);
   const svgRef = useRef(null);
 
   useEffect(() => {
@@ -18,6 +20,11 @@ export default function EnergyBalance() {
         const generation = status?.renewable?.[0]?.renewable_current || 0;
         const consumption = Math.abs(status?.load?.[0]?.load_current || 0);
         addEnergyPoint({ generation, consumption });
+        const statusStr = JSON.stringify(status);
+        if (statusStr !== lastStatusRef.current) {
+          lastStatusRef.current = statusStr;
+          addLog({ method: 'GET', endpoint: '/status', payload: null, response: status });
+        }
       } catch (err) {
         // ignore errors silently
       }
@@ -25,7 +32,7 @@ export default function EnergyBalance() {
     fetchData();
     const id = setInterval(fetchData, 3000);
     return () => clearInterval(id);
-  }, [addEnergyPoint]);
+  }, [addEnergyPoint, addLog]);
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);

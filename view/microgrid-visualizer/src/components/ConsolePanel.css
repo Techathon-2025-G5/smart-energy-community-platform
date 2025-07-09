@@ -1,0 +1,19 @@
+.console-panel {
+  background-color: #000;
+  color: #0f0;
+  font-family: monospace;
+  padding: 0.5rem;
+  height: 200px;
+  overflow-y: auto;
+}
+.console-entry + .console-entry {
+  margin-top: 0.5rem;
+  border-top: 1px solid #333;
+  padding-top: 0.5rem;
+}
+.console-request pre,
+.console-response pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
