@@ -19,14 +19,14 @@ const sampleSetup = {
       id: 'load1',
       type: 'LoadModule',
       params: {
-        time_series: [1.0, 1.2, 0.9, 1.1]
+        time_series_profile: 'house'
       }
     },
     {
       id: 'renewable1',
       type: 'RenewableModule',
       params: {
-        time_series: [0.5, 0.8, 0.7, 0.4]
+        time_series_profile: 'solar_1'
       }
     },
     {

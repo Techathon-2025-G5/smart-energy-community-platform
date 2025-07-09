@@ -26,9 +26,9 @@ function App() {
   } = useAppState();
 
   const defaults = {
-    house: { params: {}, state: {} },
-    building: { params: {}, state: {} },
-    solar: { params: {}, state: {} },
+    house: { params: { time_series_profile: 'house' }, state: {} },
+    building: { params: { time_series_profile: 'hospital' }, state: {} },
+    solar: { params: { time_series_profile: 'solar_1' }, state: {} },
     battery: {
       params: {
         min_capacity: 0,
@@ -46,6 +46,7 @@ function App() {
         max_import: 100,
         max_export: 100,
         cost_per_unit_co2: 0,
+        time_series_profile: 'grid_1',
       },
       state: {},
     },
