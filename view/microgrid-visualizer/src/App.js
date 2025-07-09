@@ -7,7 +7,7 @@ import ModulePalette from './components/ModulePalette';
 import SimulationCanvas from './components/SimulationCanvas';
 import CanvasItem from './components/CanvasItem';
 import ComponentDetails from './components/ComponentDetails';
-import EnergyBalance from './components/EnergyBalance';
+import FooterTabs from './components/FooterTabs';
 import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull } from 'react-icons/fa';
 import HighVoltageTowerIcon from './components/HighVoltageTowerIcon';
 import { useAppState } from './context/AppState';
@@ -22,6 +22,7 @@ function App() {
     updateModule,
     deleteModule,
     selectModule,
+    addLog,
   } = useAppState();
 
   const defaults = {
@@ -119,9 +120,11 @@ function App() {
       const response = await api.setupMicrogrid(payload);
       setResult(response);
       setSetupStatus('Setup completed successfully');
+      addLog({ method: 'POST', endpoint: '/setup', payload, response });
     } catch (err) {
       setResult({ error: err.message });
       setSetupStatus('Setup failed');
+      addLog({ method: 'POST', endpoint: '/setup', payload, response: { error: err.message } });
     }
   };
 
@@ -129,8 +132,10 @@ function App() {
     try {
       const response = await api.getStatus();
       setResult(response);
+      addLog({ method: 'GET', endpoint: '/status', payload: null, response });
     } catch (err) {
       setResult({ error: err.message });
+      addLog({ method: 'GET', endpoint: '/status', payload: null, response: { error: err.message } });
     }
   };
 
@@ -139,8 +144,10 @@ function App() {
       const actions = { actions: { grid: [0], battery: [0] } };
       const response = await api.runStep(actions);
       setResult(response);
+      addLog({ method: 'POST', endpoint: '/run', payload: actions, response });
     } catch (err) {
       setResult({ error: err.message });
+      addLog({ method: 'POST', endpoint: '/run', payload: { actions: { grid: [0], battery: [0] } }, response: { error: err.message } });
     }
   };
 
@@ -148,8 +155,10 @@ function App() {
     try {
       const response = await api.getComponents();
       setResult(response);
+      addLog({ method: 'GET', endpoint: '/components', payload: null, response });
     } catch (err) {
       setResult({ error: err.message });
+      addLog({ method: 'GET', endpoint: '/components', payload: null, response: { error: err.message } });
     }
   };
 
@@ -157,8 +166,10 @@ function App() {
     try {
       const response = await api.resetModel();
       setResult(response);
+      addLog({ method: 'POST', endpoint: '/reset', payload: null, response });
     } catch (err) {
       setResult({ error: err.message });
+      addLog({ method: 'POST', endpoint: '/reset', payload: null, response: { error: err.message } });
     }
   };
 
@@ -218,7 +229,7 @@ function App() {
       </section>
 
       <footer className="footer" id="section-5">
-        <EnergyBalance />
+        <FooterTabs />
       </footer>
     </div>
   );

@@ -6,6 +6,7 @@ const initialState = {
   modules: [],
   selected: null,
   energyPoints: [],
+  logs: [],
 };
 
 function reducer(state, action) {
@@ -35,6 +36,9 @@ function reducer(state, action) {
     case 'ADD_ENERGY_POINT':
       const pts = [...state.energyPoints, action.point];
       return { ...state, energyPoints: pts.slice(-20) };
+    case 'ADD_LOG':
+      const logs = [...state.logs, action.log];
+      return { ...state, logs: logs.slice(-50) };
     default:
       return state;
   }
@@ -49,10 +53,11 @@ export function AppStateProvider({ children }) {
   const deleteModule = (id) => dispatch({ type: 'DELETE_MODULE', id });
   const selectModule = (id) => dispatch({ type: 'SELECT_MODULE', id });
   const addEnergyPoint = (point) => dispatch({ type: 'ADD_ENERGY_POINT', point });
+  const addLog = (log) => dispatch({ type: 'ADD_LOG', log });
 
   return (
     <AppStateContext.Provider
-      value={{ state, addModule, moveModule, updateModule, deleteModule, selectModule, addEnergyPoint }}
+      value={{ state, addModule, moveModule, updateModule, deleteModule, selectModule, addEnergyPoint, addLog }}
     >
       {children}
     </AppStateContext.Provider>
