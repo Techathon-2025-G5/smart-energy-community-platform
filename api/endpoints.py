@@ -2,6 +2,7 @@ from fastapi import APIRouter, Query
 from fastapi.concurrency import run_in_threadpool
 from typing import Optional, Dict
 from pathlib import Path
+import json
 import yaml
 
 from model.rec_model import microgrid
@@ -73,6 +74,9 @@ async def get_log(
     if hasattr(log, "to_dict"):
         # Convert DataFrame to a serializable structure
         log = log.to_dict()
+    if isinstance(log, dict):
+        # Ensure dictionary keys are JSON serializable
+        log = {json.dumps(k): v for k, v in log.items()}
     return log
 
 @router.post("/run")
