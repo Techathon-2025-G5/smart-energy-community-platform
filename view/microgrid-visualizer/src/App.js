@@ -83,17 +83,29 @@ function App() {
     };
   };
 
-  const handleDrop = (item, left, top) => {
+  const handleDrop = async (item, left, top) => {
     if (item.id) {
       moveModule({ id: item.id, left, top });
     } else {
-      addModule({
+      const newModule = {
         id: uuidv4(),
         type: item.type,
         left,
         top,
         ...(defaults[item.type] || { params: {}, state: {} }),
-      });
+      };
+
+      try {
+        const resp = await api.getProfiles(item.type);
+        const names = Object.keys(resp || {});
+        if (names.length > 0 && !newModule.params.time_series_profile) {
+          newModule.params.time_series_profile = names[0];
+        }
+      } catch (_) {
+        // ignore profile loading errors
+      }
+
+      addModule(newModule);
     }
   };
 
