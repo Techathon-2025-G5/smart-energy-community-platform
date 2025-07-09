@@ -16,6 +16,10 @@ import { useAppState } from './context/AppState';
 function App() {
   const [result, setResult] = useState(null);
   const [setupStatus, setSetupStatus] = useState('');
+  const [stepEnabled, setStepEnabled] = useState(false);
+  const [playEnabled, setPlayEnabled] = useState(false);
+  const [pauseEnabled, setPauseEnabled] = useState(false);
+  const [resetEnabled, setResetEnabled] = useState(false);
   const {
     state: { modules, selected },
     addModule,
@@ -128,6 +132,13 @@ function App() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [selected]);
 
+  useEffect(() => {
+    setStepEnabled(false);
+    setPlayEnabled(false);
+    setPauseEnabled(false);
+    setResetEnabled(false);
+  }, [modules]);
+
   const handleSetup = async () => {
     let payload = null;
     try {
@@ -135,6 +146,10 @@ function App() {
       const response = await api.setupMicrogrid(payload);
       setResult(response);
       setSetupStatus('Setup completed successfully');
+      setResetEnabled(true);
+      setStepEnabled(false);
+      setPlayEnabled(false);
+      setPauseEnabled(false);
       addLog({ method: 'POST', endpoint: '/setup', payload, response });
     } catch (err) {
       setResult({ error: err.message });
@@ -181,6 +196,9 @@ function App() {
     try {
       const response = await api.resetModel();
       setResult(response);
+      setStepEnabled(true);
+      setPlayEnabled(true);
+      setPauseEnabled(true);
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response });
     } catch (err) {
       setResult({ error: err.message });
@@ -197,8 +215,12 @@ function App() {
           onSetup={handleSetup}
           onRunStep={handleRunStep}
           onStatus={handleStatus}
-          onGetComponents={handleGetComponents}
+          onPause={() => {}}
           onReset={handleReset}
+          stepDisabled={!stepEnabled}
+          playDisabled={!playEnabled}
+          pauseDisabled={!pauseEnabled}
+          resetDisabled={!resetEnabled}
         />
       </header>
 

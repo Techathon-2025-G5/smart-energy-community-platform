@@ -14,3 +14,8 @@
 .header-controls button:hover {
   color: #61dafb;
 }
+
+.header-controls button:disabled {
+  color: gray;
+  cursor: not-allowed;
+}
