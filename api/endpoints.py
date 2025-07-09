@@ -10,6 +10,12 @@ from api.schemas import SetupRequest, ActionRequest
 
 router = APIRouter()
 
+
+@router.get("/ping")
+async def ping():
+    """Simple health check endpoint."""
+    return {"pong": True}
+
 # Path to the YAML file describing available time series profiles
 PROFILES_FILE = Path(__file__).resolve().parent.parent / "data" / "profiles.yaml"
 
