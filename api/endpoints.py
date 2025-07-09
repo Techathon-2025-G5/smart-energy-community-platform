@@ -30,7 +30,8 @@ def load_profiles() -> Dict[str, Dict[str, str]]:
 
 @router.post("/setup")
 async def setup_model(payload: SetupRequest):
-    await run_in_threadpool(microgrid.setup, payload.dict())
+    config = payload.dict(exclude_none=True)
+    await run_in_threadpool(microgrid.setup, config)
     return {"message": "Microgrid setup completed."}
 
 @router.get("/components")
