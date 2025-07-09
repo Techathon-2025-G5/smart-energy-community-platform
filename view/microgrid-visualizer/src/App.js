@@ -136,7 +136,7 @@ function App() {
     setPlayEnabled(false);
     setPauseEnabled(false);
     setResetEnabled(false);
-  }, [modules]);
+  }, [modules.length]);
 
   const handleSetup = async () => {
     let payload = null;
