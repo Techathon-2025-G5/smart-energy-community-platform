@@ -1,0 +1,11 @@
+.component-details h3 {
+  margin-top: 0;
+}
+
+.component-history {
+  margin-top: 1rem;
+}
+
+.component-history select {
+  margin-top: 0.5rem;
+}

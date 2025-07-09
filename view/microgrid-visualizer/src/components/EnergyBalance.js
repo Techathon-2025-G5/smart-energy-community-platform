@@ -1,38 +1,58 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import api from '../api/client';
 import './EnergyBalance.css';
-import { useAppState } from '../context/AppState';
+
+function parseLog(log) {
+  const result = {};
+  if (!log) return result;
+  Object.entries(log).forEach(([k, v]) => {
+    let parts;
+    try {
+      parts = JSON.parse(k);
+    } catch (_) {
+      parts = k.replace(/[()]/g, '')
+        .split(',')
+        .map((p) => p.trim().replace(/^['"]|['"]$/g, ''));
+    }
+    if (parts.length !== 3) return;
+    const [type, idxStr, field] = parts;
+    const idx = parseInt(idxStr, 10);
+    if (!result[type]) result[type] = {};
+    if (!result[type][idx]) result[type][idx] = {};
+    result[type][idx][field] = v;
+  });
+  return result;
+}
 
 export default function EnergyBalance() {
-  const {
-    state: { energyPoints: points },
-    addEnergyPoint,
-    addLog,
-  } = useAppState();
-  const lastStatusRef = useRef(null);
+  const [points, setPoints] = useState([]);
   const svgRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const status = await api.getStatus();
-        const generation = status?.renewable?.[0]?.renewable_current || 0;
-        const consumption = Math.abs(status?.load?.[0]?.load_current || 0);
-        addEnergyPoint({ generation, consumption });
-        const statusStr = JSON.stringify(status);
-        if (statusStr !== lastStatusRef.current) {
-          lastStatusRef.current = statusStr;
-          addLog({ method: 'GET', endpoint: '/status', payload: null, response: status });
-        }
-      } catch (err) {
-        // ignore errors silently
+        const log = await api.getLog();
+        const parsed = parseLog(log);
+        const bal = parsed.balance?.[0] || {};
+        const gens = bal.overall_provided_to_microgrid || {};
+        const cons = bal.overall_absorbed_from_microgrid || {};
+        const steps = Object.keys(gens)
+          .map(Number)
+          .sort((a, b) => a - b);
+        const newPoints = steps.map((s) => ({
+          generation: Number(gens[s] || 0),
+          consumption: Number(cons[s] || 0),
+        }));
+        setPoints(newPoints);
+      } catch (_) {
+        // ignore
       }
     };
     fetchData();
     const id = setInterval(fetchData, 3000);
     return () => clearInterval(id);
-  }, [addEnergyPoint, addLog]);
+  }, []);
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);
