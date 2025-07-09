@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import './App.css';
 import api from './api/client';
-import sampleSetup from './api/sampleSetup';
 import HeaderControls from './components/HeaderControls';
 import ModulePalette from './components/ModulePalette';
 import SimulationCanvas from './components/SimulationCanvas';
@@ -15,6 +14,7 @@ import { useAppState } from './context/AppState';
 
 function App() {
   const [result, setResult] = useState(null);
+  const [setupStatus, setSetupStatus] = useState('');
   const {
     state: { modules, selected },
     addModule,
@@ -48,6 +48,37 @@ function App() {
       },
       state: {},
     },
+  };
+
+  const buildSetup = () => {
+    const components = modules.map((m) => {
+      let type;
+      switch (m.type) {
+        case 'grid':
+          type = 'GridModule';
+          break;
+        case 'solar':
+          type = 'RenewableModule';
+          break;
+        case 'battery':
+          type = 'BatteryModule';
+          break;
+        case 'house':
+        case 'building':
+        default:
+          type = 'LoadModule';
+      }
+      return { id: m.id, type, params: m.params };
+    });
+
+    return {
+      horizon: 24,
+      timestep: 1,
+      add_unbalanced_module: true,
+      loss_load_cost: 10,
+      overgeneration_cost: 2,
+      components,
+    };
   };
 
   const handleDrop = (item, left, top) => {
@@ -84,10 +115,13 @@ function App() {
 
   const handleSetup = async () => {
     try {
-      const response = await api.setupMicrogrid(sampleSetup);
+      const payload = buildSetup();
+      const response = await api.setupMicrogrid(payload);
       setResult(response);
+      setSetupStatus('Setup completed successfully');
     } catch (err) {
       setResult({ error: err.message });
+      setSetupStatus('Setup failed');
     }
   };
 
@@ -179,6 +213,7 @@ function App() {
           module={modules.find((m) => m.id === selected)}
           onChange={updateModule}
         />
+        {setupStatus && <p>{setupStatus}</p>}
         <pre>{result && JSON.stringify(result, null, 2)}</pre>
       </section>
 
