@@ -59,7 +59,8 @@ async def get_actions():
 
 @router.get("/status")
 async def get_status():
-    return await run_in_threadpool(microgrid.get_status)
+    status = await run_in_threadpool(microgrid.get_status)
+    return microgrid._to_serializable(status)
 
 
 @router.get("/log")
