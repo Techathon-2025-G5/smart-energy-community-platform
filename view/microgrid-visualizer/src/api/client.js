@@ -22,6 +22,8 @@ export const resetModel = () => request('POST', '/reset');
 export const getProfiles = (component) =>
   request('GET', `/profiles${component ? `?component=${component}` : ''}`);
 export const ping = () => request('GET', '/ping');
+export const getControllerOptions = () =>
+  request('GET', '/controller/get_options');
 
 const apiClient = {
   setupMicrogrid,
@@ -33,6 +35,7 @@ const apiClient = {
   resetModel,
   getProfiles,
   ping,
+  getControllerOptions,
 };
 
 export default apiClient;
