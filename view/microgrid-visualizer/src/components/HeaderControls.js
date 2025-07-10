@@ -6,6 +6,7 @@ import {
   FaFolderOpen,
   FaRedo,
 } from 'react-icons/fa';
+import ConnectionIndicator from './ConnectionIndicator';
 import './HeaderControls.css';
 
 function HeaderControls({
@@ -24,6 +25,7 @@ function HeaderControls({
   const hour = step % 24;
   return (
     <div className="header-controls">
+      <ConnectionIndicator />
       <button onClick={onSetup} title="Setup">
         <FaFolderOpen />
       </button>

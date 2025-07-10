@@ -10,7 +10,6 @@ import ComponentDetails from './components/ComponentDetails';
 import FooterTabs from './components/FooterTabs';
 import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull, FaRobot } from 'react-icons/fa';
 import HighVoltageTowerIcon from './components/HighVoltageTowerIcon';
-import ConnectionIndicator from './components/ConnectionIndicator';
 import { useAppState } from './context/AppState';
 
 function App() {
@@ -281,9 +280,7 @@ function App() {
     <div className="app-container">
       <header className="header" id="section-1">
         <h1>Microgrid Frontend Demo</h1>
-        <div className="header-right">
-          <ConnectionIndicator />
-          <HeaderControls
+        <HeaderControls
             onSetup={handleSetup}
             onRunStep={handleRunStep}
             onPlay={handlePlay}
@@ -295,7 +292,6 @@ function App() {
             resetDisabled={!resetEnabled}
             step={stepCount}
           />
-        </div>
       </header>
 
       <aside className="tool-sidebar" id="section-2">
