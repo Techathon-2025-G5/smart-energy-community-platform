@@ -279,7 +279,7 @@ function App() {
   return (
     <div className="app-container">
       <header className="header" id="section-1">
-        <h1>Microgrid Frontend Demo</h1>
+        <h1>Renewable Energy Community Simulator</h1>
         <HeaderControls
             onSetup={handleSetup}
             onRunStep={handleRunStep}
