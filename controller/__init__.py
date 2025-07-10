@@ -70,3 +70,8 @@ def step():
 def reset():
     return get_current_controller().reset()
 
+
+def has_current_controller() -> bool:
+    """Return ``True`` if a controller has been configured."""
+    return _current_controller is not None
+
