@@ -12,20 +12,12 @@
 
 .header {
   grid-area: header;
-  text-align: center;
   background-color: #282c34;
   color: white;
-  padding: 1rem;
-  position: relative;
-}
-
-.header-right {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
+  padding: 0.5rem 1rem;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
 }
 
 .tool-sidebar {

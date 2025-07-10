@@ -2,9 +2,6 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
 }
 
 .header-controls button {
