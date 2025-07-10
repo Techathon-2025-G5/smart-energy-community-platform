@@ -1,0 +1,3 @@
+rule_based:
+  module: controller.rule_based
+  class: RuleBasedController
