@@ -1,8 +1,11 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
 import PropTypes from 'prop-types';
+import { useAppState } from '../context/AppState';
+import './CanvasItem.css';
 
 function CanvasItem({ id, type, left, top, icon, onSelect, isSelected }) {
+  const { deleteModule } = useAppState();
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'canvas-module',
     item: { id },
@@ -14,18 +17,29 @@ function CanvasItem({ id, type, left, top, icon, onSelect, isSelected }) {
   return (
     <div
       ref={drag}
-      onClick={(e) => { e.stopPropagation(); onSelect(id); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect(id);
+      }}
+      className={`canvas-item${isSelected ? ' selected' : ''}`}
       style={{
-        position: 'absolute',
         left,
         top,
-        cursor: 'move',
         opacity: isDragging ? 0.5 : 1,
-        border: isSelected ? '2px solid blue' : 'none',
-        fontSize: '2rem',
       }}
     >
       {icon}
+      {isSelected && (
+        <div
+          className="delete-circle"
+          onClick={(e) => {
+            e.stopPropagation();
+            deleteModule(id);
+          }}
+        >
+          ×
+        </div>
+      )}
     </div>
   );
 }
