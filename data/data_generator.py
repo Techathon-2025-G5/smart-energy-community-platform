@@ -62,7 +62,12 @@ def pv_data_generator(
     return result
 
 
-def weather_data_generator(lat: float, lon: float, year: int, api_key: str | None = None):
+def weather_data_generator(
+    lat: float, 
+    lon: float, 
+    year: int, 
+    api_key: str | None = None
+):
     """Descarga datos meteorológicos horarios de Visual Crossing para un año.
 
     Parameters
@@ -89,6 +94,7 @@ def weather_data_generator(lat: float, lon: float, year: int, api_key: str | Non
         "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
         f"{lat},{lon}/{start}/{end}"
     )
+    print(url) # debug
 
     params = {
         "unitGroup": "metric",
