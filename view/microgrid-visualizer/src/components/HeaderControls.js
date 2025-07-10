@@ -18,7 +18,10 @@ function HeaderControls({
   playDisabled,
   pauseDisabled,
   resetDisabled,
+  step = 0,
 }) {
+  const day = Math.floor(step / 24) + 1;
+  const hour = step % 24;
   return (
     <div className="header-controls">
       <button onClick={onSetup} title="Setup">
@@ -36,6 +39,7 @@ function HeaderControls({
       <button onClick={onPause} title="Pause" disabled={pauseDisabled}>
         <FaPause />
       </button>
+      <span className="sim-time">Día {day} - {hour}h</span>
     </div>
   );
 }

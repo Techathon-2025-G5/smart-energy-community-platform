@@ -19,6 +19,15 @@
   position: relative;
 }
 
+.header-right {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .tool-sidebar {
   grid-area: sidebar;
   padding: 1rem;
