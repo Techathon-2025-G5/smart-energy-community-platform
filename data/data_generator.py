@@ -61,3 +61,54 @@ def pv_data_generator(
 
     return result
 
+
+def weather_data_generator(lat: float, lon: float, year: int, api_key: str | None = None):
+    """Descarga datos meteorológicos horarios de Visual Crossing para un año.
+
+    Parameters
+    ----------
+    lat : float
+        Latitud de la ubicación.
+    lon : float
+        Longitud de la ubicación.
+    year : int
+        Año de interés.
+    api_key : str, optional
+        Clave de acceso a Visual Crossing. Si no se indica se intentará realizar
+        la consulta sin autenticación.
+
+    Returns
+    -------
+    list[dict]
+        Lista con los registros horarios devueltos por la API.
+    """
+
+    start = f"{year}-01-01"
+    end = f"{year}-12-31"
+    url = (
+        "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
+        f"{lat},{lon}/{start}/{end}"
+    )
+
+    params = {
+        "unitGroup": "metric",
+        "include": "hours",
+        "contentType": "json",
+    }
+    if api_key:
+        params["key"] = api_key
+
+    response = requests.get(url, params=params)
+    if response.status_code != 200:
+        raise Exception(
+            f"Error al acceder a Visual Crossing: código {response.status_code}"
+        )
+
+    days = response.json().get("days", [])
+    result = []
+    for day in days:
+        for hour in day.get("hours", []):
+            result.append(hour)
+
+    return result
+
