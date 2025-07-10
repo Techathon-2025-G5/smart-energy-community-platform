@@ -27,9 +27,10 @@ El método `get_priority_list()` permite consultar el orden de despliegue calcul
 
 ### Endpoints de la API
 
-La API expone varias rutas para gestionar este controlador:
+La API expone varias rutas para gestionar los controladores:
 
-- `POST /controller/setup`: inicializa el controlador una vez configurada la microgrid.
-- `GET  /controller/priority-list`: devuelve la lista de prioridad utilizada.
+- `POST /controller/setup`: configura la microgrid y selecciona el controlador a usar.
+- `GET  /controller/get_options`: devuelve los controladores disponibles.
+- `GET  /controller/config`: obtiene la configuración del controlador activo.
 - `POST /controller/run`: ejecuta un paso de control sobre la microgrid.
 - `POST /controller/reset`: reinicia el controlador y la microgrid.

@@ -6,7 +6,15 @@ import json
 import yaml
 
 from model.rec_model import microgrid
-from controller import rule_controller
+from controller import (
+    rule_controller,
+    load_options as load_controller_options,
+    set_current_controller,
+    setup as controller_setup,
+    get_config as controller_get_config,
+    step as controller_step,
+    reset as controller_reset,
+)
 from api.schemas import SetupRequest, ActionRequest
 
 router = APIRouter()
@@ -88,21 +96,32 @@ async def reset_model():
     return {"message": "Microgrid has been reset."}
 
 @router.post("/controller/setup")
-async def setup_controller():
-    """Initialize rule based controller."""
-    await run_in_threadpool(rule_controller.setup)
-    return {"message": "Controller initialized."}
+async def setup_controller(
+    payload: SetupRequest, controller: str = Query("rule_based")
+):
+    """Configure the microgrid and initialise the selected controller."""
+    config = payload.dict(exclude_none=True)
+    await run_in_threadpool(microgrid.setup, config)
+    await run_in_threadpool(set_current_controller, controller)
+    await run_in_threadpool(controller_setup)
+    return {"message": f"Controller '{controller}' initialized."}
+
+
+@router.get("/controller/get_options")
+async def get_controller_options():
+    """Return the available controller names."""
+    return await run_in_threadpool(load_controller_options)
 
 @router.get("/controller/config")
 async def get_config():
-    return await run_in_threadpool(rule_controller.get_config)
+    return await run_in_threadpool(controller_get_config)
 
 @router.post("/controller/run")
 async def run_controller():
-    raw = await run_in_threadpool(rule_controller.step)
+    raw = await run_in_threadpool(controller_step)
     return microgrid._to_serializable(raw)
 
 @router.post("/controller/reset")
 async def reset_controller():
-    await run_in_threadpool(rule_controller.reset)
+    await run_in_threadpool(controller_reset)
     return {"message": "Controller reset."}
