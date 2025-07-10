@@ -18,6 +18,7 @@ function App() {
   const [playEnabled, setPlayEnabled] = useState(false);
   const [pauseEnabled, setPauseEnabled] = useState(false);
   const [resetEnabled, setResetEnabled] = useState(false);
+  const [stepCount, setStepCount] = useState(0);
   const intervalRef = useRef(null);
   const {
     state: { modules, selected },
@@ -199,6 +200,7 @@ function App() {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+      setStepCount(0);
       setResetEnabled(true);
       setStepEnabled(false);
       setPlayEnabled(false);
@@ -218,6 +220,7 @@ function App() {
       try {
         const response = await api.runStep();
         addLog({ method: 'POST', endpoint: '/run', payload: null, response });
+        setStepCount((s) => s + 1);
       } catch (err) {
         addLog({ method: 'POST', endpoint: '/run', payload: null, response: { error: err.message } });
       }
@@ -238,6 +241,7 @@ function App() {
       const actions = { actions: { grid: [0], battery: [0] } };
       const response = await api.runStep(actions);
       addLog({ method: 'POST', endpoint: '/run', payload: actions, response });
+      setStepCount((s) => s + 1);
     } catch (err) {
       
       addLog({ method: 'POST', endpoint: '/run', payload: { actions: { grid: [0], battery: [0] } }, response: { error: err.message } });
@@ -262,6 +266,7 @@ function App() {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+      setStepCount(0);
       setStepEnabled(true);
       setPlayEnabled(hasController);
       setPauseEnabled(false);
@@ -276,18 +281,21 @@ function App() {
     <div className="app-container">
       <header className="header" id="section-1">
         <h1>Microgrid Frontend Demo</h1>
-        <ConnectionIndicator />
-        <HeaderControls
-          onSetup={handleSetup}
-          onRunStep={handleRunStep}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onReset={handleReset}
-          stepDisabled={!stepEnabled}
-          playDisabled={!playEnabled}
-          pauseDisabled={!pauseEnabled}
-          resetDisabled={!resetEnabled}
-        />
+        <div className="header-right">
+          <ConnectionIndicator />
+          <HeaderControls
+            onSetup={handleSetup}
+            onRunStep={handleRunStep}
+            onPlay={handlePlay}
+            onPause={handlePause}
+            onReset={handleReset}
+            stepDisabled={!stepEnabled}
+            playDisabled={!playEnabled}
+            pauseDisabled={!pauseEnabled}
+            resetDisabled={!resetEnabled}
+            step={stepCount}
+          />
+        </div>
       </header>
 
       <aside className="tool-sidebar" id="section-2">

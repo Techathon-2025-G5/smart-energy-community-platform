@@ -1,6 +1,10 @@
 .header-controls {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
 }
 
 .header-controls button {
@@ -18,4 +22,10 @@
 .header-controls button:disabled {
   color: gray;
   cursor: not-allowed;
+}
+
+.sim-time {
+  color: white;
+  margin-left: 0.5rem;
+  font-size: 1rem;
 }
