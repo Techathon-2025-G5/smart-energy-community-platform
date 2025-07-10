@@ -20,7 +20,6 @@ async def ping():
 # Path to the YAML file describing available time series profiles
 PROFILES_FILE = Path(__file__).resolve().parent.parent / "data" / "profiles.yaml"
 
-
 def load_profiles() -> Dict[str, Dict[str, str]]:
     """Load profiles.yaml and return its contents."""
     if not PROFILES_FILE.exists():
@@ -38,7 +37,6 @@ async def setup_model(payload: SetupRequest):
 @router.get("/components")
 async def get_components(type: Optional[str] = Query(None)):
     return await run_in_threadpool(microgrid.get_components, type=type)
-
 
 @router.get("/profiles")
 async def get_profiles(component: Optional[str] = Query(None)):
@@ -61,7 +59,6 @@ async def get_actions():
 async def get_status():
     status = await run_in_threadpool(microgrid.get_status)
     return microgrid._to_serializable(status)
-
 
 @router.get("/log")
 async def get_log(
@@ -90,24 +87,20 @@ async def reset_model():
     await run_in_threadpool(microgrid.reset)
     return {"message": "Microgrid has been reset."}
 
-
 @router.post("/controller/setup")
 async def setup_controller():
     """Initialize rule based controller."""
     await run_in_threadpool(rule_controller.setup)
     return {"message": "Controller initialized."}
 
-
-@router.get("/controller/priority-list")
-async def get_priority_list():
-    return await run_in_threadpool(rule_controller.get_priority_list)
-
+@router.get("/controller/config")
+async def get_config():
+    return await run_in_threadpool(rule_controller.get_config)
 
 @router.post("/controller/run")
 async def run_controller():
     raw = await run_in_threadpool(rule_controller.step)
     return microgrid._to_serializable(raw)
-
 
 @router.post("/controller/reset")
 async def reset_controller():

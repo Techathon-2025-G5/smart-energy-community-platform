@@ -1,9 +1,6 @@
 from typing import Any, List, Tuple
-
 from pymgrid.algos import RuleBasedControl
-
 from model.rec_model import microgrid
-
 
 class RuleBasedController:
     """Wrapper around :class:`pymgrid.algos.RuleBasedControl`."""
@@ -19,7 +16,7 @@ class RuleBasedController:
         # Ensure the controller operates on the shared microgrid instance
         self.rbc._microgrid = microgrid.microgrid
 
-    def get_priority_list(self) -> list:
+    def get_config(self) -> list:
         if not self.rbc:
             return []
         # Convert PriorityListElement objects to a simple representation
