@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 from fastapi.concurrency import run_in_threadpool
 from typing import Optional, Dict
 from pathlib import Path
@@ -7,13 +7,13 @@ import yaml
 
 from model.rec_model import microgrid
 from controller import (
-    rule_controller,
     load_options as load_controller_options,
     set_current_controller,
     setup as controller_setup,
     get_config as controller_get_config,
     step as controller_step,
     reset as controller_reset,
+    has_current_controller,
 )
 from api.schemas import SetupRequest, ActionRequest
 
@@ -38,8 +38,21 @@ def load_profiles() -> Dict[str, Dict[str, str]]:
 
 @router.post("/setup")
 async def setup_model(payload: SetupRequest):
+    """Configure the microgrid and optional controller."""
     config = payload.dict(exclude_none=True)
+    components = config.get("components", [])
+    controller_name = None
+    filtered = []
+    for comp in components:
+        if comp.get("type") == "Controller":
+            controller_name = comp.get("params", {}).get("name", "rule_based")
+        else:
+            filtered.append(comp)
+    config["components"] = filtered
     await run_in_threadpool(microgrid.setup, config)
+    if controller_name:
+        await run_in_threadpool(set_current_controller, controller_name)
+        await run_in_threadpool(controller_setup)
     return {"message": "Microgrid setup completed."}
 
 @router.get("/components")
@@ -86,26 +99,24 @@ async def get_log(
     return log
 
 @router.post("/run")
-async def run_model(payload: ActionRequest):
-    raw = await run_in_threadpool(microgrid.run, payload.actions)
+async def run_model(payload: ActionRequest | None = None):
+    """Execute one simulation step using the controller if present."""
+    if has_current_controller():
+        raw = await run_in_threadpool(controller_step)
+    else:
+        if payload is None:
+            raise HTTPException(status_code=400, detail="Missing actions for microgrid run")
+        raw = await run_in_threadpool(microgrid.run, payload.actions)
     return microgrid._to_serializable(raw)  # type: ignore[attr-defined]
 
 @router.post("/reset")
 async def reset_model():
-    await run_in_threadpool(microgrid.reset)
+    """Reset the simulation and controller if configured."""
+    if has_current_controller():
+        await run_in_threadpool(controller_reset)
+    else:
+        await run_in_threadpool(microgrid.reset)
     return {"message": "Microgrid has been reset."}
-
-@router.post("/controller/setup")
-async def setup_controller(
-    payload: SetupRequest, controller: str = Query("rule_based")
-):
-    """Configure the microgrid and initialise the selected controller."""
-    config = payload.dict(exclude_none=True)
-    await run_in_threadpool(microgrid.setup, config)
-    await run_in_threadpool(set_current_controller, controller)
-    await run_in_threadpool(controller_setup)
-    return {"message": f"Controller '{controller}' initialized."}
-
 
 @router.get("/controller/get_options")
 async def get_controller_options():
@@ -115,13 +126,3 @@ async def get_controller_options():
 @router.get("/controller/config")
 async def get_config():
     return await run_in_threadpool(controller_get_config)
-
-@router.post("/controller/run")
-async def run_controller():
-    raw = await run_in_threadpool(controller_step)
-    return microgrid._to_serializable(raw)
-
-@router.post("/controller/reset")
-async def reset_controller():
-    await run_in_threadpool(controller_reset)
-    return {"message": "Controller reset."}
