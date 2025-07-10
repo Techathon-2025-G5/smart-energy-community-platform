@@ -11,7 +11,7 @@ import './HeaderControls.css';
 function HeaderControls({
   onSetup,
   onRunStep,
-  onStatus,
+  onPlay,
   onPause,
   onReset,
   stepDisabled,
@@ -30,7 +30,7 @@ function HeaderControls({
       <button onClick={onRunStep} title="Step" disabled={stepDisabled}>
         <FaStepForward />
       </button>
-      <button onClick={onStatus} title="Play" disabled={playDisabled}>
+      <button onClick={onPlay} title="Play" disabled={playDisabled}>
         <FaPlay />
       </button>
       <button onClick={onPause} title="Pause" disabled={pauseDisabled}>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import './App.css';
 import api from './api/client';
@@ -18,6 +18,7 @@ function App() {
   const [playEnabled, setPlayEnabled] = useState(false);
   const [pauseEnabled, setPauseEnabled] = useState(false);
   const [resetEnabled, setResetEnabled] = useState(false);
+  const intervalRef = useRef(null);
   const {
     state: { modules, selected },
     addModule,
@@ -148,10 +149,22 @@ function App() {
   }, [selected]);
 
   useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     setStepEnabled(false);
     setPlayEnabled(false);
     setPauseEnabled(false);
     setResetEnabled(false);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
   }, [modules.length]);
 
   const handleSetup = async () => {
@@ -182,6 +195,10 @@ function App() {
       } catch (_) {
         // ignore component fetch errors
       }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
       setResetEnabled(true);
       setStepEnabled(false);
       setPlayEnabled(false);
@@ -193,14 +210,27 @@ function App() {
     }
   };
 
-  const handleStatus = async () => {
-    try {
-      const response = await api.getStatus();
-      addLog({ method: 'GET', endpoint: '/status', payload: null, response });
-    } catch (err) {
-      
-      addLog({ method: 'GET', endpoint: '/status', payload: null, response: { error: err.message } });
+  const handlePlay = async () => {
+    if (intervalRef.current) return;
+    setPlayEnabled(false);
+    setPauseEnabled(true);
+    intervalRef.current = setInterval(async () => {
+      try {
+        const response = await api.runStep();
+        addLog({ method: 'POST', endpoint: '/run', payload: null, response });
+      } catch (err) {
+        addLog({ method: 'POST', endpoint: '/run', payload: null, response: { error: err.message } });
+      }
+    }, 2000);
+  };
+
+  const handlePause = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
+    setPlayEnabled(true);
+    setPauseEnabled(false);
   };
 
   const handleRunStep = async () => {
@@ -227,9 +257,14 @@ function App() {
   const handleReset = async () => {
     try {
       const response = await api.resetModel();
+      const hasController = modules.some((m) => m.type === 'controller');
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
       setStepEnabled(true);
-      setPlayEnabled(true);
-      setPauseEnabled(true);
+      setPlayEnabled(hasController);
+      setPauseEnabled(false);
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response });
     } catch (err) {
       
@@ -245,8 +280,8 @@ function App() {
         <HeaderControls
           onSetup={handleSetup}
           onRunStep={handleRunStep}
-          onStatus={handleStatus}
-          onPause={() => {}}
+          onPlay={handlePlay}
+          onPause={handlePause}
           onReset={handleReset}
           stepDisabled={!stepEnabled}
           playDisabled={!playEnabled}
