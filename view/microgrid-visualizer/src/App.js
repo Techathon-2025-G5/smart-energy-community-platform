@@ -299,15 +299,6 @@ function App() {
       </header>
 
       <aside className="tool-sidebar" id="section-2">
-        <button
-          onClick={() => {
-            if (selected) {
-              deleteModule(selected);
-            }
-          }}
-        >
-          Delete Selected
-        </button>
         <ModulePalette />
       </aside>
 
