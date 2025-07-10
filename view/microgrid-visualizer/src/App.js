@@ -8,7 +8,7 @@ import SimulationCanvas from './components/SimulationCanvas';
 import CanvasItem from './components/CanvasItem';
 import ComponentDetails from './components/ComponentDetails';
 import FooterTabs from './components/FooterTabs';
-import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull } from 'react-icons/fa';
+import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull, FaRobot } from 'react-icons/fa';
 import HighVoltageTowerIcon from './components/HighVoltageTowerIcon';
 import ConnectionIndicator from './components/ConnectionIndicator';
 import { useAppState } from './context/AppState';
@@ -54,6 +54,10 @@ function App() {
       },
       state: {},
     },
+    controller: {
+      params: { name: '' },
+      state: {},
+    },
   };
 
   const buildSetup = () => {
@@ -68,6 +72,9 @@ function App() {
           break;
         case 'battery':
           type = 'BatteryModule';
+          break;
+        case 'controller':
+          type = 'Controller';
           break;
         case 'house':
         case 'building':
@@ -100,10 +107,18 @@ function App() {
       };
 
       try {
-        const resp = await api.getProfiles(item.type);
-        const names = Object.keys(resp || {});
-        if (names.length > 0 && !newModule.params.time_series_profile) {
-          newModule.params.time_series_profile = names[0];
+        if (item.type === 'controller') {
+          const opts = await api.getControllerOptions();
+          const names = Object.keys(opts || {});
+          if (names.length > 0 && !newModule.params.name) {
+            newModule.params.name = names[0];
+          }
+        } else {
+          const resp = await api.getProfiles(item.type);
+          const names = Object.keys(resp || {});
+          if (names.length > 0 && !newModule.params.time_series_profile) {
+            newModule.params.time_series_profile = names[0];
+          }
         }
       } catch (_) {
         // ignore profile loading errors
@@ -119,6 +134,7 @@ function App() {
     solar: <FaSolarPanel />,
     battery: <FaBatteryFull />,
     grid: <HighVoltageTowerIcon />,
+    controller: <FaRobot />,
   };
 
   useEffect(() => {

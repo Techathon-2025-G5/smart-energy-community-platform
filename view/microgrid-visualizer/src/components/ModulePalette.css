@@ -8,3 +8,8 @@
   cursor: grab;
   font-size: 2rem;
 }
+
+.module-icon.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

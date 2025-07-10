@@ -7,24 +7,41 @@ import './ComponentDetails.css';
 
 function ComponentDetails({ module, onChange }) {
   const [profiles, setProfiles] = useState({});
+  const [controllerOptions, setControllerOptions] = useState([]);
   const [currentState, setCurrentState] = useState({});
   const [history, setHistory] = useState({});
   const [field, setField] = useState('');
 
   useEffect(() => {
     if (module && module.type) {
-      api
-        .getProfiles(module.type)
-        .then((resp) => {
-          setProfiles(resp || {});
-          const names = Object.keys(resp || {});
-          if (names.length > 0 && !module.params.time_series_profile) {
-            handleParamChange('time_series_profile', names[0]);
-          }
-        })
-        .catch(() => setProfiles({}));
+      if (module.type === 'controller') {
+        api
+          .getControllerOptions()
+          .then((resp) => {
+            const opts = Object.keys(resp || {});
+            setControllerOptions(opts);
+            if (opts.length > 0 && !module.params.name) {
+              handleParamChange('name', opts[0]);
+            }
+          })
+          .catch(() => setControllerOptions([]));
+        setProfiles({});
+      } else {
+        api
+          .getProfiles(module.type)
+          .then((resp) => {
+            setProfiles(resp || {});
+            const names = Object.keys(resp || {});
+            if (names.length > 0 && !module.params.time_series_profile) {
+              handleParamChange('time_series_profile', names[0]);
+            }
+          })
+          .catch(() => setProfiles({}));
+        setControllerOptions([]);
+      }
     } else {
       setProfiles({});
+      setControllerOptions([]);
     }
   }, [module?.type]);
 
@@ -80,7 +97,24 @@ function ComponentDetails({ module, onChange }) {
     <div className="component-details">
       <h3>{module.type} parameters</h3>
       <form>
-        {Object.keys(profiles).length > 0 && (
+        {module.type === 'controller' && (
+          <div key="controller-name">
+            <label>
+              controller:
+              <select
+                value={module.params.name || controllerOptions[0] || ''}
+                onChange={(e) => handleParamChange('name', e.target.value)}
+              >
+                {controllerOptions.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        )}
+        {Object.keys(profiles).length > 0 && module.type !== 'controller' && (
           <div key="profile">
             <label>
               profile:
@@ -104,6 +138,7 @@ function ComponentDetails({ module, onChange }) {
             if (['time_series', 'time_series_profile'].includes(key)) return false;
             if (['house', 'building'].includes(module.type) && key === 'demand') return false;
             if (module.type === 'solar' && key === 'capacity') return false;
+            if (module.type === 'controller' && key === 'name') return false;
             return true;
           })
           .map(([key, value]) => (
