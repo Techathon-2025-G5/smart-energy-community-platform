@@ -11,12 +11,13 @@ function SimulationCanvas({ onDrop, children }) {
     accept: ['module', 'canvas-module'],
     drop: (item, monitor) => {
       if (!ref.current) return;
-      const offset = monitor.getClientOffset();
       const rect = ref.current.getBoundingClientRect();
-      const left = offset.x - rect.left;
-      const top = offset.y - rect.top;
-      const snappedLeft = Math.round(left / GRID_SIZE) * GRID_SIZE;
-      const snappedTop = Math.round(top / GRID_SIZE) * GRID_SIZE;
+      const source = monitor.getSourceClientOffset();
+      const pointer = monitor.getClientOffset();
+      const x = (source ? source.x : pointer.x - GRID_SIZE / 2) - rect.left;
+      const y = (source ? source.y : pointer.y - GRID_SIZE / 2) - rect.top;
+      const snappedLeft = Math.round(x / GRID_SIZE) * GRID_SIZE;
+      const snappedTop = Math.round(y / GRID_SIZE) * GRID_SIZE;
       onDrop(item, snappedLeft, snappedTop);
     },
   }), [onDrop]);

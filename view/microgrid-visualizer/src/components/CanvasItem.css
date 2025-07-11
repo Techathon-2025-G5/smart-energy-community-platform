@@ -3,6 +3,7 @@
   cursor: move;
   font-size: 2rem;
   transform: rotateX(60deg) rotateZ(45deg);
+  box-sizing: border-box;
   width: 20px;
   height: 20px;
   display: flex;
