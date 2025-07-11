@@ -10,12 +10,12 @@ import { useAppState } from '../context/AppState';
 import './ModulePalette.css';
 
 const modules = [
-  { type: 'house', icon: houseImg },
-  { type: 'building', icon: buildingImg },
-  { type: 'solar', icon: solarImg },
-  { type: 'battery', icon: batteryImg },
-  { type: 'grid', icon: gridImg },
-  { type: 'controller', icon: controllerImg },
+  { type: 'house', icon: houseImg, name: 'House' },
+  { type: 'building', icon: buildingImg, name: 'Building' },
+  { type: 'solar', icon: solarImg, name: 'Solar Panel' },
+  { type: 'battery', icon: batteryImg, name: 'Battery' },
+  { type: 'grid', icon: gridImg, name: 'Grid' },
+  { type: 'controller', icon: controllerImg, name: 'Controller' },
 ];
 
 function DraggableIcon({ type, children, disabled }) {
@@ -57,6 +57,7 @@ export default function ModulePalette() {
           disabled={m.type === 'controller' && hasController}
         >
           <img src={m.icon} alt={m.type} />
+          <div className="module-label">{m.name}</div>
         </DraggableIcon>
       ))}
     </div>
