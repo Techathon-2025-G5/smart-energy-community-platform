@@ -2,6 +2,7 @@
   position: absolute;
   cursor: move;
   font-size: 2rem;
+  transform: rotateX(60deg) rotateZ(45deg);
 }
 
 .canvas-item.selected {

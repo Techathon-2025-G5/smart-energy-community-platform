@@ -2,6 +2,18 @@
   position: relative;
   border: 1px dashed #ccc;
   min-height: 400px;
+  background-color: green;
+  background-image:
+    repeating-linear-gradient(30deg,
+      rgba(255, 255, 255, 0.2) 0,
+      rgba(255, 255, 255, 0.2) 1px,
+      transparent 1px,
+      transparent 20px),
+    repeating-linear-gradient(150deg,
+      rgba(255, 255, 255, 0.2) 0,
+      rgba(255, 255, 255, 0.2) 1px,
+      transparent 1px,
+      transparent 20px);
 }
 .canvas-item {
   position: absolute;
