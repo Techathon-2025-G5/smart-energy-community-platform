@@ -106,7 +106,8 @@ export default function EnvironmentCanvas({ cellSize, step, stepEnabled, width }
 
       // street row 2
       if (street.complete) {
-        for (let c = 1; c <= GRID_COLS; c += 1) {
+        const streetCols = Math.ceil(canvasWidth / cellSize);
+        for (let c = 1; c <= streetCols; c += 1) {
           const [x, y] = toCanvasCoords(2, c, cellSize, height);
           ctx.drawImage(street, x, y, cellSize, cellSize);
         }
