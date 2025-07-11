@@ -4,8 +4,8 @@
   font-size: 2rem;
   transform: rotateX(60deg) rotateZ(45deg);
   box-sizing: border-box;
-  width: 20px;
-  height: 20px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
