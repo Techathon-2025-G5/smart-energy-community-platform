@@ -31,11 +31,17 @@ function toCanvasCoords(row, col, size, h) {
 export default function EnvironmentCanvas({ cellSize, step, stepEnabled, width }) {
   const canvasRef = useRef(null);
   const stepRef = useRef(step);
+  const stepEnabledRef = useRef(stepEnabled);
 
   // keep latest step value for animation loop
   useEffect(() => {
     stepRef.current = step;
   }, [step]);
+
+  // keep latest stepEnabled value for animation loop
+  useEffect(() => {
+    stepEnabledRef.current = stepEnabled;
+  }, [stepEnabled]);
   const canvasWidth = width || GRID_COLS * cellSize;
   const height = GRID_ROWS * cellSize;
 
@@ -51,7 +57,7 @@ export default function EnvironmentCanvas({ cellSize, step, stepEnabled, width }
     let progressAnim = 0;
 
     const draw = () => {
-      const hour = stepEnabled ? stepRef.current % 24 : DAY_START + 1;
+      const hour = stepEnabledRef.current ? stepRef.current % 24 : DAY_START + 1;
 
       let target;
       if (hour >= DAY_START && hour < DAY_START + 1) {
