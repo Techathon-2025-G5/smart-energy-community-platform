@@ -1,17 +1,21 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
-import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull, FaRobot } from 'react-icons/fa';
-import HighVoltageTowerIcon from './HighVoltageTowerIcon';
+import houseImg from '../assets/house.png';
+import buildingImg from '../assets/building.png';
+import solarImg from '../assets/solar_panel.png';
+import batteryImg from '../assets/battery.png';
+import gridImg from '../assets/grid.png';
+import controllerImg from '../assets/controller.png';
 import { useAppState } from '../context/AppState';
 import './ModulePalette.css';
 
 const modules = [
-  { type: 'house', icon: <FaHome /> },
-  { type: 'building', icon: <FaBuilding /> },
-  { type: 'solar', icon: <FaSolarPanel /> },
-  { type: 'battery', icon: <FaBatteryFull /> },
-  { type: 'grid', icon: <HighVoltageTowerIcon /> },
-  { type: 'controller', icon: <FaRobot /> },
+  { type: 'house', icon: houseImg },
+  { type: 'building', icon: buildingImg },
+  { type: 'solar', icon: solarImg },
+  { type: 'battery', icon: batteryImg },
+  { type: 'grid', icon: gridImg },
+  { type: 'controller', icon: controllerImg },
 ];
 
 function DraggableIcon({ type, children, disabled }) {
@@ -52,7 +56,7 @@ export default function ModulePalette() {
           type={m.type}
           disabled={m.type === 'controller' && hasController}
         >
-          {m.icon}
+          <img src={m.icon} alt={m.type} />
         </DraggableIcon>
       ))}
     </div>
