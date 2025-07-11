@@ -2,7 +2,8 @@ import './SimulationCanvas.css';
 import React, { useRef } from 'react';
 import { useDrop } from 'react-dnd';
 import PropTypes from 'prop-types';
-import { GRID_SIZE } from '../utils/constants';
+import { GRID_SIZE, GRID_ROWS, GRID_COLS } from '../utils/constants';
+import EnvironmentCanvas from './EnvironmentCanvas';
 
 function SimulationCanvas({ onDrop, children }) {
   const ref = useRef(null);
@@ -25,7 +26,16 @@ function SimulationCanvas({ onDrop, children }) {
   drop(ref);
 
   return (
-    <div ref={ref} className="drawing-area" style={{ position: 'relative' }}>
+    <div
+      ref={ref}
+      className="drawing-area"
+      style={{
+        position: 'relative',
+        width: GRID_COLS * GRID_SIZE,
+        height: GRID_ROWS * GRID_SIZE,
+      }}
+    >
+      <EnvironmentCanvas />
       {children}
     </div>
   );
