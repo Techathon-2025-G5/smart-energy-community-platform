@@ -10,6 +10,11 @@ import ComponentDetails from './components/ComponentDetails';
 import FooterTabs from './components/FooterTabs';
 import houseImg from './assets/house.png';
 import buildingImg from './assets/building.png';
+import hospitalImg from './assets/hospital.png';
+import officeImg from './assets/office.png';
+import hotelImg from './assets/hotel.png';
+import schoolImg from './assets/school.png';
+import restaurantImg from './assets/restaurant.png';
 import solarImg from './assets/solar_panel.png';
 import batteryImg from './assets/battery.png';
 import gridImg from './assets/grid.png';
@@ -147,13 +152,39 @@ function App() {
     }
   };
 
-  const icons = {
-    house: <img src={houseImg} alt="house" />,
-    building: <img src={buildingImg} alt="building" />,
-    solar: <img src={solarImg} alt="solar" />,
-    battery: <img src={batteryImg} alt="battery" />,
-    grid: <img src={gridImg} alt="grid" />,
-    controller: <img src={controllerImg} alt="controller" />,
+  const getBuildingImage = (profile) => {
+    if (!profile) return buildingImg;
+    const p = profile.toLowerCase();
+    if (p.includes('hospital')) return hospitalImg;
+    if (p.includes('office')) return officeImg;
+    if (p.includes('hotel')) return hotelImg;
+    if (p.includes('school')) return schoolImg;
+    if (p.includes('restaurant')) return restaurantImg;
+    return buildingImg;
+  };
+
+  const getIcon = (module) => {
+    switch (module.type) {
+      case 'house':
+        return <img src={houseImg} alt="house" />;
+      case 'building':
+        return (
+          <img
+            src={getBuildingImage(module.params?.time_series_profile)}
+            alt="building"
+          />
+        );
+      case 'solar':
+        return <img src={solarImg} alt="solar" />;
+      case 'battery':
+        return <img src={batteryImg} alt="battery" />;
+      case 'grid':
+        return <img src={gridImg} alt="grid" />;
+      case 'controller':
+        return <img src={controllerImg} alt="controller" />;
+      default:
+        return null;
+    }
   };
 
   useEffect(() => {
@@ -316,7 +347,12 @@ function App() {
         <ModulePalette />
       </aside>
 
-      <SimulationCanvas onDrop={handleDrop} step={stepCount} stepEnabled={stepEnabled}>
+      <SimulationCanvas
+        onDrop={handleDrop}
+        step={stepCount}
+        stepEnabled={stepEnabled}
+        onCanvasClick={() => selectModule(null)}
+      >
         {modules.map((m) => (
           <CanvasItem
             key={m.id}
@@ -324,7 +360,7 @@ function App() {
             type={m.type}
             left={m.left}
             top={m.top}
-            icon={icons[m.type]}
+            icon={getIcon(m)}
             onSelect={selectModule}
             isSelected={selected === m.id}
           />
