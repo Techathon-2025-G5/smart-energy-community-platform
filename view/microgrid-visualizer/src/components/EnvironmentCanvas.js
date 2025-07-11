@@ -28,7 +28,7 @@ function toCanvasCoords(row, col, size, h) {
   return [x, y];
 }
 
-export default function EnvironmentCanvas({ cellSize, step }) {
+export default function EnvironmentCanvas({ cellSize, step, stepEnabled }) {
   const canvasRef = useRef(null);
   const stepRef = useRef(step);
 
@@ -51,7 +51,7 @@ export default function EnvironmentCanvas({ cellSize, step }) {
     let progressAnim = 0;
 
     const draw = () => {
-      const hour = stepRef.current % 24;
+      const hour = stepEnabled ? stepRef.current % 24 : DAY_START;
 
       let target;
       if (hour >= DAY_START && hour < DAY_START + 1) {
@@ -141,4 +141,5 @@ export default function EnvironmentCanvas({ cellSize, step }) {
 EnvironmentCanvas.propTypes = {
   cellSize: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
+  stepEnabled: PropTypes.bool.isRequired,
 };
