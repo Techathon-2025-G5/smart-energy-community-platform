@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
-import { GRID_SIZE, GRID_ROWS, GRID_COLS } from '../utils/constants';
+import PropTypes from 'prop-types';
+import { GRID_ROWS, GRID_COLS } from '../utils/constants';
 import streetImg from '../assets/street.png';
 import treeImg from '../assets/tree.png';
 
@@ -13,8 +14,6 @@ const groundNight = [0, 100, 0];
 const sunDay = [255, 255, 0];
 const sunNight = [255, 165, 0];
 
-const width = GRID_COLS * GRID_SIZE;
-const height = GRID_ROWS * GRID_SIZE;
 
 function lerp(a, b, t) {
   const r = Math.round(a[0] + (b[0] - a[0]) * t);
@@ -23,14 +22,16 @@ function lerp(a, b, t) {
   return `rgb(${r},${g},${bC})`;
 }
 
-function toCanvasCoords(row, col) {
-  const x = (col - 1) * GRID_SIZE;
-  const y = height - row * GRID_SIZE;
+function toCanvasCoords(row, col, size, h) {
+  const x = (col - 1) * size;
+  const y = h - row * size;
   return [x, y];
 }
 
-export default function EnvironmentCanvas() {
+export default function EnvironmentCanvas({ cellSize }) {
   const canvasRef = useRef(null);
+  const width = GRID_COLS * cellSize;
+  const height = GRID_ROWS * cellSize;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -62,16 +63,16 @@ export default function EnvironmentCanvas() {
 
       // ground
       ctx.fillStyle = groundColor;
-      ctx.fillRect(0, height - GRID_SIZE * 6, width, GRID_SIZE * 6);
+      ctx.fillRect(0, height - cellSize * 6, width, cellSize * 6);
       // sky
       ctx.fillStyle = skyColor;
-      ctx.fillRect(0, 0, width, GRID_SIZE * 2);
+      ctx.fillRect(0, 0, width, cellSize * 2);
 
       // street row 2
       if (street.complete) {
         for (let c = 1; c <= GRID_COLS; c += 1) {
-          const [x, y] = toCanvasCoords(2, c);
-          ctx.drawImage(street, x, y, GRID_SIZE, GRID_SIZE);
+          const [x, y] = toCanvasCoords(2, c, cellSize, height);
+          ctx.drawImage(street, x, y, cellSize, cellSize);
         }
       } else {
         street.onload = () => draw();
@@ -80,8 +81,8 @@ export default function EnvironmentCanvas() {
       // trees row 1 col 3..6
       if (tree.complete) {
         for (let c = 3; c <= 6; c += 1) {
-          const [x, y] = toCanvasCoords(1, c);
-          ctx.drawImage(tree, x, y, GRID_SIZE, GRID_SIZE);
+          const [x, y] = toCanvasCoords(1, c, cellSize, height);
+          ctx.drawImage(tree, x, y, cellSize, cellSize);
         }
       } else {
         tree.onload = () => draw();
@@ -89,19 +90,19 @@ export default function EnvironmentCanvas() {
 
       const sunRow = 6 + 2 * progress;
       const moonRow = 8 - 2 * progress;
-      const [sunX, sunY] = toCanvasCoords(sunRow, 2);
-      const [moonX, moonY] = toCanvasCoords(moonRow, 2);
+      const [sunX, sunY] = toCanvasCoords(sunRow, 2, cellSize, height);
+      const [moonX, moonY] = toCanvasCoords(moonRow, 2, cellSize, height);
 
       // sun
       ctx.beginPath();
       ctx.fillStyle = lerp(sunNight, sunDay, progress);
-      ctx.arc(sunX + GRID_SIZE / 2, sunY + GRID_SIZE / 2, GRID_SIZE / 2 - 4, 0, Math.PI * 2);
+      ctx.arc(sunX + cellSize / 2, sunY + cellSize / 2, cellSize / 2 - 4, 0, Math.PI * 2);
       ctx.fill();
 
       // moon
       ctx.beginPath();
       ctx.fillStyle = '#fff';
-      ctx.arc(moonX + GRID_SIZE / 2, moonY + GRID_SIZE / 2, GRID_SIZE / 2 - 4, 0, Math.PI * 2);
+      ctx.arc(moonX + cellSize / 2, moonY + cellSize / 2, cellSize / 2 - 4, 0, Math.PI * 2);
       ctx.fill();
     };
 
@@ -112,7 +113,7 @@ export default function EnvironmentCanvas() {
     };
     loop();
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [cellSize]);
 
   return (
     <canvas
@@ -123,3 +124,7 @@ export default function EnvironmentCanvas() {
     />
   );
 }
+
+EnvironmentCanvas.propTypes = {
+  cellSize: PropTypes.number.isRequired,
+};

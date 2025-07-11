@@ -2,8 +2,8 @@
   position: absolute;
   cursor: move;
   box-sizing: border-box;
-  width: 40px;
-  height: 40px;
+  width: var(--cell-size, 40px);
+  height: var(--cell-size, 40px);
   display: flex;
   align-items: center;
   justify-content: center;

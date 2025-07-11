@@ -28,9 +28,6 @@
 
 .drawing-area {
   grid-area: main;
-  padding: 1rem;
-  min-height: 400px;
-  border: 1px dashed #ccc;
   position: relative;
 }
 

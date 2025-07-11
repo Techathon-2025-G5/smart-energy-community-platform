@@ -2,10 +2,11 @@
   position: relative;
   border: 1px solid #ccc;
   background-color: #eee;
+  height: 100%;
   background-image:
     linear-gradient(to right, #ccc 1px, transparent 1px),
     linear-gradient(to bottom, #ccc 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-size: var(--cell-size, 40px) var(--cell-size, 40px);
 }
 .canvas-item {
   position: absolute;

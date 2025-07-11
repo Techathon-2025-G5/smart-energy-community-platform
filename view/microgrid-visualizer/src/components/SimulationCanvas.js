@@ -1,5 +1,5 @@
 import './SimulationCanvas.css';
-import React, { useRef } from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import PropTypes from 'prop-types';
 import { GRID_SIZE, GRID_ROWS, GRID_COLS } from '../utils/constants';
@@ -7,6 +7,21 @@ import EnvironmentCanvas from './EnvironmentCanvas';
 
 function SimulationCanvas({ onDrop, children }) {
   const ref = useRef(null);
+  const [cellSize, setCellSize] = useState(GRID_SIZE);
+
+  useLayoutEffect(() => {
+    const update = () => {
+      if (ref.current) {
+        const h = ref.current.clientHeight;
+        if (h) {
+          setCellSize(h / GRID_ROWS);
+        }
+      }
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   const [, drop] = useDrop(() => ({
     accept: ['module', 'canvas-module'],
@@ -15,13 +30,13 @@ function SimulationCanvas({ onDrop, children }) {
       const rect = ref.current.getBoundingClientRect();
       const source = monitor.getSourceClientOffset();
       const pointer = monitor.getClientOffset();
-      const x = (source ? source.x : pointer.x - GRID_SIZE / 2) - rect.left;
-      const y = (source ? source.y : pointer.y - GRID_SIZE / 2) - rect.top;
-      const snappedLeft = Math.round(x / GRID_SIZE) * GRID_SIZE;
-      const snappedTop = Math.round(y / GRID_SIZE) * GRID_SIZE;
+      const x = (source ? source.x : pointer.x - cellSize / 2) - rect.left;
+      const y = (source ? source.y : pointer.y - cellSize / 2) - rect.top;
+      const snappedLeft = Math.round(x / cellSize) * cellSize;
+      const snappedTop = Math.round(y / cellSize) * cellSize;
       onDrop(item, snappedLeft, snappedTop);
     },
-  }), [onDrop]);
+  }), [onDrop, cellSize]);
 
   drop(ref);
 
@@ -31,11 +46,12 @@ function SimulationCanvas({ onDrop, children }) {
       className="drawing-area"
       style={{
         position: 'relative',
-        width: GRID_COLS * GRID_SIZE,
-        height: GRID_ROWS * GRID_SIZE,
+        width: cellSize * GRID_COLS,
+        height: '100%',
+        '--cell-size': `${cellSize}px`,
       }}
     >
-      <EnvironmentCanvas />
+      <EnvironmentCanvas cellSize={cellSize} />
       {children}
     </div>
   );
