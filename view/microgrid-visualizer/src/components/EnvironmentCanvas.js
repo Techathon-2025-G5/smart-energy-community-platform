@@ -72,12 +72,31 @@ export default function EnvironmentCanvas({ cellSize, step }) {
       const skyColor = lerp(skyNight, skyDay, progress);
       const groundColor = lerp(groundNight, groundDay, progress);
 
-      // ground
-      ctx.fillStyle = groundColor;
-      ctx.fillRect(0, height - cellSize * 6, width, cellSize * 6);
       // sky
       ctx.fillStyle = skyColor;
       ctx.fillRect(0, 0, width, cellSize * 2);
+
+      const sunRow = 6 + 2 * progress;
+      const moonRow = 8 - 2 * progress;
+      const [sunX, sunY] = toCanvasCoords(sunRow, 2, cellSize, height);
+      const [moonX, moonY] = toCanvasCoords(moonRow, 2, cellSize, height);
+
+      // sun
+      ctx.beginPath();
+      ctx.fillStyle = lerp(sunNight, sunDay, progress);
+      ctx.arc(sunX + cellSize / 2, sunY + cellSize / 2, cellSize / 2 - 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // moon
+      ctx.beginPath();
+      ctx.fillStyle = '#fff';
+      ctx.arc(moonX + cellSize / 2, moonY + cellSize / 2, cellSize / 2 - 4, 0, Math.PI * 2);
+      ctx.fill();
+
+
+      // ground drawn after celestial bodies so they hide behind terrain
+      ctx.fillStyle = groundColor;
+      ctx.fillRect(0, height - cellSize * 6, width, cellSize * 6);
 
       // street row 2
       if (street.complete) {
@@ -98,23 +117,6 @@ export default function EnvironmentCanvas({ cellSize, step }) {
       } else {
         tree.onload = () => draw();
       }
-
-      const sunRow = 6 + 2 * progress;
-      const moonRow = 8 - 2 * progress;
-      const [sunX, sunY] = toCanvasCoords(sunRow, 2, cellSize, height);
-      const [moonX, moonY] = toCanvasCoords(moonRow, 2, cellSize, height);
-
-      // sun
-      ctx.beginPath();
-      ctx.fillStyle = lerp(sunNight, sunDay, progress);
-      ctx.arc(sunX + cellSize / 2, sunY + cellSize / 2, cellSize / 2 - 4, 0, Math.PI * 2);
-      ctx.fill();
-
-      // moon
-      ctx.beginPath();
-      ctx.fillStyle = '#fff';
-      ctx.arc(moonX + cellSize / 2, moonY + cellSize / 2, cellSize / 2 - 4, 0, Math.PI * 2);
-      ctx.fill();
     };
 
     let raf;
