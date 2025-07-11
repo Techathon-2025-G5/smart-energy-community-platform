@@ -1,0 +1,11 @@
+.cell-placeholder {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #4ca64c;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  pointer-events: none;
+}
