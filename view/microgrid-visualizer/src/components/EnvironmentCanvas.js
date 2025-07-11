@@ -51,7 +51,7 @@ export default function EnvironmentCanvas({ cellSize, step, stepEnabled }) {
     let progressAnim = 0;
 
     const draw = () => {
-      const hour = stepEnabled ? stepRef.current % 24 : DAY_START;
+      const hour = stepEnabled ? stepRef.current % 24 : DAY_START + 1;
 
       let target;
       if (hour >= DAY_START && hour < DAY_START + 1) {

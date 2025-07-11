@@ -3,7 +3,7 @@
   color: #0f0;
   font-family: monospace;
   padding: 0.5rem;
-  height: 200px;
+  height: 70vh;
   overflow-y: auto;
 }
 .console-entry + .console-entry {
