@@ -7,7 +7,7 @@ export const SOLAR_CELLS = [
   { row: 6, col: 4 },
   { row: 6, col: 5 },
 ];
-export const CONTROLLER_CELLS = [{ row: 6, col: 5 }];
+export const CONTROLLER_CELLS = [{ row: 5, col: 6 }];
 export const BATTERY_CELLS = [
   { row: 5, col: 7 },
   { row: 5, col: 8 },
