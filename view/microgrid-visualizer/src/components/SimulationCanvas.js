@@ -15,7 +15,7 @@ import {
   cellKey,
 } from '../utils/placement';
 
-function SimulationCanvas({ onDrop, step, stepEnabled, children }) {
+function SimulationCanvas({ onDrop, step, stepEnabled, onCanvasClick, children }) {
   const ref = useRef(null);
   const [cellSize, setCellSize] = useState(GRID_SIZE);
   const [canvasWidth, setCanvasWidth] = useState(GRID_COLS * GRID_SIZE);
@@ -138,6 +138,7 @@ function SimulationCanvas({ onDrop, step, stepEnabled, children }) {
     <div
       ref={ref}
       className="drawing-area"
+      onClick={() => onCanvasClick && onCanvasClick()}
       style={{
         position: 'relative',
         width: '100%',
@@ -161,6 +162,7 @@ SimulationCanvas.propTypes = {
   onDrop: PropTypes.func.isRequired,
   step: PropTypes.number.isRequired,
   stepEnabled: PropTypes.bool.isRequired,
+  onCanvasClick: PropTypes.func,
   children: PropTypes.node,
 };
 
