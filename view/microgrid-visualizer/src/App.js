@@ -232,6 +232,28 @@ function App() {
     }
   }, [modules.length]);
 
+  useEffect(() => {
+    const updateSoc = async () => {
+      try {
+        const status = await api.getStatus();
+        const batteryStates = status?.battery || [];
+        modules.forEach((m) => {
+          if (m.type !== 'battery' || !m.backendId) return;
+          const idx = parseInt(m.backendId.split('_')[1], 10);
+          const soc = batteryStates[idx]?.soc;
+          if (typeof soc === 'number' && soc !== m.state?.soc) {
+            updateModule({ ...m, state: { ...m.state, soc } });
+          }
+        });
+      } catch (_) {
+        /* ignore errors */
+      }
+    };
+    updateSoc();
+    const id = setInterval(updateSoc, 3000);
+    return () => clearInterval(id);
+  }, [modules.map((m) => m.backendId).join('')]);
+
   const handleSetup = async () => {
     let payload = null;
     try {
