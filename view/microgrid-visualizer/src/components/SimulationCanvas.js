@@ -15,7 +15,7 @@ import {
   cellKey,
 } from '../utils/placement';
 
-function SimulationCanvas({ onDrop, step, children }) {
+function SimulationCanvas({ onDrop, step, stepEnabled, children }) {
   const ref = useRef(null);
   const [cellSize, setCellSize] = useState(GRID_SIZE);
   const {
@@ -140,7 +140,7 @@ function SimulationCanvas({ onDrop, step, children }) {
         '--cell-size': `${cellSize}px`,
       }}
     >
-      <EnvironmentCanvas cellSize={cellSize} step={step} />
+      <EnvironmentCanvas cellSize={cellSize} step={step} stepEnabled={stepEnabled} />
       {placeholders}
       {children}
     </div>
@@ -150,6 +150,7 @@ function SimulationCanvas({ onDrop, step, children }) {
 SimulationCanvas.propTypes = {
   onDrop: PropTypes.func.isRequired,
   step: PropTypes.number.isRequired,
+  stepEnabled: PropTypes.bool.isRequired,
   children: PropTypes.node,
 };
 
