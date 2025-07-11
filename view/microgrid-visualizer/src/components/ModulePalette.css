@@ -1,14 +1,14 @@
 .module-palette {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 2rem;
 }
 
 .module-icon {
   cursor: grab;
   width: 40px;
   height: 40px;
-  transform: rotateX(60deg) rotateZ(45deg);
 }
 
 .module-icon img {
