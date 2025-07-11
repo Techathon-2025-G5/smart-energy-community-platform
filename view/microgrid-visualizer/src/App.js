@@ -8,8 +8,12 @@ import SimulationCanvas from './components/SimulationCanvas';
 import CanvasItem from './components/CanvasItem';
 import ComponentDetails from './components/ComponentDetails';
 import FooterTabs from './components/FooterTabs';
-import { FaHome, FaBuilding, FaSolarPanel, FaBatteryFull, FaRobot } from 'react-icons/fa';
-import HighVoltageTowerIcon from './components/HighVoltageTowerIcon';
+import houseImg from './assets/house.png';
+import buildingImg from './assets/building.png';
+import solarImg from './assets/solar_panel.png';
+import batteryImg from './assets/battery.png';
+import gridImg from './assets/grid.png';
+import controllerImg from './assets/controller.png';
 import { useAppState } from './context/AppState';
 
 function App() {
@@ -130,12 +134,12 @@ function App() {
   };
 
   const icons = {
-    house: <FaHome />,
-    building: <FaBuilding />,
-    solar: <FaSolarPanel />,
-    battery: <FaBatteryFull />,
-    grid: <HighVoltageTowerIcon />,
-    controller: <FaRobot />,
+    house: <img src={houseImg} alt="house" />,
+    building: <img src={buildingImg} alt="building" />,
+    solar: <img src={solarImg} alt="solar" />,
+    battery: <img src={batteryImg} alt="battery" />,
+    grid: <img src={gridImg} alt="grid" />,
+    controller: <img src={controllerImg} alt="controller" />,
   };
 
   useEffect(() => {
