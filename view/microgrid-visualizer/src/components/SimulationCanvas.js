@@ -12,9 +12,9 @@ function SimulationCanvas({ onDrop, step, children }) {
   useLayoutEffect(() => {
     const update = () => {
       if (ref.current) {
-        const h = ref.current.clientHeight;
-        if (h) {
-          setCellSize(h / GRID_ROWS);
+        const w = ref.current.clientWidth;
+        if (w) {
+          setCellSize(w / GRID_COLS);
         }
       }
     };
@@ -46,8 +46,8 @@ function SimulationCanvas({ onDrop, step, children }) {
       className="drawing-area"
       style={{
         position: 'relative',
-        width: cellSize * GRID_COLS,
-        height: '100%',
+        width: '100%',
+        height: `${cellSize * GRID_ROWS}px`,
         '--cell-size': `${cellSize}px`,
       }}
     >
