@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { GRID_SIZE, GRID_ROWS, GRID_COLS } from '../utils/constants';
 import EnvironmentCanvas from './EnvironmentCanvas';
 
-function SimulationCanvas({ onDrop, children }) {
+function SimulationCanvas({ onDrop, step, children }) {
   const ref = useRef(null);
   const [cellSize, setCellSize] = useState(GRID_SIZE);
 
@@ -51,7 +51,7 @@ function SimulationCanvas({ onDrop, children }) {
         '--cell-size': `${cellSize}px`,
       }}
     >
-      <EnvironmentCanvas cellSize={cellSize} />
+      <EnvironmentCanvas cellSize={cellSize} step={step} />
       {children}
     </div>
   );
@@ -59,6 +59,7 @@ function SimulationCanvas({ onDrop, children }) {
 
 SimulationCanvas.propTypes = {
   onDrop: PropTypes.func.isRequired,
+  step: PropTypes.number.isRequired,
   children: PropTypes.node,
 };
 

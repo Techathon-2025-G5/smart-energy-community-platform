@@ -302,7 +302,7 @@ function App() {
         <ModulePalette />
       </aside>
 
-      <SimulationCanvas onDrop={handleDrop}>
+      <SimulationCanvas onDrop={handleDrop} step={stepCount}>
         {modules.map((m) => (
           <CanvasItem
             key={m.id}

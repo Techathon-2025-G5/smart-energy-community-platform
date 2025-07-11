@@ -28,8 +28,14 @@ function toCanvasCoords(row, col, size, h) {
   return [x, y];
 }
 
-export default function EnvironmentCanvas({ cellSize }) {
+export default function EnvironmentCanvas({ cellSize, step }) {
   const canvasRef = useRef(null);
+  const stepRef = useRef(step);
+
+  // keep latest step value for animation loop
+  useEffect(() => {
+    stepRef.current = step;
+  }, [step]);
   const width = GRID_COLS * cellSize;
   const height = GRID_ROWS * cellSize;
 
@@ -41,20 +47,25 @@ export default function EnvironmentCanvas({ cellSize }) {
     const tree = new Image();
     tree.src = treeImg;
 
-    const draw = () => {
-      const now = new Date();
-      const hour = now.getHours() + now.getMinutes() / 60;
+    // animated progress for day/night cycle
+    let progressAnim = 0;
 
-      let progress;
+    const draw = () => {
+      const hour = stepRef.current % 24;
+
+      let target;
       if (hour >= DAY_START && hour < DAY_START + 1) {
-        progress = hour - DAY_START;
+        target = hour - DAY_START;
       } else if (hour >= NIGHT_START && hour < NIGHT_START + 1) {
-        progress = 1 - (hour - NIGHT_START);
+        target = 1 - (hour - NIGHT_START);
       } else if (hour >= DAY_START + 1 && hour < NIGHT_START) {
-        progress = 1;
+        target = 1;
       } else {
-        progress = 0;
+        target = 0;
       }
+      // smooth transition
+      progressAnim += (target - progressAnim) * 0.1;
+      const progress = progressAnim;
 
       ctx.clearRect(0, 0, width, height);
 
@@ -127,4 +138,5 @@ export default function EnvironmentCanvas({ cellSize }) {
 
 EnvironmentCanvas.propTypes = {
   cellSize: PropTypes.number.isRequired,
+  step: PropTypes.number.isRequired,
 };
