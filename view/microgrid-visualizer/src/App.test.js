@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders demo title', () => {
+test('renders app title', () => {
   render(<App />);
-  const title = screen.getByText(/Microgrid Frontend Demo/i);
+  const title = screen.getByText(/Renewable Energy Community Simulator/i);
   expect(title).toBeInTheDocument();
 });
