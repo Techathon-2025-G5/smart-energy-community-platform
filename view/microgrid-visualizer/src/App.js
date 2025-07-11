@@ -15,6 +15,7 @@ import batteryImg from './assets/battery.png';
 import gridImg from './assets/grid.png';
 import controllerImg from './assets/controller.png';
 import { useAppState } from './context/AppState';
+import { isAllowed, cellKey } from './utils/placement';
 
 function App() {
   const [stepEnabled, setStepEnabled] = useState(false);
@@ -99,7 +100,20 @@ function App() {
     };
   };
 
-  const handleDrop = async (item, left, top) => {
+  const handleDrop = async (item, left, top, row, col, cellSize) => {
+    if (!isAllowed(item.type, row, col)) {
+      return;
+    }
+    const posKey = cellKey(row, col);
+    const occupied = modules.find((m) => {
+      const c = Math.round(m.left / cellSize) + 1;
+      const r = 8 - Math.round(m.top / cellSize);
+      return cellKey(r, c) === posKey;
+    });
+    if (occupied && (!item.id || occupied.id !== item.id)) {
+      return;
+    }
+
     if (item.id) {
       moveModule({ id: item.id, left, top });
     } else {
