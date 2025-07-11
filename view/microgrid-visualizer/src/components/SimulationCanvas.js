@@ -18,6 +18,7 @@ import {
 function SimulationCanvas({ onDrop, step, stepEnabled, children }) {
   const ref = useRef(null);
   const [cellSize, setCellSize] = useState(GRID_SIZE);
+  const [canvasWidth, setCanvasWidth] = useState(GRID_COLS * GRID_SIZE);
   const {
     state: { modules },
   } = useAppState();
@@ -26,8 +27,12 @@ function SimulationCanvas({ onDrop, step, stepEnabled, children }) {
     const update = () => {
       if (ref.current) {
         const h = ref.current.clientHeight;
+        const w = ref.current.clientWidth;
         if (h) {
           setCellSize(h / GRID_ROWS);
+        }
+        if (w) {
+          setCanvasWidth(w);
         }
       }
     };
@@ -135,12 +140,17 @@ function SimulationCanvas({ onDrop, step, stepEnabled, children }) {
       className="drawing-area"
       style={{
         position: 'relative',
-        width: cellSize * GRID_COLS,
+        width: '100%',
         height: '100%',
         '--cell-size': `${cellSize}px`,
       }}
     >
-      <EnvironmentCanvas cellSize={cellSize} step={step} stepEnabled={stepEnabled} />
+      <EnvironmentCanvas
+        cellSize={cellSize}
+        step={step}
+        stepEnabled={stepEnabled}
+        width={canvasWidth}
+      />
       {placeholders}
       {children}
     </div>

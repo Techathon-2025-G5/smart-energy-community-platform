@@ -28,7 +28,7 @@ function toCanvasCoords(row, col, size, h) {
   return [x, y];
 }
 
-export default function EnvironmentCanvas({ cellSize, step, stepEnabled }) {
+export default function EnvironmentCanvas({ cellSize, step, stepEnabled, width }) {
   const canvasRef = useRef(null);
   const stepRef = useRef(step);
 
@@ -36,7 +36,7 @@ export default function EnvironmentCanvas({ cellSize, step, stepEnabled }) {
   useEffect(() => {
     stepRef.current = step;
   }, [step]);
-  const width = GRID_COLS * cellSize;
+  const canvasWidth = width || GRID_COLS * cellSize;
   const height = GRID_ROWS * cellSize;
 
   useEffect(() => {
@@ -67,14 +67,14 @@ export default function EnvironmentCanvas({ cellSize, step, stepEnabled }) {
       progressAnim += (target - progressAnim) * 0.1;
       const progress = progressAnim;
 
-      ctx.clearRect(0, 0, width, height);
+      ctx.clearRect(0, 0, canvasWidth, height);
 
       const skyColor = lerp(skyNight, skyDay, progress);
       const groundColor = lerp(groundNight, groundDay, progress);
 
       // sky
       ctx.fillStyle = skyColor;
-      ctx.fillRect(0, 0, width, cellSize * 2);
+      ctx.fillRect(0, 0, canvasWidth, cellSize * 2);
 
       const sunRow = 6 + 2 * progress;
       const moonRow = 8 - 2 * progress;
@@ -96,7 +96,7 @@ export default function EnvironmentCanvas({ cellSize, step, stepEnabled }) {
 
       // ground drawn after celestial bodies so they hide behind terrain
       ctx.fillStyle = groundColor;
-      ctx.fillRect(0, height - cellSize * 6, width, cellSize * 6);
+      ctx.fillRect(0, height - cellSize * 6, canvasWidth, cellSize * 6);
 
       // street row 2
       if (street.complete) {
@@ -126,12 +126,12 @@ export default function EnvironmentCanvas({ cellSize, step, stepEnabled }) {
     };
     loop();
     return () => cancelAnimationFrame(raf);
-  }, [cellSize]);
+  }, [cellSize, canvasWidth]);
 
   return (
     <canvas
       ref={canvasRef}
-      width={width}
+      width={canvasWidth}
       height={height}
       style={{ position: 'absolute', left: 0, top: 0 }}
     />
@@ -142,4 +142,5 @@ EnvironmentCanvas.propTypes = {
   cellSize: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
   stepEnabled: PropTypes.bool.isRequired,
+  width: PropTypes.number,
 };
