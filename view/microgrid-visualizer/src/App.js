@@ -358,7 +358,6 @@ function App() {
       setStepEnabled(true);
       setPlayEnabled(hasController);
       setPauseEnabled(false);
-      // maintain setup state when resetting the simulation
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response });
     } catch (err) {
       
