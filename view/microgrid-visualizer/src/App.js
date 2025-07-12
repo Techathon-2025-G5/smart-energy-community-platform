@@ -133,7 +133,10 @@ function App() {
       const newModule = {
         id: uuidv4(),
         type: item.type,
-        idx: modules.filter((m) => m.type === item.type).length + 1,
+        idx:
+          ['house', 'building'].includes(item.type)
+            ? modules.filter((m) => ['house', 'building'].includes(m.type)).length + 1
+            : modules.filter((m) => m.type === item.type).length + 1,
         left,
         top,
         ...(defaults[item.type] || { params: {}, state: {} }),
