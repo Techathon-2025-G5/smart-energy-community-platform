@@ -11,6 +11,21 @@ import SolarStatus from "./SolarStatus";
 import GridStatus from "./GridStatus";
 import ControllerStatus from "./ControllerStatus";
 
+const FIELD_LABELS = {
+  profile: 'Profile',
+  max_import: 'Max. import',
+  max_export: 'Max. export',
+  cost_per_unit_co2: 'Cost / CO2',
+  controller: 'Controller',
+  min_capacity: 'Min. capacity',
+  max_capacity: 'Max. capacity',
+  max_charge: 'Max. charge',
+  max_discharge: 'Max. discharge',
+  efficiency: 'Efficiency',
+  battery_cost_cycle: 'Cost cycle',
+  init_soc: 'Initial SoC',
+};
+
 function getTitle(module) {
   if (!module) return '';
   const idx = module.backendId
@@ -136,7 +151,7 @@ function ComponentDetails({ module, onChange, isSetup }) {
         {module.type === 'controller' && (
           <div key="controller-name">
             <label>
-              controller:
+              {FIELD_LABELS.controller}:
               <select
                 value={module.params.name || controllerOptions[0] || ''}
                 onChange={(e) => handleParamChange('name', e.target.value)}
@@ -154,7 +169,7 @@ function ComponentDetails({ module, onChange, isSetup }) {
         {Object.keys(profiles).length > 0 && module.type !== 'controller' && (
           <div key="profile">
             <label>
-              profile:
+              {FIELD_LABELS.profile}:
               <select
                 value={module.params.time_series_profile || Object.keys(profiles)[0] || ''}
                 onChange={(e) =>
@@ -182,7 +197,7 @@ function ComponentDetails({ module, onChange, isSetup }) {
           .map(([key, value]) => (
           <div key={key}>
             <label>
-              {key}:
+              {FIELD_LABELS[key] || key}:
               <input
                 type="text"
                 value={value}
