@@ -227,6 +227,7 @@ function App() {
     setPlayEnabled(false);
     setPauseEnabled(false);
     setResetEnabled(false);
+    setIsSetup(false);
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -324,6 +325,18 @@ function App() {
     setPauseEnabled(false);
   };
 
+  const handleStop = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setStepEnabled(false);
+    setPlayEnabled(false);
+    setPauseEnabled(false);
+    setResetEnabled(false);
+    setIsSetup(false);
+  };
+
   const handleRunStep = async () => {
     try {
       const actions = { actions: { grid: [0], battery: [0] } };
@@ -374,10 +387,12 @@ function App() {
             onRunStep={handleRunStep}
             onPlay={handlePlay}
             onPause={handlePause}
+            onStop={handleStop}
             onReset={handleReset}
             stepDisabled={!stepEnabled}
             playDisabled={!playEnabled}
             pauseDisabled={!pauseEnabled}
+            stopDisabled={!isSetup}
             resetDisabled={!resetEnabled}
             step={stepCount}
           />
