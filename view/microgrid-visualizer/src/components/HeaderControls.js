@@ -47,7 +47,7 @@ function HeaderControls({
       <button onClick={onPause} title="Pause" disabled={pauseDisabled}>
         <FaPause />
       </button>
-      <span className="sim-time">Día {day} - {hour}h</span>
+      <span className="sim-time">Day {day} - {hour}h</span>
     </div>
   );
 }
