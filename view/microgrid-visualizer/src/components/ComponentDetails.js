@@ -186,12 +186,12 @@ function ComponentDetails({ module, onChange, isSetup }) {
       break;
     case 'house':
       statusContent = (
-        <HouseStatus history={history} currentState={currentState} />
+        <HouseStatus module={module} history={history} currentState={currentState} />
       );
       break;
     case 'building':
       statusContent = (
-        <BuildingStatus history={history} currentState={currentState} />
+        <BuildingStatus module={module} history={history} currentState={currentState} />
       );
       break;
     case 'solar':
