@@ -1,0 +1,13 @@
+/* Shared styles for all component status tabs */
+
+.component-status {
+  color: white;
+}
+
+.component-status .component-history {
+  margin-top: 1rem;
+}
+
+.component-status .component-history select {
+  margin-top: 0.5rem;
+}
