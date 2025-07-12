@@ -358,7 +358,6 @@ function App() {
       setStepEnabled(true);
       setPlayEnabled(hasController);
       setPauseEnabled(false);
-      setIsSetup(false);
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response });
     } catch (err) {
       
