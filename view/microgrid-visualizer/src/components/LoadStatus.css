@@ -1,0 +1,52 @@
+.load-grid {
+  display: grid;
+  grid-template-columns: 1fr 60px;
+  grid-template-rows: auto auto auto auto;
+  grid-template-areas:
+    'requested soc'
+    'available soc'
+    'graph graph'
+    'reward reward';
+  gap: 0.5rem;
+}
+
+.requested-value {
+  grid-area: requested;
+  text-align: center;
+}
+
+.available-value {
+  grid-area: available;
+  text-align: center;
+}
+
+.soc-graph {
+    grid-area: soc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.load-graph {
+  grid-area: graph;
+}
+
+.reward-graph {
+  grid-area: reward;
+}
+
+.soc-bar {
+    width: 30px;
+    height: 100px;
+    background: var(--red);
+    position: relative;
+    margin-bottom: 4px;
+}
+
+.soc-fill {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: var(--green);
+}
