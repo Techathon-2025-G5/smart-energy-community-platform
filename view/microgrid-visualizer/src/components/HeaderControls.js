@@ -4,7 +4,7 @@ import {
   FaPlay,
   FaPause,
   FaStop,
-  FaFolderOpen,
+  FaWrench,
   FaRedo,
 } from 'react-icons/fa';
 import ConnectionIndicator from './ConnectionIndicator';
@@ -30,7 +30,7 @@ function HeaderControls({
     <div className="header-controls">
       <ConnectionIndicator />
       <button onClick={onSetup} title="Setup">
-        <FaFolderOpen />
+        <FaWrench />
       </button>
       <button onClick={onReset} title="Reset" disabled={resetDisabled}>
         <FaRedo />
