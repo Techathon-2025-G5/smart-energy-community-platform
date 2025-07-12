@@ -1,0 +1,59 @@
+.battery-grid {
+  display: grid;
+  grid-template-columns: 1fr 60px;
+  grid-template-rows: auto auto auto auto;
+  grid-template-areas:
+    'charge soc'
+    'variation soc'
+    'graph graph'
+    'reward reward';
+  gap: 0.5rem;
+  color: white;
+}
+
+.charge-value {
+  grid-area: charge;
+  text-align: center;
+}
+
+.variation-value {
+  grid-area: variation;
+  text-align: center;
+}
+
+.soc-graph {
+  grid-area: soc;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.charge-graph {
+  grid-area: graph;
+}
+
+.reward-graph {
+  grid-area: reward;
+}
+
+.soc-bar {
+  width: 30px;
+  height: 100px;
+  background: red;
+  position: relative;
+}
+
+.soc-fill {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: green;
+}
+
+.value {
+  font-size: 1.5rem;
+}
+
+.label {
+  font-size: 0.8rem;
+}

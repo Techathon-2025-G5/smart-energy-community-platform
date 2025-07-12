@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import api from '../api/client';
 import ComponentChart from './ComponentChart';
+import BatteryStatus from './BatteryStatus';
 import { parseLog } from '../utils/log';
 import './ComponentDetails.css';
 
@@ -167,7 +168,9 @@ function ComponentDetails({ module, onChange, isSetup }) {
     </>
   );
 
-  const statusContent = (
+  const statusContent = module.type === 'battery' ? (
+    <BatteryStatus module={module} history={history} currentState={currentState} />
+  ) : (
     <>
       <div className="component-state">
         <h4>State</h4>
