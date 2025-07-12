@@ -279,6 +279,20 @@ export default function GridStatus({ history, currentState }) {
         </div>
         <div className="price-graph">
           <div className="label">Prices &amp; CO2</div>
+          <div className="price-legend">
+            <span className="legend-item">
+              <span className="legend-dot" style={{ background: 'var(--red)' }} />
+              Import
+            </span>
+            <span className="legend-item">
+              <span className="legend-dot" style={{ background: 'var(--green)' }} />
+              Export
+            </span>
+            <span className="legend-item">
+              <span className="legend-dot" style={{ background: 'var(--blue)' }} />
+              CO2
+            </span>
+          </div>
           <LineChart
             importData={importPriceHist}
             exportData={exportPriceHist}
