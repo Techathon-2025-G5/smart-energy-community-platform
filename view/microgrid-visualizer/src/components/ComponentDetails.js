@@ -196,7 +196,11 @@ function ComponentDetails({ module, onChange, isSetup }) {
       break;
     case 'solar':
       statusContent = (
-        <SolarStatus history={history} currentState={currentState} />
+        <SolarStatus
+          module={module}
+          history={history}
+          currentState={currentState}
+        />
       );
       break;
     case 'grid':
