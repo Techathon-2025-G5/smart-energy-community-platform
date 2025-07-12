@@ -10,8 +10,8 @@ function NetAreaChart({ data, steps }) {
   useEffect(() => {
     const svg = d3.select(ref.current);
     const width = 300;
-    const height = 180;
-    const margin = { top: 20, right: 10, bottom: 30, left: 30 };
+    const height = 150;
+    const margin = { top: 15, right: 10, bottom: 15, left: 30 };
 
     svg.attr('viewBox', `0 0 ${width} ${height}`);
     svg.selectAll('*').remove();
@@ -75,8 +75,8 @@ function LineChart({ importData, exportData, co2Data, steps }) {
   useEffect(() => {
     const svg = d3.select(ref.current);
     const width = 300;
-    const height = 180;
-    const margin = { top: 20, right: 10, bottom: 30, left: 30 };
+    const height = 150;
+    const margin = { top: 15, right: 10, bottom: 15, left: 30 };
 
     svg.attr('viewBox', `0 0 ${width} ${height}`);
     svg.selectAll('*').remove();
@@ -157,8 +157,8 @@ function RewardChart({ data, steps }) {
   useEffect(() => {
     const svg = d3.select(ref.current);
     const width = 300;
-    const height = 180;
-    const margin = { top: 20, right: 10, bottom: 30, left: 30 };
+    const height = 150;
+    const margin = { top: 15, right: 10, bottom: 15, left: 30 };
 
     svg.attr('viewBox', `0 0 ${width} ${height}`);
     svg.selectAll('*').remove();
@@ -270,7 +270,7 @@ export default function GridStatus({ history, currentState }) {
           <div className="label">{energyLabel}</div>
         </div>
         <div className="money-value">
-          <div className="value" style={{ color: moneyColor }}>{money.toFixed(2)}</div>
+          <div className="value" style={{ color: moneyColor }}>{money.toFixed(2)}&euro;</div>
           <div className="label">{moneyLabel}</div>
         </div>
         <div className="net-graph">

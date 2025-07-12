@@ -31,3 +31,8 @@
 .reward-graph {
   grid-area: reward;
 }
+
+.energy-value .value,
+.money-value .value {
+    font-size: 1.1rem;
+}
