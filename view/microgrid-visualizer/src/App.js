@@ -33,6 +33,7 @@ function App() {
   const [pauseEnabled, setPauseEnabled] = useState(false);
   const [resetEnabled, setResetEnabled] = useState(false);
   const [stepCount, setStepCount] = useState(0);
+  const [isSetup, setIsSetup] = useState(false);
   const intervalRef = useRef(null);
   const {
     state: { modules, selected },
@@ -291,6 +292,7 @@ function App() {
       setStepEnabled(false);
       setPlayEnabled(false);
       setPauseEnabled(false);
+      setIsSetup(true);
       addLog({ method: 'POST', endpoint: '/setup', payload, response });
     } catch (err) {
       
@@ -356,6 +358,7 @@ function App() {
       setStepEnabled(true);
       setPlayEnabled(hasController);
       setPauseEnabled(false);
+      // maintain setup state when resetting the simulation
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response });
     } catch (err) {
       
@@ -409,6 +412,7 @@ function App() {
         <ComponentDetails
           module={modules.find((m) => m.id === selected)}
           onChange={updateModule}
+          isSetup={isSetup}
         />
       </section>
 

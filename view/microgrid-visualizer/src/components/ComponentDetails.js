@@ -5,12 +5,13 @@ import ComponentChart from './ComponentChart';
 import { parseLog } from '../utils/log';
 import './ComponentDetails.css';
 
-function ComponentDetails({ module, onChange }) {
+function ComponentDetails({ module, onChange, isSetup }) {
   const [profiles, setProfiles] = useState({});
   const [controllerOptions, setControllerOptions] = useState([]);
   const [currentState, setCurrentState] = useState({});
   const [history, setHistory] = useState({});
   const [field, setField] = useState('');
+  const [activeTab, setActiveTab] = useState('Configuration');
 
   useEffect(() => {
     if (module && module.type) {
@@ -84,6 +85,12 @@ function ComponentDetails({ module, onChange }) {
     return () => clearInterval(id);
   }, [module?.id]);
 
+  useEffect(() => {
+    if (!isSetup) {
+      setActiveTab('Configuration');
+    }
+  }, [isSetup]);
+
   if (!module) {
     return <div className="component-details">Select a component</div>;
   }
@@ -93,8 +100,8 @@ function ComponentDetails({ module, onChange }) {
     onChange({ ...module, params: newParams });
   };
 
-  return (
-    <div className="component-details">
+  const configContent = (
+    <>
       <h3>{module.type} parameters</h3>
       <form>
         {module.type === 'controller' && (
@@ -104,6 +111,7 @@ function ComponentDetails({ module, onChange }) {
               <select
                 value={module.params.name || controllerOptions[0] || ''}
                 onChange={(e) => handleParamChange('name', e.target.value)}
+                disabled={isSetup}
               >
                 {controllerOptions.map((name) => (
                   <option key={name} value={name}>
@@ -123,6 +131,7 @@ function ComponentDetails({ module, onChange }) {
                 onChange={(e) =>
                   handleParamChange('time_series_profile', e.target.value)
                 }
+                disabled={isSetup}
               >
                 {Object.keys(profiles).map((name) => (
                   <option key={name} value={name}>
@@ -149,11 +158,17 @@ function ComponentDetails({ module, onChange }) {
                 type="text"
                 value={value}
                 onChange={(e) => handleParamChange(key, e.target.value)}
+                disabled={isSetup}
               />
             </label>
           </div>
         ))}
       </form>
+    </>
+  );
+
+  const statusContent = (
+    <>
       <div className="component-state">
         <h4>State</h4>
         <pre>{JSON.stringify(currentState || {}, null, 2)}</pre>
@@ -174,6 +189,31 @@ function ComponentDetails({ module, onChange }) {
           </select>
         </div>
       )}
+    </>
+  );
+
+  return (
+    <div className="component-details">
+      <div className="details-tabs">
+        <div className="tab-headers">
+          <button
+            className={activeTab === 'Configuration' ? 'active' : ''}
+            onClick={() => setActiveTab('Configuration')}
+          >
+            Configuration
+          </button>
+          <button
+            className={activeTab === 'Status' ? 'active' : ''}
+            onClick={() => isSetup && setActiveTab('Status')}
+            disabled={!isSetup}
+          >
+            Status
+          </button>
+        </div>
+        <div className="tab-content">
+          {activeTab === 'Configuration' ? configContent : statusContent}
+        </div>
+      </div>
     </div>
   );
 }
@@ -187,6 +227,11 @@ ComponentDetails.propTypes = {
     state: PropTypes.object,
   }),
   onChange: PropTypes.func.isRequired,
+  isSetup: PropTypes.bool,
 };
 
 export default ComponentDetails;
+
+ComponentDetails.defaultProps = {
+  isSetup: false,
+};
