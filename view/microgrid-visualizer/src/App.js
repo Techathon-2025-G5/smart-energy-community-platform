@@ -198,9 +198,11 @@ function App() {
       case 'battery':
         return <img src={getBatteryImage(module.state?.soc)} alt="battery" />;
       case 'grid': {
-        const status = module.state?.grid_status_current;
-        if (status === 0) return <img src={gridOffImg} alt="grid" />;
-        if (status === 1) return <img src={gridOnImg} alt="grid" />;
+        if (isSetup) {
+          const status = module.state?.grid_status_current;
+          if (status === 0) return <img src={gridOffImg} alt="grid" />;
+          if (status === 1) return <img src={gridOnImg} alt="grid" />;
+        }
         return <img src={gridImg} alt="grid" />;
       }
       case 'controller':

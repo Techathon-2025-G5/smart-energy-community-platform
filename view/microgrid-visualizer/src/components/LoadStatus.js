@@ -88,11 +88,12 @@ function RewardChart({ data, steps }) {
     svg.attr('viewBox', `0 0 ${width} ${height}`);
     svg.selectAll('*').remove();
 
+    const domainMax = Math.max(data.length, 5);
     const x = d3
       .scaleLinear()
-      .domain([0, Math.max(data.length - 1, 5)])
+      .domain([0, domainMax])
       .range([margin.left, width - margin.right]);
-    const barWidth = (width - margin.left - margin.right) / Math.max(data.length, 1);
+    const barWidth = (width - margin.left - margin.right) / domainMax;
     const y = d3
       .scaleLinear()
       .domain([
@@ -106,7 +107,7 @@ function RewardChart({ data, steps }) {
       .data(data)
       .enter()
       .append('rect')
-      .attr('x', (_, i) => x(i) - barWidth / 2)
+      .attr('x', (_, i) => x(i))
       .attr('y', (d) => (d >= 0 ? y(d) : y(0)))
       .attr('height', (d) => Math.abs(y(d) - y(0)))
       .attr('width', barWidth - 1)
@@ -129,8 +130,8 @@ function RewardChart({ data, steps }) {
       .call(
         d3
           .axisBottom(x)
-          .tickValues(tickIndices)
-          .tickFormat((d) => (steps ? Math.floor(steps[d] / 24) + 1 : d))
+          .tickValues(tickIndices.map((i) => i + 0.5))
+          .tickFormat((d) => (steps ? Math.floor(steps[Math.floor(d)] / 24) + 1 : Math.floor(d)))
       );
   }, [data, steps]);
 
