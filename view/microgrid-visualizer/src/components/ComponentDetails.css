@@ -39,3 +39,31 @@
 .details-tabs .tab-content {
   padding: 0.5rem;
 }
+/* Form styling */
+.component-details form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.component-details label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  color: var(--label-dark);
+}
+
+.component-details input,
+.component-details select {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--label-dark);
+  border-radius: 4px;
+  background-color: var(--background-light);
+  color: inherit;
+}
+
+.component-details input:disabled,
+.component-details select:disabled {
+  background-color: var(--disabled);
+  color: var(--label-light);
+}
