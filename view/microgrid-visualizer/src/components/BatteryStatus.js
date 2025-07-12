@@ -11,14 +11,59 @@ function SocBar({ value }) {
   );
 }
 
-function AreaChart({ data, max }) {
+function AreaChart({ data, max, steps }) {
   const ref = useRef(null);
 
   useEffect(() => {
     const svg = d3.select(ref.current);
     const width = 300;
     const height = 180;
-    const margin = { top: 20, right: 10, bottom: 20, left: 30 };
+  const margin = { top: 20, right: 10, bottom: 30, left: 30 };
+
+    svg.attr('viewBox', `0 0 ${width} ${height}`);
+    svg.selectAll('*').remove();
+
+  const x = d3
+    .scaleLinear()
+    .domain([0, Math.max(data.length - 1, 5)])
+    .range([margin.left, width - margin.right]);
+    const y = d3
+      .scaleLinear()
+      .domain([0, max || d3.max(data) || 1])
+      .range([height - margin.bottom, margin.top]);
+
+  const area = d3
+    .area()
+    .x((d, i) => x(i))
+    .y0(y(0))
+    .y1((d) => y(d));
+
+  svg.append('path').datum(data).attr('fill', '#74971a').attr('d', area);
+  svg.append('g').attr('transform', `translate(${margin.left},0)`).call(d3.axisLeft(y));
+  const tickStep = Math.max(1, Math.ceil(data.length / 7));
+  const tickIndices = steps ? steps.map((_, i) => i).filter((i) => i % tickStep === 0) : x.ticks(5);
+  svg
+    .append('g')
+    .attr('transform', `translate(0,${height - margin.bottom})`)
+    .call(
+      d3
+        .axisBottom(x)
+        .tickValues(tickIndices)
+        .tickFormat((d) => (steps ? steps[d] % 24 : d))
+    );
+  }, [data, max, steps]);
+
+  return <svg ref={ref}></svg>;
+}
+
+function RewardChart({ data, steps }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const svg = d3.select(ref.current);
+    const width = 300;
+    const height = 180;
+    const margin = { top: 20, right: 10, bottom: 30, left: 30 };
 
     svg.attr('viewBox', `0 0 ${width} ${height}`);
     svg.selectAll('*').remove();
@@ -27,45 +72,7 @@ function AreaChart({ data, max }) {
       .scaleLinear()
       .domain([0, Math.max(data.length - 1, 5)])
       .range([margin.left, width - margin.right]);
-    const y = d3
-      .scaleLinear()
-      .domain([0, max || d3.max(data) || 1])
-      .range([height - margin.bottom, margin.top]);
-
-    const area = d3
-      .area()
-      .x((d, i) => x(i))
-      .y0(y(0))
-      .y1((d) => y(d));
-
-    svg.append('path').datum(data).attr('fill', '#74971a').attr('d', area);
-    svg.append('g').attr('transform', `translate(${margin.left},0)`).call(d3.axisLeft(y));
-    svg
-      .append('g')
-      .attr('transform', `translate(0,${height - margin.bottom})`)
-      .call(d3.axisBottom(x).ticks(5));
-  }, [data, max]);
-
-  return <svg ref={ref}></svg>;
-}
-
-function RewardChart({ data }) {
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const svg = d3.select(ref.current);
-    const width = 300;
-    const height = 180;
-    const margin = { top: 20, right: 10, bottom: 20, left: 30 };
-
-    svg.attr('viewBox', `0 0 ${width} ${height}`);
-    svg.selectAll('*').remove();
-
-    const x = d3
-      .scaleBand()
-      .domain(data.map((_, i) => i))
-      .range([margin.left, width - margin.right])
-      .padding(0.1);
+    const barWidth = (width - margin.left - margin.right) / Math.max(data.length, 1);
     const y = d3
       .scaleLinear()
       .domain([
@@ -79,18 +86,25 @@ function RewardChart({ data }) {
       .data(data)
       .enter()
       .append('rect')
-      .attr('x', (_, i) => x(i))
+      .attr('x', (_, i) => x(i) - barWidth / 2)
       .attr('y', (d) => (d >= 0 ? y(d) : y(0)))
       .attr('height', (d) => Math.abs(y(d) - y(0)))
-      .attr('width', x.bandwidth())
+      .attr('width', barWidth - 1)
       .attr('fill', (d) => (d >= 0 ? '#74971a' : '#ec3137'));
 
     svg.append('g').attr('transform', `translate(${margin.left},0)`).call(d3.axisLeft(y));
+    const tickStep = Math.max(1, Math.ceil(data.length / 7));
+    const tickIndices = steps ? steps.map((_, i) => i).filter((i) => i % tickStep === 0) : x.ticks(5);
     svg
       .append('g')
       .attr('transform', `translate(0,${height - margin.bottom})`)
-      .call(d3.axisBottom(x).ticks(5));
-  }, [data]);
+      .call(
+        d3
+          .axisBottom(x)
+          .tickValues(tickIndices)
+          .tickFormat((d) => (steps ? steps[d] % 24 : d))
+      );
+  }, [data, steps]);
 
   return <svg ref={ref}></svg>;
 }
@@ -98,12 +112,15 @@ function RewardChart({ data }) {
 export default function BatteryStatus({ module, history, currentState }) {
   const idx = module.backendId ? parseInt(module.backendId.split('_')[1], 10) + 1 : 1;
   const maxCap = module.params?.max_capacity || 1;
-  const chargeHist = Object.entries(history.current_charge || {})
-    .sort(([a], [b]) => Number(a) - Number(b))
-    .map(([, v]) => Number(v));
-  const rewardHist = Object.entries(history.reward || {})
-    .sort(([a], [b]) => Number(a) - Number(b))
-    .map(([, v]) => Number(v));
+  const stepSet = new Set([
+    ...Object.keys(history.current_charge || {}),
+    ...Object.keys(history.reward || {}),
+  ]);
+  const steps = Array.from(stepSet)
+    .map(Number)
+    .sort((a, b) => a - b);
+  const chargeHist = steps.map((s) => Number(history.current_charge?.[s] || 0));
+  const rewardHist = steps.map((s) => Number(history.reward?.[s] || 0));
 
   const stepKeys = [
     ...Object.keys(history.charge_amount || {}),
@@ -144,11 +161,11 @@ export default function BatteryStatus({ module, history, currentState }) {
         </div>
         <div className="charge-graph">
             <div className="label">Charge History</div>     
-            <AreaChart data={chargeHist} max={maxCap} />
+            <AreaChart data={chargeHist} max={maxCap} steps={steps} />
         </div>
         <div className="reward-graph">
             <div className="label">Reward History</div>     
-            <RewardChart data={rewardHist} />
+            <RewardChart data={rewardHist} steps={steps} />
         </div>
       </div>
     </div>
