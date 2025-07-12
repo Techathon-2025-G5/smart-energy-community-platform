@@ -127,7 +127,9 @@ function RewardChart({ data, steps }) {
 }
 
 export default function BatteryStatus({ module, history, currentState }) {
-  const idx = module.backendId ? parseInt(module.backendId.split('_')[1], 10) + 1 : 1;
+  const idx = module.backendId
+    ? parseInt(module.backendId.split('_')[1], 10) + 1
+    : module.idx || 1;
   const maxCap = module.params?.max_capacity || 1;
   const stepSet = new Set([
     ...Object.keys(history.current_charge || {}),

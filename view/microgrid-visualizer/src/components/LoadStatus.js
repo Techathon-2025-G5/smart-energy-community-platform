@@ -139,7 +139,9 @@ function RewardChart({ data, steps }) {
 }
 
 export default function LoadStatus({ module, history, currentState }) {
-  const idx = module.backendId ? parseInt(module.backendId.split('_')[1], 10) + 1 : 1;
+  const idx = module.backendId
+    ? parseInt(module.backendId.split('_')[1], 10) + 1
+    : module.idx || 1;
   const stepSet = new Set([
     ...Object.keys(history.load_current || {}),
     ...Object.keys(history.reward || {}),
