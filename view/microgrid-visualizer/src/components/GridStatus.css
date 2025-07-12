@@ -1,1 +1,33 @@
-/* Styles for GridStatus component */
+.grid-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto auto auto;
+  grid-template-areas:
+    'energy money'
+    'net net'
+    'price price'
+    'reward reward';
+  gap: 0.5rem;
+}
+
+.energy-value {
+  grid-area: energy;
+  text-align: center;
+}
+
+.money-value {
+  grid-area: money;
+  text-align: center;
+}
+
+.net-graph {
+  grid-area: net;
+}
+
+.price-graph {
+  grid-area: price;
+}
+
+.reward-graph {
+  grid-area: reward;
+}
