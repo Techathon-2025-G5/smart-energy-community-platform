@@ -11,6 +11,29 @@ import SolarStatus from "./SolarStatus";
 import GridStatus from "./GridStatus";
 import ControllerStatus from "./ControllerStatus";
 
+function getTitle(module) {
+  if (!module) return '';
+  const idx = module.backendId
+    ? parseInt(module.backendId.split('_')[1], 10) + 1
+    : 1;
+  switch (module.type) {
+    case 'battery':
+      return `Battery ${idx}`;
+    case 'solar':
+      return `Solar Panel ${idx}`;
+    case 'house':
+      return `House ${idx}`;
+    case 'building':
+      return `Building ${idx}`;
+    case 'grid':
+      return 'Grid';
+    case 'controller':
+      return 'Controller';
+    default:
+      return module.type;
+  }
+}
+
 function ComponentDetails({ module, onChange, isSetup }) {
   const [profiles, setProfiles] = useState({});
   const [controllerOptions, setControllerOptions] = useState([]);
@@ -108,7 +131,7 @@ function ComponentDetails({ module, onChange, isSetup }) {
 
   const configContent = (
     <>
-      <h3>{module.type} parameters</h3>
+      <h3>{getTitle(module)}</h3>
       <form>
         {module.type === 'controller' && (
           <div key="controller-name">
