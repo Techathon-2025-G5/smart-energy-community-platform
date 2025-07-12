@@ -133,6 +133,7 @@ function App() {
       const newModule = {
         id: uuidv4(),
         type: item.type,
+        idx: modules.filter((m) => m.type === item.type).length + 1,
         left,
         top,
         ...(defaults[item.type] || { params: {}, state: {} }),

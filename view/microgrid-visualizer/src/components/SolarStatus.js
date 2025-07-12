@@ -141,7 +141,9 @@ function RewardChart({ data, steps }) {
 }
 
 export default function SolarStatus({ module, history, currentState }) {
-  const idx = module.backendId ? parseInt(module.backendId.split('_')[1], 10) + 1 : 1;
+  const idx = module.backendId
+    ? parseInt(module.backendId.split('_')[1], 10) + 1
+    : module.idx || 1;
   const stepSet = new Set([
     ...Object.keys(history.renewable_current || {}),
     ...Object.keys(history.reward || {}),

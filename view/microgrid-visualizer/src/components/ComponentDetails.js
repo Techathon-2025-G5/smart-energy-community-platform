@@ -30,7 +30,7 @@ function getTitle(module) {
   if (!module) return '';
   const idx = module.backendId
     ? parseInt(module.backendId.split('_')[1], 10) + 1
-    : 1;
+    : module.idx || 1;
   switch (module.type) {
     case 'battery':
       return `Battery ${idx}`;
