@@ -1,13 +1,24 @@
 /* Shared styles for all component status tabs */
 
 .component-status {
-  color: white;
+    color: var(--label-dark);
 }
 
 .component-status .component-history {
-  margin-top: 1rem;
+    margin-top: 1rem;
 }
 
 .component-status .component-history select {
-  margin-top: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.value {
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
 }

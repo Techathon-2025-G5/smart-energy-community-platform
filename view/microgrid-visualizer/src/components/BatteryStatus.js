@@ -17,8 +17,8 @@ function AreaChart({ data, max }) {
   useEffect(() => {
     const svg = d3.select(ref.current);
     const width = 300;
-    const height = 100;
-    const margin = { top: 10, right: 10, bottom: 20, left: 30 };
+    const height = 180;
+    const margin = { top: 20, right: 10, bottom: 20, left: 30 };
 
     svg.attr('viewBox', `0 0 ${width} ${height}`);
     svg.selectAll('*').remove();
@@ -38,7 +38,7 @@ function AreaChart({ data, max }) {
       .y0(y(0))
       .y1((d) => y(d));
 
-    svg.append('path').datum(data).attr('fill', 'green').attr('d', area);
+    svg.append('path').datum(data).attr('fill', '#74971a').attr('d', area);
     svg.append('g').attr('transform', `translate(${margin.left},0)`).call(d3.axisLeft(y));
     svg
       .append('g')
@@ -55,8 +55,8 @@ function RewardChart({ data }) {
   useEffect(() => {
     const svg = d3.select(ref.current);
     const width = 300;
-    const height = 100;
-    const margin = { top: 10, right: 10, bottom: 20, left: 30 };
+    const height = 180;
+    const margin = { top: 20, right: 10, bottom: 20, left: 30 };
 
     svg.attr('viewBox', `0 0 ${width} ${height}`);
     svg.selectAll('*').remove();
@@ -83,7 +83,7 @@ function RewardChart({ data }) {
       .attr('y', (d) => (d >= 0 ? y(d) : y(0)))
       .attr('height', (d) => Math.abs(y(d) - y(0)))
       .attr('width', x.bandwidth())
-      .attr('fill', (d) => (d >= 0 ? 'green' : 'red'));
+      .attr('fill', (d) => (d >= 0 ? '#74971a' : '#ec3137'));
 
     svg.append('g').attr('transform', `translate(${margin.left},0)`).call(d3.axisLeft(y));
     svg
@@ -116,10 +116,10 @@ export default function BatteryStatus({ module, history, currentState }) {
   let variationColor = '#444';
   if (chargeAmt > 0) {
     variation = chargeAmt;
-    variationColor = 'green';
+    variationColor = 'var(--green)';
   } else if (dischargeAmt > 0) {
     variation = -dischargeAmt;
-    variationColor = 'red';
+    variationColor = 'var(--red)';
   }
 
   return (
@@ -127,7 +127,7 @@ export default function BatteryStatus({ module, history, currentState }) {
       <h3>Battery {idx}</h3>
       <div className="battery-grid">
         <div className="charge-value">
-          <div className="value" style={{ color: 'blue' }}>
+          <div className="value" style={{ color: 'var(--blue)' }}>
             {Number(currentState.current_charge || 0).toFixed(2)} kWh
           </div>
           <div className="label">Current Charge</div>
@@ -139,13 +139,16 @@ export default function BatteryStatus({ module, history, currentState }) {
           <div className="label">Variation</div>
         </div>
         <div className="soc-graph">
-          <SocBar value={Number(currentState.soc || 0)} />
+            <SocBar value={Number(currentState.soc || 0)} />
+            <div className="label">SoC</div>     
         </div>
         <div className="charge-graph">
-          <AreaChart data={chargeHist} max={maxCap} />
+            <div className="label">Charge History</div>     
+            <AreaChart data={chargeHist} max={maxCap} />
         </div>
         <div className="reward-graph">
-          <RewardChart data={rewardHist} />
+            <div className="label">Reward History</div>     
+            <RewardChart data={rewardHist} />
         </div>
       </div>
     </div>
