@@ -261,6 +261,7 @@ function App() {
     try {
       payload = buildSetup();
       const response = await api.setupMicrogrid(payload);
+      const resetResponse = await api.resetModel();
       try {
         const comps = await api.getComponents();
         const byType = {};
@@ -288,13 +289,15 @@ function App() {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+      const hasController = modules.some((m) => m.type === 'controller');
       setStepCount(0);
       setResetEnabled(true);
-      setStepEnabled(false);
-      setPlayEnabled(false);
+      setStepEnabled(true);
+      setPlayEnabled(hasController);
       setPauseEnabled(false);
       setIsSetup(true);
       addLog({ method: 'POST', endpoint: '/setup', payload, response });
+      addLog({ method: 'POST', endpoint: '/reset', payload: null, response: resetResponse });
     } catch (err) {
       
       addLog({ method: 'POST', endpoint: '/setup', payload, response: { error: err.message } });
