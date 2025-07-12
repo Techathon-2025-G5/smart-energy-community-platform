@@ -22,6 +22,7 @@ import batterySoc25Img from './assets/battery_soc_25.png';
 import batterySoc50Img from './assets/battery_soc_50.png';
 import batterySoc75Img from './assets/battery_soc_75.png';
 import batterySoc100Img from './assets/battery_soc_100.png';
+import gridImg from './assets/grid.png';
 import gridOnImg from './assets/grid_on.png';
 import gridOffImg from './assets/grid_off.png';
 import controllerImg from './assets/controller.png';
@@ -197,8 +198,10 @@ function App() {
       case 'battery':
         return <img src={getBatteryImage(module.state?.soc)} alt="battery" />;
       case 'grid': {
-        const status = Number(module.state?.grid_status_current ?? 1);
-        return <img src={status === 0 ? gridOffImg : gridOnImg} alt="grid" />;
+        const status = module.state?.grid_status_current;
+        if (status === 0) return <img src={gridOffImg} alt="grid" />;
+        if (status === 1) return <img src={gridOnImg} alt="grid" />;
+        return <img src={gridImg} alt="grid" />;
       }
       case 'controller':
         return <img src={controllerImg} alt="controller" />;

@@ -66,25 +66,7 @@ function NetAreaChart({ data, steps }) {
       );
   }, [data, steps]);
 
-  return (
-    <div className="line-chart-container">
-      <svg ref={ref}></svg>
-      <div className="price-legend">
-        <span className="legend-item">
-          <span className="legend-dot" style={{ background: 'var(--red)' }} />
-          Import
-        </span>
-        <span className="legend-item">
-          <span className="legend-dot" style={{ background: 'var(--green)' }} />
-          Export
-        </span>
-        <span className="legend-item">
-          <span className="legend-dot" style={{ background: 'var(--blue)' }} />
-          CO2
-        </span>
-      </div>
-    </div>
-  );
+  return <svg ref={ref}></svg>;
 }
 
 function LineChart({ importData, exportData, co2Data, steps }) {
@@ -297,6 +279,20 @@ export default function GridStatus({ history, currentState }) {
         </div>
         <div className="price-graph">
           <div className="label">Prices &amp; CO2</div>
+          <div className="price-legend">
+            <span className="legend-item">
+              <span className="legend-dot" style={{ background: 'var(--red)' }} />
+              Import
+            </span>
+            <span className="legend-item">
+              <span className="legend-dot" style={{ background: 'var(--green)' }} />
+              Export
+            </span>
+            <span className="legend-item">
+              <span className="legend-dot" style={{ background: 'var(--blue)' }} />
+              CO2
+            </span>
+          </div>
           <LineChart
             importData={importPriceHist}
             exportData={exportPriceHist}
