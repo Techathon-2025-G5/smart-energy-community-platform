@@ -22,7 +22,8 @@ import batterySoc25Img from './assets/battery_soc_25.png';
 import batterySoc50Img from './assets/battery_soc_50.png';
 import batterySoc75Img from './assets/battery_soc_75.png';
 import batterySoc100Img from './assets/battery_soc_100.png';
-import gridImg from './assets/grid.png';
+import gridOnImg from './assets/grid_on.png';
+import gridOffImg from './assets/grid_off.png';
 import controllerImg from './assets/controller.png';
 import { useAppState } from './context/AppState';
 import { isAllowed, cellKey } from './utils/placement';
@@ -195,8 +196,10 @@ function App() {
         return <img src={solarImg} alt="solar" />;
       case 'battery':
         return <img src={getBatteryImage(module.state?.soc)} alt="battery" />;
-      case 'grid':
-        return <img src={gridImg} alt="grid" />;
+      case 'grid': {
+        const status = Number(module.state?.grid_status_current ?? 1);
+        return <img src={status === 0 ? gridOffImg : gridOnImg} alt="grid" />;
+      }
       case 'controller':
         return <img src={controllerImg} alt="controller" />;
       default:
@@ -235,24 +238,32 @@ function App() {
   }, [modules.length]);
 
   useEffect(() => {
-    const updateSoc = async () => {
+    const updateStatus = async () => {
       try {
         const status = await api.getStatus();
         const batteryStates = status?.battery || [];
+        const gridStates = status?.grid || [];
         modules.forEach((m) => {
-          if (m.type !== 'battery' || !m.backendId) return;
+          if (!m.backendId) return;
           const idx = parseInt(m.backendId.split('_')[1], 10);
-          const soc = batteryStates[idx]?.soc;
-          if (typeof soc === 'number' && soc !== m.state?.soc) {
-            updateModule({ ...m, state: { ...m.state, soc } });
+          if (m.type === 'battery') {
+            const soc = batteryStates[idx]?.soc;
+            if (typeof soc === 'number' && soc !== m.state?.soc) {
+              updateModule({ ...m, state: { ...m.state, soc } });
+            }
+          } else if (m.type === 'grid') {
+            const gs = gridStates[idx]?.grid_status_current;
+            if (typeof gs === 'number' && gs !== m.state?.grid_status_current) {
+              updateModule({ ...m, state: { ...m.state, grid_status_current: gs } });
+            }
           }
         });
       } catch (_) {
         /* ignore errors */
       }
     };
-    updateSoc();
-    const id = setInterval(updateSoc, 3000);
+    updateStatus();
+    const id = setInterval(updateStatus, 3000);
     return () => clearInterval(id);
   }, [modules.map((m) => m.backendId).join('')]);
 

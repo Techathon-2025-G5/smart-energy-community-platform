@@ -66,7 +66,25 @@ function NetAreaChart({ data, steps }) {
       );
   }, [data, steps]);
 
-  return <svg ref={ref}></svg>;
+  return (
+    <div className="line-chart-container">
+      <svg ref={ref}></svg>
+      <div className="price-legend">
+        <span className="legend-item">
+          <span className="legend-dot" style={{ background: 'var(--red)' }} />
+          Import
+        </span>
+        <span className="legend-item">
+          <span className="legend-dot" style={{ background: 'var(--green)' }} />
+          Export
+        </span>
+        <span className="legend-item">
+          <span className="legend-dot" style={{ background: 'var(--blue)' }} />
+          CO2
+        </span>
+      </div>
+    </div>
+  );
 }
 
 function LineChart({ importData, exportData, co2Data, steps }) {

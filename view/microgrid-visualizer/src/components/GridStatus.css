@@ -36,3 +36,30 @@
 .money-value .value {
     font-size: 1.1rem;
 }
+
+.line-chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.price-legend {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--label-dark);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 0.25rem;
+}
