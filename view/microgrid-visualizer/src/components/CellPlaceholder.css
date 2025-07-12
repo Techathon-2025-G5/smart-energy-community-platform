@@ -3,9 +3,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #4ca64c;
+    color: var(--green);
     border-radius: 6px;
-    border-color: #4ca64c;
+    border-color: var(--green);
     border-style: dashed;
     font-size: 0.7rem;
     pointer-events: none;

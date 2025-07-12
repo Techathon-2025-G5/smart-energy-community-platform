@@ -3,9 +3,9 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: red;
+  background: var(--red);
 }
 
 .connection-indicator.ok {
-  background: green;
+  background: var(--green);
 }

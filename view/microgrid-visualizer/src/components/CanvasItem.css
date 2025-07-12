@@ -17,7 +17,7 @@
 }
 
 .canvas-item.selected {
-  border: 2px solid blue;
+  border: 2px solid var(--blue);
 }
 
 .delete-circle {
@@ -26,8 +26,8 @@
   right: -6px;
   width: 16px;
   height: 16px;
-  background-color: red;
-  color: white;
+  background-color: var(--red);
+  color: var(--white);
   border-radius: 50%;
   display: flex;
   align-items: center;

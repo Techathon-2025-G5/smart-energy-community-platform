@@ -11,8 +11,8 @@
 
 .header {
   grid-area: header;
-  background-color: #282c34;
-  color: white;
+  background-color: var(--background-dark);
+  color: var(--white);
   padding: 0.5rem 1rem;
   display: flex;
   justify-content: space-between;
@@ -22,7 +22,7 @@
 .tool-sidebar {
   grid-area: sidebar;
   padding: 1rem;
-  background: #f4f4f4;
+  background: var(--background-light);
 }
 
 .drawing-area {
@@ -38,7 +38,7 @@
 .details-panel {
   grid-area: details;
   padding: 1rem;
-  background: #fafafa;
+  background: var(--background-light);
   overflow: auto;
 }
 
@@ -46,8 +46,8 @@
   grid-area: footer;
   text-align: center;
   padding: 0.5rem;
-  background-color: #282c34;
-  color: white;
+  background-color: var(--background-dark);
+  color: var(--white);
   height: 100%;
   overflow: auto;
 }

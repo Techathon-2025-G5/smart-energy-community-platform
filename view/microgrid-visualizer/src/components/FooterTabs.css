@@ -8,7 +8,7 @@
   flex: 1;
   padding: 0.25rem;
   background: #333;
-  color: white;
+  color: var(--white);
   border: none;
   cursor: pointer;
 }

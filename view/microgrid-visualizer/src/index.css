@@ -1,10 +1,13 @@
 :root {
-  --blue: #365da0;
-  --green: #74971a;
-  --red: #ec3137;
-  --white: #ffffff;
-  --label-dark: #616365;
-  --label-light: #ebebeb;
+    --blue: #365da0;
+    --green: #74971a;
+    --red: #ec3137;
+    --white: #ffffff;
+    --label-dark: #616365;
+    --label-light: #ebebeb;
+    --disabled: #616365;
+    --background-dark: #282c34;
+    --background-light: #fafafa;
 }
 
 body {

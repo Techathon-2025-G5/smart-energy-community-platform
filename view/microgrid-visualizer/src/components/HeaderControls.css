@@ -7,22 +7,22 @@
 .header-controls button {
   background: transparent;
   border: none;
-  color: white;
+  color: var(--white);
   cursor: pointer;
   font-size: 1.2rem;
 }
 
 .header-controls button:hover {
-  color: #61dafb;
+  color: var(--blue);
 }
 
 .header-controls button:disabled {
-  color: gray;
+  color: var(--disabled);
   cursor: not-allowed;
 }
 
 .sim-time {
-  color: white;
+  color: var(--white);
   margin-left: 0.5rem;
   font-size: 1rem;
 }
