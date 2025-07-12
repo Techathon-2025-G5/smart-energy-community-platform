@@ -5,6 +5,11 @@ import ComponentChart from './ComponentChart';
 import BatteryStatus from './BatteryStatus';
 import { parseLog } from '../utils/log';
 import './ComponentDetails.css';
+import HouseStatus from "./HouseStatus";
+import BuildingStatus from "./BuildingStatus";
+import SolarStatus from "./SolarStatus";
+import GridStatus from "./GridStatus";
+import ControllerStatus from "./ControllerStatus";
 
 function ComponentDetails({ module, onChange, isSetup }) {
   const [profiles, setProfiles] = useState({});
@@ -168,32 +173,68 @@ function ComponentDetails({ module, onChange, isSetup }) {
     </>
   );
 
-  const statusContent = module.type === 'battery' ? (
-    <BatteryStatus module={module} history={history} currentState={currentState} />
-  ) : (
-    <>
-      <div className="component-state">
-        <h4>State</h4>
-        <pre>{JSON.stringify(currentState || {}, null, 2)}</pre>
-      </div>
-      {Object.keys(history).length > 0 && (
-        <div className="component-history">
-          <ComponentChart
-            data={Object.entries(history[field] || {})
-              .sort(([a], [b]) => Number(a) - Number(b))
-              .map(([, v]) => ({ value: Number(v) }))}
-          />
-          <select value={field} onChange={(e) => setField(e.target.value)}>
-            {Object.keys(history).map((f) => (
-              <option key={f} value={f}>
-                {f}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-    </>
-  );
+  let statusContent;
+  switch (module.type) {
+    case 'battery':
+      statusContent = (
+        <BatteryStatus
+          module={module}
+          history={history}
+          currentState={currentState}
+        />
+      );
+      break;
+    case 'house':
+      statusContent = (
+        <HouseStatus history={history} currentState={currentState} />
+      );
+      break;
+    case 'building':
+      statusContent = (
+        <BuildingStatus history={history} currentState={currentState} />
+      );
+      break;
+    case 'solar':
+      statusContent = (
+        <SolarStatus history={history} currentState={currentState} />
+      );
+      break;
+    case 'grid':
+      statusContent = (
+        <GridStatus history={history} currentState={currentState} />
+      );
+      break;
+    case 'controller':
+      statusContent = (
+        <ControllerStatus history={history} currentState={currentState} />
+      );
+      break;
+    default:
+      statusContent = (
+        <>
+          <div className="component-state">
+            <h4>State</h4>
+            <pre>{JSON.stringify(currentState || {}, null, 2)}</pre>
+          </div>
+          {Object.keys(history).length > 0 && (
+            <div className="component-history">
+              <ComponentChart
+                data={Object.entries(history[field] || {})
+                  .sort(([a], [b]) => Number(a) - Number(b))
+                  .map(([, v]) => ({ value: Number(v) }))}
+              />
+              <select value={field} onChange={(e) => setField(e.target.value)}>
+                {Object.keys(history).map((f) => (
+                  <option key={f} value={f}>
+                    {f}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </>
+      );
+  }
 
   return (
     <div className="component-details">
