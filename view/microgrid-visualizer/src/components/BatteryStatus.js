@@ -40,8 +40,16 @@ function AreaChart({ data, max, steps }) {
 
   svg.append('path').datum(data).attr('fill', '#74971a').attr('d', area);
   svg.append('g').attr('transform', `translate(${margin.left},0)`).call(d3.axisLeft(y));
-  const tickStep = Math.max(1, Math.ceil(data.length / 7));
-  const tickIndices = steps ? steps.map((_, i) => i).filter((i) => i % tickStep === 0) : x.ticks(5);
+  const tickIndices = (() => {
+    if (!steps) return x.ticks(5);
+    const days = steps.map((s) => Math.floor(s / 24) + 1);
+    const dayBoundaries = days
+      .map((day, idx) => ({ day, idx }))
+      .filter((d, i, arr) => i === 0 || d.day !== arr[i - 1].day)
+      .map((d) => d.idx);
+    const stepSize = Math.max(1, Math.ceil(dayBoundaries.length / 7));
+    return dayBoundaries.filter((_, i) => i % stepSize === 0);
+  })();
   svg
     .append('g')
     .attr('transform', `translate(0,${height - margin.bottom})`)
@@ -49,7 +57,7 @@ function AreaChart({ data, max, steps }) {
       d3
         .axisBottom(x)
         .tickValues(tickIndices)
-        .tickFormat((d) => (steps ? steps[d] % 24 : d))
+        .tickFormat((d) => (steps ? Math.floor(steps[d] / 24) + 1 : d))
     );
   }, [data, max, steps]);
 
@@ -93,8 +101,16 @@ function RewardChart({ data, steps }) {
       .attr('fill', (d) => (d >= 0 ? '#74971a' : '#ec3137'));
 
     svg.append('g').attr('transform', `translate(${margin.left},0)`).call(d3.axisLeft(y));
-    const tickStep = Math.max(1, Math.ceil(data.length / 7));
-    const tickIndices = steps ? steps.map((_, i) => i).filter((i) => i % tickStep === 0) : x.ticks(5);
+    const tickIndices = (() => {
+      if (!steps) return x.ticks(5);
+      const days = steps.map((s) => Math.floor(s / 24) + 1);
+      const dayBoundaries = days
+        .map((day, idx) => ({ day, idx }))
+        .filter((d, i, arr) => i === 0 || d.day !== arr[i - 1].day)
+        .map((d) => d.idx);
+      const stepSize = Math.max(1, Math.ceil(dayBoundaries.length / 7));
+      return dayBoundaries.filter((_, i) => i % stepSize === 0);
+    })();
     svg
       .append('g')
       .attr('transform', `translate(0,${height - margin.bottom})`)
@@ -102,7 +118,7 @@ function RewardChart({ data, steps }) {
         d3
           .axisBottom(x)
           .tickValues(tickIndices)
-          .tickFormat((d) => (steps ? steps[d] % 24 : d))
+          .tickFormat((d) => (steps ? Math.floor(steps[d] / 24) + 1 : d))
       );
   }, [data, steps]);
 
