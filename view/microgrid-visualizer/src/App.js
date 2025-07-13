@@ -49,6 +49,10 @@ function App() {
   const [resetEnabled, setResetEnabled] = useState(false);
   const [stepCount, setStepCount] = useState(0);
   const [isSetup, setIsSetup] = useState(false);
+  const [microgridConfig, setMicrogridConfig] = useState({
+    loss_load_cost: 10,
+    overgeneration_cost: 2,
+  });
   const intervalRef = useRef(null);
   const {
     state: { modules, selected },
@@ -133,8 +137,8 @@ function App() {
       horizon: 24,
       timestep: 1,
       add_unbalanced_module: true,
-      loss_load_cost: 10,
-      overgeneration_cost: 2,
+      loss_load_cost: parseFloat(microgridConfig.loss_load_cost),
+      overgeneration_cost: parseFloat(microgridConfig.overgeneration_cost),
       components,
     };
   };
@@ -541,7 +545,11 @@ function App() {
       </section>
 
       <footer className="footer" id="section-5">
-        <FooterTabs />
+        <FooterTabs
+          config={microgridConfig}
+          onConfigChange={setMicrogridConfig}
+          isSetup={isSetup}
+        />
       </footer>
     </div>
   );
