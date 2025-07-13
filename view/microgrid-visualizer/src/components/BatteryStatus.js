@@ -82,6 +82,7 @@ function RewardChart({ data, steps }) {
       .domain([0, domainMax])
       .range([margin.left, width - margin.right]);
     const barWidth = (width - margin.left - margin.right) / domainMax;
+    const gap = data.length > 72 ? 0 : 1;
     const y = d3
       .scaleLinear()
       .domain([
@@ -98,7 +99,7 @@ function RewardChart({ data, steps }) {
       .attr('x', (_, i) => x(i))
       .attr('y', (d) => (d >= 0 ? y(d) : y(0)))
       .attr('height', (d) => Math.abs(y(d) - y(0)))
-      .attr('width', barWidth - 1)
+      .attr('width', barWidth - gap)
       .attr('fill', (d) => (d >= 0 ? '#74971a' : '#ec3137'));
 
     svg.append('g').attr('transform', `translate(${margin.left},0)`).call(d3.axisLeft(y));
