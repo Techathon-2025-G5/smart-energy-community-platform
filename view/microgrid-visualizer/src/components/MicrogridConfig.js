@@ -8,30 +8,32 @@ export default function MicrogridConfig({ config, onChange, isSetup }) {
   };
 
   return (
-    <form>
-      <div>
-        <label>
-          loss_load_cost:
-          <input
-            type="number"
-            value={config.loss_load_cost}
-            onChange={(e) => handleChange('loss_load_cost', e.target.value)}
-            disabled={isSetup}
-          />
-        </label>
-      </div>
-      <div>
-        <label>
-          overgeneration_cost:
-          <input
-            type="number"
-            value={config.overgeneration_cost}
-            onChange={(e) => handleChange('overgeneration_cost', e.target.value)}
-            disabled={isSetup}
-          />
-        </label>
-      </div>
-    </form>
+    <div className="component-details">
+      <form>
+        <div>
+          <label>
+            Loss load cost
+            <input
+              type="number"
+              value={config.loss_load_cost}
+              onChange={(e) => handleChange('loss_load_cost', e.target.value)}
+              disabled={isSetup}
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Overgeneration cost
+            <input
+              type="number"
+              value={config.overgeneration_cost}
+              onChange={(e) => handleChange('overgeneration_cost', e.target.value)}
+              disabled={isSetup}
+            />
+          </label>
+        </div>
+      </form>
+    </div>
   );
 }
 
