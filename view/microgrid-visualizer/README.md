@@ -24,7 +24,7 @@ Aplicación React que sirve como interfaz para el simulador de microgrid basado 
 - **HeaderControls**: barra superior con botones que disparan las llamadas a la API.
 - **ModulePalette**: paleta de módulos (casa, edificio, solar, batería, red) que se pueden arrastrar al lienzo.
 - **SimulationCanvas** y **CanvasItem**: área de dibujo donde se colocan los módulos y se pueden mover con `drag & drop`.
-- **ComponentDetails**: panel lateral para editar los parámetros de cada módulo y consultar su estado.
+- **ComponentDetails**: panel lateral para editar los parámetros de cada módulo y consultar su estado. Los campos de eficiencia e *initial SoC* de la batería se ajustan mediante una barra deslizante entre 0 y 1.
 - **EnergyBalance**: gráfico que muestra la generación y el consumo obtenidos periódicamente desde el modelo.
 - **Contexto AppState**: almacena el estado global de módulos y selección para todos los componentes.
 

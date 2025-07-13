@@ -63,6 +63,10 @@
   color: inherit;
 }
 
+.component-details input[type='range'] {
+  padding: 0;
+}
+
 .component-details input:disabled,
 .component-details select:disabled {
   background-color: var(--disabled);
