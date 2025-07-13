@@ -80,6 +80,19 @@ function App() {
   };
 
   const buildSetup = () => {
+    const parseParams = (params) => {
+      const parsed = {};
+      Object.entries(params || {}).forEach(([k, v]) => {
+        if (typeof v === 'string') {
+          const num = parseFloat(v);
+          parsed[k] = Number.isNaN(num) ? v : num;
+        } else {
+          parsed[k] = v;
+        }
+      });
+      return parsed;
+    };
+
     const components = modules.map((m) => {
       let type;
       switch (m.type) {
@@ -100,7 +113,7 @@ function App() {
         default:
           type = 'LoadModule';
       }
-      return { id: m.id, type, params: m.params };
+      return { id: m.id, type, params: parseParams(m.params) };
     });
 
     return {
