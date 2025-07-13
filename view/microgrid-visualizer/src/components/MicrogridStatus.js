@@ -176,9 +176,7 @@ export default function MicrogridStatus() {
 
         const cover = stepList.map((s) => ({
           renewables: Number(parsedSteps.renewable?.renewable_used?.[s] || 0),
-          batteries:
-            Number(parsedSteps.battery?.discharge_amount?.[s] || 0) -
-            Number(parsedSteps.battery?.charge_amount?.[s] || 0),
+          batteries: Number(parsedSteps.battery?.discharge_amount?.[s] || 0),
           grid: Number(parsedSteps.grid?.grid_import?.[s] || 0),
           unmet: Math.max(
             0,
@@ -234,7 +232,8 @@ export default function MicrogridStatus() {
           </div>
           <div className="loads-value">
             <div className="value" style={{ color: 'var(--red)' }}>
-              {actual.loads.toFixed(2)} kWh
+                {(-actual.loads >= 1000 ? (actual.loads / 1000).toFixed(2) : actual.loads.toFixed(2))}{' '}
+                {-actual.loads >= 1000 ? 'MWh' : 'kWh'}
             </div>
             <div className="label">Loads</div>
           </div>
@@ -242,6 +241,7 @@ export default function MicrogridStatus() {
       </div>
 
       <div className="totals-section">
+        <h3>Totals</h3>
         <div className="totals-grid">
           <div className="exported-value">
             <div className="value" style={{ color: 'var(--green)' }}>
@@ -279,7 +279,8 @@ export default function MicrogridStatus() {
           </div>
           <div className="reward-value">
             <div className="value" style={{ color: totals.reward >= 0 ? 'var(--green)' : 'var(--red)' }}>
-              {totals.reward.toFixed(2)}
+              {(-totals.reward >= 1000 ? (totals.reward / 1000).toFixed(2) : totals.reward.toFixed(2))}{' '}
+              {-totals.reward >= 1000 ? 'k' : ''}
             </div>
             <div className="label">Total reward</div>
           </div>

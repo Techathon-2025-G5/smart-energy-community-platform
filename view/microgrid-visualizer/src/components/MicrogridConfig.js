@@ -12,7 +12,7 @@ export default function MicrogridConfig({ config, onChange, isSetup }) {
       <form>
         <div>
           <label>
-            Loss load cost
+            Loss load cost:
             <input
               type="number"
               value={config.loss_load_cost}
@@ -23,7 +23,7 @@ export default function MicrogridConfig({ config, onChange, isSetup }) {
         </div>
         <div>
           <label>
-            Overgeneration cost
+            Overgeneration cost:
             <input
               type="number"
               value={config.overgeneration_cost}

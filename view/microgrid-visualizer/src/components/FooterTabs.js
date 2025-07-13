@@ -28,8 +28,9 @@ export default function FooterTabs({ config, onConfigChange, isSetup }) {
           Configuration
         </button>
         <button
-          className={active === 'Status' ? 'active' : ''}
-          onClick={() => setActive('Status')}
+            className={active === 'Status' ? 'active' : ''}
+            onClick={() => setActive('Status')}
+            disabled={!isSetup}
         >
           Status
         </button>

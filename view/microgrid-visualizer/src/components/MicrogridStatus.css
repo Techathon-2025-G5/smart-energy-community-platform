@@ -2,7 +2,15 @@
   display: grid;
   grid-template-rows: auto auto auto;
   gap: 1rem;
-  color: var(--label-dark);
+  color: var(--label-light);
+}
+
+.microgrid-status h3 {
+    margin: 0;
+}
+
+.microgrid-status .value {
+    font-size: 1.2rem;
 }
 
 .actual-grid {
@@ -38,8 +46,8 @@
 
 .graphs-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas: 'cover reward';
+  grid-template-rows: 1fr 1fr;
+  grid-template-areas: 'cover' 'reward';
   gap: 0.5rem;
 }
 
