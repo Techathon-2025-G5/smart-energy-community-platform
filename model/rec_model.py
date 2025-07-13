@@ -176,6 +176,31 @@ class MicrogridModel:
 
                 df[("balancing", 0, "reward")] = 0
 
+        # Compute earnings and spending for grid modules before totals
+        if not df.empty:
+            grid_numbers = sorted({idx[1] for idx in df.columns if idx[0] == "grid"})
+            for n in grid_numbers:
+                export_col = ("grid", n, "grid_export")
+                import_col = ("grid", n, "grid_import")
+                export_price_col = ("grid", n, "export_price_current")
+                import_price_col = ("grid", n, "import_price_current")
+
+                if export_col in df.columns and export_price_col in df.columns:
+                    earn_col = ("grid", n, "grid_earn")
+                    df[earn_col] = df[export_col] * df[export_price_col]
+                else:
+                    earn_col = None
+
+                if import_col in df.columns and import_price_col in df.columns:
+                    spent_col = ("grid", n, "grid_spent")
+                    df[spent_col] = df[import_col] * df[import_price_col]
+                else:
+                    spent_col = None
+
+                if earn_col and spent_col:
+                    balance_col = ("grid", n, "grid_balance")
+                    df[balance_col] = df[earn_col] - df[spent_col]
+
         # Compute totals across components of the same type
         if not df.empty:
             totals = (
