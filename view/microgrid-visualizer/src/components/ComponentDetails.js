@@ -196,15 +196,30 @@ function ComponentDetails({ module, onChange, isSetup }) {
           })
           .map(([key, value]) => (
           <div key={key}>
-            <label>
-              {FIELD_LABELS[key] || key}:
-              <input
-                type="text"
-                value={value}
-                onChange={(e) => handleParamChange(key, e.target.value)}
-                disabled={isSetup}
-              />
-            </label>
+            {module.type === 'battery' && ['efficiency', 'init_soc'].includes(key) ? (
+              <label>
+                {FIELD_LABELS[key] || key}: {Number(value)}
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={value}
+                  onChange={(e) => handleParamChange(key, e.target.value)}
+                  disabled={isSetup}
+                />
+              </label>
+            ) : (
+              <label>
+                {FIELD_LABELS[key] || key}:
+                <input
+                  type="text"
+                  value={value}
+                  onChange={(e) => handleParamChange(key, e.target.value)}
+                  disabled={isSetup}
+                />
+              </label>
+            )}
           </div>
         ))}
       </form>
