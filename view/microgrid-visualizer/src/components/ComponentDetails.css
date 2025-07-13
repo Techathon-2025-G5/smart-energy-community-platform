@@ -78,5 +78,5 @@
 .component-details input:disabled,
 .component-details select:disabled {
   background-color: var(--disabled);
-  color: var(--label-light);
+  color: var(--label-light)!important;
 }

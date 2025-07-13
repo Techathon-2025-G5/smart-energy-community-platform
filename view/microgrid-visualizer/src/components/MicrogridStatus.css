@@ -60,12 +60,12 @@
   margin-top: 0.25rem;
 }
 
-.legend-item {
+.microgrid-status .legend-item {
   display: flex;
   align-items: center;
   font-size: 0.7rem;
   font-weight: 600;
-  color: var(--label-dark);
+  color: var(--label-light);
 }
 
 .legend-dot {

@@ -79,10 +79,6 @@ export default function ControllerStatus({ history, currentState }) {
           </div>
         </div>
       </div>
-      <div className="component-state">
-        <h4>State</h4>
-        <pre>{JSON.stringify(currentState || {}, null, 2)}</pre>
-      </div>
       {fields.length > 0 && (
         <div className="component-history">
           <ComponentChart
