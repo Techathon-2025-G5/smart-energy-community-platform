@@ -165,7 +165,7 @@ export default function MicrogridStatus() {
           grid: Number(parsedSteps.grid?.grid_import?.[s] || 0),
           unmet: Math.max(
             0,
-            Number(parsedSteps.load?.load_current?.[s] || 0) -
+            - Number(parsedSteps.load?.load_current?.[s] || 0) -
               Number(parsedSteps.load?.load_met?.[s] || 0)
           ),
         }));
@@ -255,7 +255,7 @@ export default function MicrogridStatus() {
                 Batteries
               </span>
               <span className="legend-item">
-                <span className="legend-dot" style={{ background: '#d2b32c' }} />
+                <span className="legend-dot" style={{ background: 'var(--yellow)' }} />
                 Grid
               </span>
               <span className="legend-item">
