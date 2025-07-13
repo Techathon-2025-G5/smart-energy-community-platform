@@ -274,7 +274,7 @@ function App() {
     updateStatus();
     const id = setInterval(updateStatus, 3000);
     return () => clearInterval(id);
-  }, [modules.map((m) => m.backendId).join('')]);
+  }, [modules]);
 
   const handleSetup = async () => {
     let payload = null;
