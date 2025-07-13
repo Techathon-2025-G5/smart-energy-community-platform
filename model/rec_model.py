@@ -5,6 +5,7 @@ import json
 from pymgrid import Microgrid
 from pymgrid import modules as mod
 
+
 class MicrogridModel:
     """Wrapper to create and manage a pymgrid Microgrid from YAML configuration."""
 
@@ -30,9 +31,7 @@ class MicrogridModel:
                 break
 
         if rel_path is None:
-            raise FileNotFoundError(
-                f"Profile {profile} not defined in {profiles_file}"
-            )
+            raise FileNotFoundError(f"Profile {profile} not defined in {profiles_file}")
 
         file_path = data_dir / rel_path
         if not file_path.exists():
@@ -51,8 +50,8 @@ class MicrogridModel:
         """Setup the microgrid from a dictionary or YAML string/path."""
         if isinstance(config, str):
             try:
-                if '\n' not in config and not config.strip().startswith('{'):
-                    with open(config, 'r') as f:
+                if "\n" not in config and not config.strip().startswith("{"):
+                    with open(config, "r") as f:
                         config = yaml.safe_load(f)
                 else:
                     config = yaml.safe_load(config)
@@ -60,34 +59,37 @@ class MicrogridModel:
                 config = yaml.safe_load(config)
         self.config = config
         modules = []
-        for comp in config.get('components', []):
-            comp_type = comp.get('type')
-            params = comp.get('params', {})
+        for comp in config.get("components", []):
+            comp_type = comp.get("type")
+            params = comp.get("params", {})
             cls = getattr(mod, comp_type, None)
             if cls is None:
                 raise ValueError(f"Unknown component type: {comp_type}")
-            ts_key = 'time_series'
-            profile_key = 'time_series_profile'
+            ts_key = "time_series"
+            profile_key = "time_series_profile"
             if profile_key in params:
                 params[ts_key] = self._load_profile(params.pop(profile_key))
             if ts_key in params:
                 import numpy as np
+
                 params[ts_key] = np.array(params[ts_key])
             # UnbalancedEnergyModule is now configured outside of components
             if cls is mod.UnbalancedEnergyModule:
                 # support legacy configs but skip adding as regular module
-                if 'raise_errors' not in params:
-                    params['raise_errors'] = False
+                if "raise_errors" not in params:
+                    params["raise_errors"] = False
                 # store parameters to use when creating the microgrid
-                config.setdefault('add_unbalanced_module', True)
-                config.setdefault('loss_load_cost', params.get('loss_load_cost', 10.0))
-                config.setdefault('overgeneration_cost', params.get('overgeneration_cost', 2.0))
+                config.setdefault("add_unbalanced_module", True)
+                config.setdefault("loss_load_cost", params.get("loss_load_cost", 10.0))
+                config.setdefault(
+                    "overgeneration_cost", params.get("overgeneration_cost", 2.0)
+                )
                 continue
             modules.append(cls(**params))
 
-        add_unbalanced = config.get('add_unbalanced_module', False)
-        loss_cost = config.get('loss_load_cost', 10.0)
-        over_cost = config.get('overgeneration_cost', 2.0)
+        add_unbalanced = config.get("add_unbalanced_module", False)
+        loss_cost = config.get("loss_load_cost", 10.0)
+        over_cost = config.get("overgeneration_cost", 2.0)
         self.microgrid = Microgrid(
             modules,
             add_unbalanced_module=add_unbalanced,
@@ -105,7 +107,7 @@ class MicrogridModel:
                 continue
             idx = module.name[1]
             comp_id = f"{name}{'' if idx is None else '_' + str(idx)}"
-            comps.append({'id': comp_id, 'type': module.__class__.__name__})
+            comps.append({"id": comp_id, "type": module.__class__.__name__})
         return comps
 
     def get_actions(self):
@@ -134,10 +136,50 @@ class MicrogridModel:
         """
         if not self.microgrid:
             return {} if as_frame else {}
-        return self.microgrid.get_log(
-            as_frame=as_frame, drop_singleton_key=drop_singleton_key
+
+        # Always get the log as a DataFrame so we can post-process it
+        df = self.microgrid.get_log(
+            as_frame=True, drop_singleton_key=drop_singleton_key
         )
-    
+
+        if not df.empty and ("balancing", 0, "loss_load") in df.columns:
+            loss = df[("balancing", 0, "loss_load")].copy()
+
+            # Identify existing load modules ordered by descending number
+            load_numbers = sorted(
+                set(idx[1] for idx in df.columns if idx[0] == "load"),
+                reverse=True,
+            )
+
+            deductions = {n: pd.Series(0, index=df.index) for n in load_numbers}
+
+            # Subtract unmet demand from loads starting from highest module id
+            for n in load_numbers:
+                col = ("load", n, "load_met")
+                if col not in df.columns:
+                    continue
+                deduction = pd.concat([df[col], loss], axis=1).min(axis=1)
+                df[col] = df[col] - deduction
+                loss = loss - deduction
+                deductions[n] = deduction
+
+            if ("balancing", 0, "reward") in df.columns and load_numbers:
+                reward = df[("balancing", 0, "reward")]
+                ded_df = pd.DataFrame(deductions)
+                total = ded_df.sum(axis=1)
+                total_nonzero = total.replace(0, 1)
+                for n in load_numbers:
+                    reward_share = reward * ded_df[n] / total_nonzero
+                    load_reward_col = ("load", n, "reward")
+                    if load_reward_col in df.columns:
+                        df[load_reward_col] = df[load_reward_col] + reward_share
+                df[("balancing", 0, "reward")] = 0
+
+        if as_frame:
+            return df
+
+        return df.to_dict()
+
     def _to_serializable(self, obj):
         """Recursively convert numpy types to Python built-ins."""
         import numpy as np
@@ -158,10 +200,10 @@ class MicrogridModel:
             raise RuntimeError("Microgrid is not initialized")
         obs, reward, done, info = self.microgrid.run(actions, normalized=False)
         result = {
-            'observation': obs,
-            'reward': reward,
-            'done': done,
-            'info': info,
+            "observation": obs,
+            "reward": reward,
+            "done": done,
+            "info": info,
         }
         return result
 
@@ -169,7 +211,6 @@ class MicrogridModel:
         if self.microgrid:
             self.microgrid.reset()
 
-            
+
 # Singleton instance used by API
 microgrid = MicrogridModel()
-
