@@ -1,0 +1,47 @@
+.microgrid-status {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 1rem;
+  color: var(--label-dark);
+}
+
+.actual-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    'generated grid'
+    'batteries loads';
+  gap: 0.5rem;
+}
+
+.generated-value { grid-area: generated; text-align: center; }
+.grid-value { grid-area: grid; text-align: center; }
+.batteries-value { grid-area: batteries; text-align: center; }
+.loads-value { grid-area: loads; text-align: center; }
+
+.totals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    'exported load_unmet'
+    'imported renewable_unused'
+    'balance reward';
+  gap: 0.5rem;
+}
+
+.exported-value { grid-area: exported; text-align: center; }
+.imported-value { grid-area: imported; text-align: center; }
+.balance-value { grid-area: balance; text-align: center; }
+.load-unmet-value { grid-area: load_unmet; text-align: center; }
+.renewable-unused-value { grid-area: renewable_unused; text-align: center; }
+.reward-value { grid-area: reward; text-align: center; }
+
+.graphs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: 'cover reward';
+  gap: 0.5rem;
+}
+
+.cover-graph { grid-area: cover; }
+.reward-graph { grid-area: reward; }

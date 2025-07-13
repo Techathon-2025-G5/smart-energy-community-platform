@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ConsolePanel from './ConsolePanel';
-import EnergyBalance from './EnergyBalance';
+import MicrogridStatus from './MicrogridStatus';
 import './FooterTabs.css';
 
 export default function FooterTabs() {
@@ -23,7 +23,7 @@ export default function FooterTabs() {
         </button>
       </div>
       <div className="tab-content">
-        {active === 'Console' ? <ConsolePanel /> : <EnergyBalance />}
+        {active === 'Console' ? <ConsolePanel /> : <MicrogridStatus />}
       </div>
     </div>
   );
