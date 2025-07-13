@@ -195,6 +195,24 @@ class MicrogridModel:
 
         return df.to_dict()
 
+    def get_totals(
+        self,
+        *,
+        as_frame: bool = True,
+        drop_singleton_key: bool = False,
+    ):
+        """Return cumulative totals of the microgrid log columns."""
+        df = self.get_log(as_frame=True, drop_singleton_key=drop_singleton_key)
+        if isinstance(df, pd.DataFrame) and not df.empty:
+            totals = df.sum(axis=0)
+            totals_df = totals.to_frame().T
+            totals_df.index = ["total"]
+        else:
+            totals_df = pd.DataFrame()
+        if as_frame:
+            return totals_df
+        return totals_df.to_dict()
+
     def _to_serializable(self, obj):
         """Recursively convert numpy types to Python built-ins."""
         import numpy as np

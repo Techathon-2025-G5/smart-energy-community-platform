@@ -98,6 +98,24 @@ async def get_log(
         log = {json.dumps(k): v for k, v in log.items()}
     return log
 
+
+@router.get("/totals")
+async def get_totals(
+    as_frame: bool = Query(True),
+    drop_singleton_key: bool = Query(False),
+):
+    """Return cumulative totals of the microgrid log."""
+    totals = await run_in_threadpool(
+        microgrid.get_totals,
+        as_frame=as_frame,
+        drop_singleton_key=drop_singleton_key,
+    )
+    if hasattr(totals, "to_dict"):
+        totals = totals.to_dict()
+    if isinstance(totals, dict):
+        totals = {json.dumps(k): v for k, v in totals.items()}
+    return totals
+
 @router.post("/run")
 async def run_model(payload: ActionRequest | None = None):
     """Execute one simulation step using the controller if present."""
