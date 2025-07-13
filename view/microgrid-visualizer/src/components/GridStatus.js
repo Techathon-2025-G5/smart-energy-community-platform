@@ -23,7 +23,6 @@ function NetBarChart({ data, steps }) {
       .range([margin.left, width - margin.right]);
     const barWidth = (width - margin.left - margin.right) / domainMax;
     const gap = data.length > 72 ? 0 : 1;
-    const gap = data.length > 72 ? 0 : 1;
     const y = d3
       .scaleLinear()
       .domain([
@@ -169,6 +168,7 @@ function RewardChart({ data, steps }) {
       .domain([0, domainMax])
       .range([margin.left, width - margin.right]);
     const barWidth = (width - margin.left - margin.right) / domainMax;
+    const gap = data.length > 72 ? 0 : 1;
     const y = d3
       .scaleLinear()
       .domain([
