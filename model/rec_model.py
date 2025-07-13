@@ -173,7 +173,22 @@ class MicrogridModel:
                     load_reward_col = ("load", n, "reward")
                     if load_reward_col in df.columns:
                         df[load_reward_col] = df[load_reward_col] + reward_share
+
                 df[("balancing", 0, "reward")] = 0
+
+        # Compute totals across components of the same type
+        if not df.empty:
+            totals = (
+                df.T.groupby(level=["module_name", "field"]).sum().T
+            )
+            totals.columns = pd.MultiIndex.from_tuples(
+                [
+                    ("totals", mod, field)
+                    for mod, field in totals.columns.to_list()
+                ],
+                names=df.columns.names,
+            )
+            df = pd.concat([df, totals], axis=1)
 
         if as_frame:
             return df
