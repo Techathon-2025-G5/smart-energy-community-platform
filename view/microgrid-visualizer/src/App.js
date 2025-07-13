@@ -49,6 +49,8 @@ function App() {
   const [resetEnabled, setResetEnabled] = useState(false);
   const [stepCount, setStepCount] = useState(0);
   const [isSetup, setIsSetup] = useState(false);
+  const [lossLoadCost, setLossLoadCost] = useState('10');
+  const [overgenerationCost, setOvergenerationCost] = useState('2');
   const intervalRef = useRef(null);
   const {
     state: { modules, selected },
@@ -133,8 +135,8 @@ function App() {
       horizon: 24,
       timestep: 1,
       add_unbalanced_module: true,
-      loss_load_cost: 10,
-      overgeneration_cost: 2,
+      loss_load_cost: parseFloat(lossLoadCost),
+      overgeneration_cost: parseFloat(overgenerationCost),
       components,
     };
   };
@@ -541,7 +543,13 @@ function App() {
       </section>
 
       <footer className="footer" id="section-5">
-        <FooterTabs />
+        <FooterTabs
+          isSetup={isSetup}
+          lossLoadCost={lossLoadCost}
+          overgenerationCost={overgenerationCost}
+          onLossLoadCostChange={setLossLoadCost}
+          onOvergenerationCostChange={setOvergenerationCost}
+        />
       </footer>
     </div>
   );

@@ -1,0 +1,26 @@
+.global-config-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.global-config-form label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  color: var(--label-dark);
+  gap: 0.2rem;
+}
+
+.global-config-form input {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--label-dark);
+  border-radius: 4px;
+  background-color: var(--white);
+  color: inherit;
+}
+
+.global-config-form input:disabled {
+  background-color: var(--disabled);
+  color: var(--label-light);
+}
