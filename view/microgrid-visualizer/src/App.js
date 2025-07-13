@@ -15,6 +15,18 @@ import officeImg from './assets/office.png';
 import hotelImg from './assets/hotel.png';
 import schoolImg from './assets/school.png';
 import restaurantImg from './assets/restaurant.png';
+import houseOnImg from './assets/house_on.png';
+import houseUnmetImg from './assets/house_unmet.png';
+import hospitalOnImg from './assets/hospital_on.png';
+import hospitalUnmetImg from './assets/hospital_unmet.png';
+import officeOnImg from './assets/office_on.png';
+import officeUnmetImg from './assets/office_unmet.png';
+import hotelOnImg from './assets/hotel_on.png';
+import hotelUnmetImg from './assets/hotel_unmet.png';
+import schoolOnImg from './assets/school_on.png';
+import schoolUnmetImg from './assets/school_unmet.png';
+import restaurantOnImg from './assets/restaurant_on.png';
+import restaurantUnmetImg from './assets/restaurant_unmet.png';
 import solarImg from './assets/solar_panel.png';
 import batteryImg from './assets/battery.png';
 import batterySoc0Img from './assets/battery_soc_0.png';
@@ -28,6 +40,7 @@ import gridOffImg from './assets/grid_off.png';
 import controllerImg from './assets/controller.png';
 import { useAppState } from './context/AppState';
 import { isAllowed, cellKey } from './utils/placement';
+import { parseLog } from './utils/log';
 
 function App() {
   const [stepEnabled, setStepEnabled] = useState(false);
@@ -177,14 +190,34 @@ function App() {
     }
   };
 
-  const getBuildingImage = (profile) => {
+  const getBuildingImage = (profile, suffix = '') => {
     if (!profile) return buildingImg;
     const p = profile.toLowerCase();
-    if (p.includes('hospital')) return hospitalImg;
-    if (p.includes('office')) return officeImg;
-    if (p.includes('hotel')) return hotelImg;
-    if (p.includes('school')) return schoolImg;
-    if (p.includes('restaurant')) return restaurantImg;
+    if (p.includes('hospital')) {
+      if (suffix === '_on') return hospitalOnImg;
+      if (suffix === '_unmet') return hospitalUnmetImg;
+      return hospitalImg;
+    }
+    if (p.includes('office')) {
+      if (suffix === '_on') return officeOnImg;
+      if (suffix === '_unmet') return officeUnmetImg;
+      return officeImg;
+    }
+    if (p.includes('hotel')) {
+      if (suffix === '_on') return hotelOnImg;
+      if (suffix === '_unmet') return hotelUnmetImg;
+      return hotelImg;
+    }
+    if (p.includes('school')) {
+      if (suffix === '_on') return schoolOnImg;
+      if (suffix === '_unmet') return schoolUnmetImg;
+      return schoolImg;
+    }
+    if (p.includes('restaurant')) {
+      if (suffix === '_on') return restaurantOnImg;
+      if (suffix === '_unmet') return restaurantUnmetImg;
+      return restaurantImg;
+    }
     return buildingImg;
   };
 
@@ -202,11 +235,30 @@ function App() {
   const getIcon = (module) => {
     switch (module.type) {
       case 'house':
+        if (isSetup) {
+          const met = Number(module.state?.load_met ?? 0);
+          const cur = Math.abs(Number(module.state?.load_current ?? 0));
+          if (cur > 0) {
+            if (Math.abs(cur - met) < 0.001) return <img src={houseOnImg} alt="house" />;
+            if (met < cur) return <img src={houseUnmetImg} alt="house" />;
+          }
+        }
         return <img src={houseImg} alt="house" />;
       case 'building':
         return (
           <img
-            src={getBuildingImage(module.params?.time_series_profile)}
+            src={getBuildingImage(
+              module.params?.time_series_profile,
+              isSetup && module.state
+                ? (() => {
+                    const met = Number(module.state.load_met ?? 0);
+                    const cur = Math.abs(Number(module.state.load_current ?? 0));
+                    if (cur > 0 && Math.abs(cur - met) < 0.001) return '_on';
+                    if (cur > 0 && met < cur) return '_unmet';
+                    return '';
+                  })()
+                : ''
+            )}
             alt="building"
           />
         );
@@ -263,8 +315,11 @@ function App() {
     const updateStatus = async () => {
       try {
         const status = await api.getStatus();
+        const log = await api.getLog();
+        const parsed = parseLog(log);
         const batteryStates = status?.battery || [];
         const gridStates = status?.grid || [];
+        const loadStates = parsed.load || {};
         modules.forEach((m) => {
           if (!m.backendId) return;
           const idx = parseInt(m.backendId.split('_')[1], 10);
@@ -277,6 +332,25 @@ function App() {
             const gs = gridStates[idx]?.grid_status_current;
             if (typeof gs === 'number' && gs !== m.state?.grid_status_current) {
               updateModule({ ...m, state: { ...m.state, grid_status_current: gs } });
+            }
+          } else if (['house', 'building'].includes(m.type)) {
+            const hist = loadStates[idx] || {};
+            const curVals = hist.load_current || {};
+            const metVals = hist.load_met || {};
+            const steps = Object.keys(curVals).map(Number);
+            if (steps.length) {
+              const last = Math.max(...steps);
+              const load_current = Math.abs(Number(curVals[last] || 0));
+              const load_met = Math.abs(Number(metVals[last] || 0));
+              if (
+                load_current !== m.state?.load_current ||
+                load_met !== m.state?.load_met
+              ) {
+                updateModule({
+                  ...m,
+                  state: { ...m.state, load_current, load_met },
+                });
+              }
             }
           }
         });
