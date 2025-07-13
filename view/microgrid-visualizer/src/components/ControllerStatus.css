@@ -1,1 +1,15 @@
 /* Styles for ControllerStatus component */
+
+.actual-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    'generated grid'
+    'batteries loads';
+  gap: 0.5rem;
+}
+
+.generated-value { grid-area: generated; text-align: center; }
+.grid-value { grid-area: grid; text-align: center; }
+.batteries-value { grid-area: batteries; text-align: center; }
+.loads-value { grid-area: loads; text-align: center; }

@@ -134,7 +134,6 @@ function RewardChart({ data, steps }) {
 }
 
 export default function MicrogridStatus() {
-  const [actual, setActual] = useState({ generated: 0, grid: 0, batteries: 0, loads: 0 });
   const [totals, setTotals] = useState({
     exported: 0,
     imported: 0,
@@ -159,20 +158,6 @@ export default function MicrogridStatus() {
           .sort((a, b) => a - b);
         setSteps(stepList);
         const last = stepList[stepList.length - 1];
-        const generated = Number(parsedSteps.renewable?.renewable_used?.[last] || 0);
-        const batDis = Number(parsedSteps.battery?.discharge_amount?.[last] || 0);
-        const batChg = Number(parsedSteps.battery?.charge_amount?.[last] || 0);
-        const gridImp = Number(parsedSteps.grid?.grid_import?.[last] || 0);
-        const gridExp = Number(parsedSteps.grid?.grid_export?.[last] || 0);
-        const loadCur = Number(parsedSteps.load?.load_current?.[last] || 0);
-        const loadMet = Number(parsedSteps.load?.load_met?.[last] || 0);
-
-        setActual({
-          generated,
-          grid: gridImp - gridExp,
-          batteries: batDis - batChg,
-          loads: loadCur,
-        });
 
         const cover = stepList.map((s) => ({
           renewables: Number(parsedSteps.renewable?.renewable_used?.[s] || 0),
@@ -205,40 +190,9 @@ export default function MicrogridStatus() {
   }, []);
 
   const balanceColor = totals.balance >= 0 ? 'var(--green)' : 'var(--red)';
-  const gridColor = actual.grid >= 0 ? 'var(--red)' : 'var(--green)';
 
   return (
     <div className="microgrid-status">
-      <div className="actual-section">
-        <h3>Actual</h3>
-        <div className="actual-grid">
-          <div className="generated-value">
-            <div className="value" style={{ color: 'var(--green)' }}>
-              {actual.generated.toFixed(2)} kWh
-            </div>
-            <div className="label">Generated</div>
-          </div>
-          <div className="grid-value">
-            <div className="value" style={{ color: gridColor }}>
-              {actual.grid.toFixed(2)} kWh
-            </div>
-            <div className="label">Grid</div>
-          </div>
-          <div className="batteries-value">
-            <div className="value" style={{ color: 'var(--blue)' }}>
-              {actual.batteries.toFixed(2)} kWh
-            </div>
-            <div className="label">Batteries</div>
-          </div>
-          <div className="loads-value">
-            <div className="value" style={{ color: 'var(--red)' }}>
-                {(-actual.loads >= 1000 ? (actual.loads / 1000).toFixed(2) : actual.loads.toFixed(2))}{' '}
-                {-actual.loads >= 1000 ? 'MWh' : 'kWh'}
-            </div>
-            <div className="label">Loads</div>
-          </div>
-        </div>
-      </div>
 
       <div className="totals-section">
         <h3>Totals</h3>
@@ -290,9 +244,29 @@ export default function MicrogridStatus() {
       <div className="graphs-section">
         <div className="graphs-grid">
           <div className="cover-graph">
+            <div className="label">Energy balance history</div>
+            <div className="cover-legend">
+              <span className="legend-item">
+                <span className="legend-dot" style={{ background: 'var(--green)' }} />
+                Renewable
+              </span>
+              <span className="legend-item">
+                <span className="legend-dot" style={{ background: 'var(--blue)' }} />
+                Batteries
+              </span>
+              <span className="legend-item">
+                <span className="legend-dot" style={{ background: '#d2b32c' }} />
+                Grid
+              </span>
+              <span className="legend-item">
+                <span className="legend-dot" style={{ background: 'var(--red)' }} />
+                Unmet
+              </span>
+            </div>
             <CoverChart data={coverData} steps={steps} />
           </div>
           <div className="reward-graph">
+            <div className="label">Reward history</div>
             <RewardChart data={rewardHist} steps={steps} />
           </div>
         </div>

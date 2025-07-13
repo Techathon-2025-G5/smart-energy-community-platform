@@ -1,15 +1,84 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import ComponentChart from './ComponentChart';
+import api from '../api/client';
+import { parseTotalsLog } from '../utils/totals';
 import './StatusCommon.css';
 import './ControllerStatus.css';
 
 export default function ControllerStatus({ history, currentState }) {
   const fields = Object.keys(history);
   const [field, setField] = useState(fields[0] || '');
+  const [actual, setActual] = useState({
+    generated: 0,
+    grid: 0,
+    batteries: 0,
+    loads: 0,
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const log = await api.getLog();
+        const parsed = parseTotalsLog(log);
+        const stepList = Object.keys(parsed.renewable?.renewable_used || {})
+          .map(Number)
+          .sort((a, b) => a - b);
+        const last = stepList[stepList.length - 1];
+        const generated = Number(parsed.renewable?.renewable_used?.[last] || 0);
+        const batDis = Number(parsed.battery?.discharge_amount?.[last] || 0);
+        const batChg = Number(parsed.battery?.charge_amount?.[last] || 0);
+        const gridImp = Number(parsed.grid?.grid_import?.[last] || 0);
+        const gridExp = Number(parsed.grid?.grid_export?.[last] || 0);
+        const loadCur = Number(parsed.load?.load_current?.[last] || 0);
+
+        setActual({
+          generated,
+          grid: gridImp - gridExp,
+          batteries: batDis - batChg,
+          loads: loadCur,
+        });
+      } catch (_) {
+        // ignore
+      }
+    };
+    fetchData();
+    const id = setInterval(fetchData, 3000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <div className="component-status">
+      <div className="actual-section">
+        <h3>Actual</h3>
+        <div className="actual-grid">
+          <div className="generated-value">
+            <div className="value" style={{ color: 'var(--green)' }}>
+              {actual.generated.toFixed(2)} kWh
+            </div>
+            <div className="label">Generated</div>
+          </div>
+          <div className="grid-value">
+            <div className="value" style={{ color: actual.grid >= 0 ? 'var(--red)' : 'var(--green)' }}>
+              {actual.grid.toFixed(2)} kWh
+            </div>
+            <div className="label">Grid</div>
+          </div>
+          <div className="batteries-value">
+            <div className="value" style={{ color: 'var(--blue)' }}>
+              {actual.batteries.toFixed(2)} kWh
+            </div>
+            <div className="label">Batteries</div>
+          </div>
+          <div className="loads-value">
+            <div className="value" style={{ color: 'var(--red)' }}>
+              {(-actual.loads >= 1000 ? (actual.loads / 1000).toFixed(2) : actual.loads.toFixed(2))}{' '}
+              {-actual.loads >= 1000 ? 'MWh' : 'kWh'}
+            </div>
+            <div className="label">Loads</div>
+          </div>
+        </div>
+      </div>
       <div className="component-state">
         <h4>State</h4>
         <pre>{JSON.stringify(currentState || {}, null, 2)}</pre>
