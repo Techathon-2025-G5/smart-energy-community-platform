@@ -15,6 +15,12 @@ Aplicación React que sirve como interfaz para el simulador de microgrid basado 
    npm start
    ```
    La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
+   Por defecto usará la API local en `http://localhost:8000`. Si quieres apuntar
+   a otro servidor (por ejemplo el despliegue en Railway) define la variable de
+   entorno `REACT_APP_API_URL` antes de arrancar:
+   ```bash
+   REACT_APP_API_URL=https://smart-energy-api-production.up.railway.app npm start
+   ```
 
 ---
 

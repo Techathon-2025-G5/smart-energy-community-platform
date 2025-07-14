@@ -1,4 +1,10 @@
-const BASE_URL = 'http://localhost:8000';
+// Base de la API: permite override mediante REACT_APP_API_URL para entornos
+// desplegados. En desarrollo se usa localhost de forma predeterminada.
+const BASE_URL =
+  process.env.REACT_APP_API_URL ||
+  (process.env.NODE_ENV === 'development'
+    ? 'http://localhost:8000'
+    : 'https://smart-energy-api-production.up.railway.app');
 
 const request = async (method, path, data) => {
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
