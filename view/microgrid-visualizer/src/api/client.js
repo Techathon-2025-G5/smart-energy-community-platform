@@ -6,6 +6,8 @@ const BASE_URL =
     ? 'http://localhost:8000'
     : 'https://smart-energy-api-production.up.railway.app');
 
+export const API_BASE_URL = BASE_URL;
+
 const request = async (method, path, data) => {
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
   if (data) opts.body = JSON.stringify(data);
