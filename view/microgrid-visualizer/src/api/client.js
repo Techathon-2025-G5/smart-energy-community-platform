@@ -6,12 +6,14 @@ const BASE_URL =
     ? 'http://localhost:8000'
     : 'https://smart-energy-api-production.up.railway.app');
 
-export const API_BASE_URL = BASE_URL;
+// Expose the resolved URL without trailing slash for debugging purposes
+export const API_BASE_URL = BASE_URL.replace(/\/+$/, '');
 
 const request = async (method, path, data) => {
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
   if (data) opts.body = JSON.stringify(data);
-  const res = await fetch(`${BASE_URL}${path}`, opts);
+  const url = new URL(path, BASE_URL);
+  const res = await fetch(url.toString(), opts);
   if (!res.ok) throw new Error(res.statusText);
   return res.json();
 };
