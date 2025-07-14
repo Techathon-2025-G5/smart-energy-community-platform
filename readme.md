@@ -9,6 +9,28 @@ El objetivo del usuario (o del agente de IA) será **satisfacer toda la demanda 
 
 ---
 
+### Puesta en marcha rápida
+
+1. Lanza la API (FastAPI) desde la raíz del repositorio:
+   ```bash
+   pip install -r requirements.txt
+   uvicorn api.main:app --reload
+   ```
+   Estará disponible en `http://localhost:8000`.
+2. Inicia el frontend en `view/microgrid-visualizer`:
+   ```bash
+   cd view/microgrid-visualizer
+   npm install
+   npm start
+   ```
+   Por defecto el frontend consulta la API local. Para usar un servidor remoto
+   define la variable `REACT_APP_API_URL`, por ejemplo:
+   ```bash
+   REACT_APP_API_URL=https://smart-energy-api-production.up.railway.app npm start
+   ```
+
+---
+
 #### 2. Componentes principales
 
 | Módulo                      | Función                                                                                                                         | Tecnologías clave                                                                        |
