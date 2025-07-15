@@ -51,7 +51,10 @@ y sustituirá al listado manual de `time_series`.
 Los perfiles disponibles se describen en `data/profiles.yaml`. La API expone el
 endpoint `GET /profiles` (opcionalmente con el parámetro `component`) para
 consultar qué perfiles existen para cada tipo de componente.
-
+Adicionalmente, existe el perfil **PVGIS** para módulos solares.
+Al seleccionarlo se deben indicar en los parámetros `lat`, `lon`, `peakpower`,
+`loss`, `angle` y `aspect` (opcionalmente `mountingplace` y `pvtechchoice`).
+La serie horaria se descarga automáticamente desde la API PVGIS.
 
 ---
 

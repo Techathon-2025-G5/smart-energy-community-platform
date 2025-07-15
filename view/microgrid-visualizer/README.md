@@ -47,6 +47,12 @@ El archivo [`src/api/client.js`](src/api/client.js) centraliza las llamadas al b
 - `POST /reset` – reinicia la simulación.
 
 `App.js` utiliza estas funciones para enviar las acciones desde la interfaz y actualizar el resultado mostrado al usuario. El componente `EnergyBalance` consulta de forma periódica el endpoint `/status` para actualizar el gráfico con la generación y el consumo.
+### Perfil PVGIS
+Para un componente solar puede elegirse el perfil especial `PVGIS`.
+La interfaz debe enviar en `params` los campos `lat`, `lon`, `peakpower`, `loss`,
+`angle` y `aspect` (más `mountingplace` y `pvtechchoice` opcionales).
+Con ellos el backend descargará la serie horaria desde la API PVGIS.
+
 
 ---
 
