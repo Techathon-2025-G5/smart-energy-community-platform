@@ -24,6 +24,15 @@ const FIELD_LABELS = {
   efficiency: 'Efficiency',
   battery_cost_cycle: 'Cost cycle',
   init_soc: 'Initial SoC',
+  lat: 'Latitude',
+  lon: 'Longitude',
+  peakpower: 'Peak power',
+  loss: 'Loss',
+  angle: 'Ángulo de inclinación',
+  aspect: 'Azimuth',
+  mountingplace: 'Type of mounting',
+  pvtechchoice: 'PV technology',
+  year: 'Year',
 };
 
 const PVGIS_FIELDS = [
@@ -259,6 +268,80 @@ function ComponentDetails({ module, onChange, isSetup }) {
                   onChange={(e) => handleParamChange(key, e.target.value)}
                   disabled={isSetup}
                 />
+              </label>
+            ) : PVGIS_FIELDS.includes(key) ? (
+              <label>
+                {FIELD_LABELS[key] || key}:
+                {key === 'loss' ? (
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={value}
+                    onChange={(e) => handleParamChange(key, e.target.value)}
+                    disabled={isSetup}
+                  />
+                ) : key === 'angle' ? (
+                  <input
+                    type="range"
+                    min="0"
+                    max="90"
+                    step="1"
+                    value={value}
+                    onChange={(e) => handleParamChange(key, e.target.value)}
+                    disabled={isSetup}
+                  />
+                ) : key === 'aspect' ? (
+                  <input
+                    type="range"
+                    min="-180"
+                    max="180"
+                    step="1"
+                    value={value}
+                    onChange={(e) => handleParamChange(key, e.target.value)}
+                    disabled={isSetup}
+                  />
+                ) : key === 'mountingplace' ? (
+                  <select
+                    value={value}
+                    onChange={(e) => handleParamChange(key, e.target.value)}
+                    disabled={isSetup}
+                  >
+                    <option value="free">free</option>
+                    <option value="building">building</option>
+                  </select>
+                ) : key === 'pvtechchoice' ? (
+                  <select
+                    value={value}
+                    onChange={(e) => handleParamChange(key, e.target.value)}
+                    disabled={isSetup}
+                  >
+                    <option value="crystSi">crystSi</option>
+                    <option value="CIS">CIS</option>
+                    <option value="CdTe">CdTe</option>
+                    <option value="Unknown">Unknown</option>
+                  </select>
+                ) : key === 'year' ? (
+                  <select
+                    value={value}
+                    onChange={(e) => handleParamChange(key, e.target.value)}
+                    disabled={isSetup}
+                  >
+                    {Array.from({ length: 2023 - 2005 + 1 }, (_, i) => 2005 + i).map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    value={value}
+                    onChange={(e) => handleParamChange(key, e.target.value)}
+                    disabled={isSetup}
+                  />
+                )}
               </label>
             ) : (
               <label>
