@@ -52,8 +52,8 @@ function App() {
   const [microgridConfig, setMicrogridConfig] = useState({
     loss_load_cost: 10,
     overgeneration_cost: 2,
-    lat: '',
-    lon: '',
+    lat: 0,
+    lon: 0,
   });
   const intervalRef = useRef(null);
   const {
@@ -141,6 +141,8 @@ function App() {
       add_unbalanced_module: true,
       loss_load_cost: parseFloat(microgridConfig.loss_load_cost),
       overgeneration_cost: parseFloat(microgridConfig.overgeneration_cost),
+      lat: parseFloat(microgridConfig.lat),
+      lon: parseFloat(microgridConfig.lon),
       components,
     };
 
