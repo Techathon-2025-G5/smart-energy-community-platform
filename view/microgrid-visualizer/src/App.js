@@ -52,6 +52,8 @@ function App() {
   const [microgridConfig, setMicrogridConfig] = useState({
     loss_load_cost: 10,
     overgeneration_cost: 2,
+    lat: '',
+    lon: '',
   });
   const intervalRef = useRef(null);
   const {
@@ -133,7 +135,7 @@ function App() {
       return { id: m.id, type, params: parseParams(m.params) };
     });
 
-    return {
+    const setup = {
       horizon: 24,
       timestep: 1,
       add_unbalanced_module: true,
@@ -141,6 +143,13 @@ function App() {
       overgeneration_cost: parseFloat(microgridConfig.overgeneration_cost),
       components,
     };
+
+    const lat = parseFloat(microgridConfig.lat);
+    if (!Number.isNaN(lat)) setup.lat = lat;
+    const lon = parseFloat(microgridConfig.lon);
+    if (!Number.isNaN(lon)) setup.lon = lon;
+
+    return setup;
   };
 
   const handleDrop = async (item, left, top, row, col, cellSize) => {

@@ -54,6 +54,8 @@ FooterTabs.propTypes = {
   config: PropTypes.shape({
     loss_load_cost: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     overgeneration_cost: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    lat: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    lon: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   }).isRequired,
   onConfigChange: PropTypes.func.isRequired,
   isSetup: PropTypes.bool,
