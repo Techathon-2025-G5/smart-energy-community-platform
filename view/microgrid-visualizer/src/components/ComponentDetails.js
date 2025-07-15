@@ -272,6 +272,11 @@ function ComponentDetails({ module, onChange, isSetup }) {
             ) : PVGIS_FIELDS.includes(key) ? (
               <label>
                 {FIELD_LABELS[key] || key}:
+                {['loss', 'angle', 'aspect'].includes(key) && (
+                  <> {value}
+                    {key === 'loss' ? '%' : '°'}
+                  </>
+                )}
                 {key === 'loss' ? (
                   <input
                     type="range"
