@@ -29,20 +29,20 @@ def fake_requests_get(url, params=None):
 
 def test_pvgis_profile_setup():
     config = {
+        "lat": 1,
+        "lon": 2,
         "components": [
             {
                 "type": "RenewableModule",
                 "params": {
                     "time_series_profile": "PVGIS",
-                    "lat": 1,
-                    "lon": 2,
                     "peakpower": 3,
                     "loss": 0,
                     "angle": 0,
                     "aspect": 0,
                 },
             }
-        ]
+        ],
     }
     with patch("data.data_generator.requests.get", fake_requests_get):
         model = MicrogridModel()

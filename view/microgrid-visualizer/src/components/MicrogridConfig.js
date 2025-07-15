@@ -8,6 +8,11 @@ export default function MicrogridConfig({ config, onChange, isSetup }) {
     onChange(newConfig);
   };
 
+  const handleMapChange = ({ lat, lon }) => {
+    const newConfig = { ...config, lat, lon };
+    onChange(newConfig);
+  };
+
   return (
     <div className="component-details">
       <form>
@@ -60,10 +65,7 @@ export default function MicrogridConfig({ config, onChange, isSetup }) {
         <MapSelector
           lat={parseFloat(config.lat)}
           lon={parseFloat(config.lon)}
-          onChange={({ lat, lon }) => {
-            handleChange('lat', lat);
-            handleChange('lon', lon);
-          }}
+          onChange={handleMapChange}
         />
       </form>
     </div>

@@ -88,12 +88,16 @@ class MicrogridModel:
                     "pvtechchoice",
                     "year",
                 ]
-                pvgis_required = ["lat", "lon", "peakpower", "loss", "angle", "aspect"]
+                pvgis_required = ["peakpower", "loss", "angle", "aspect"]
                 pvgis_params = {}
                 for f in pvgis_fields:
                     if f in params:
                         pvgis_params[f] = params.pop(f)
-                for f in pvgis_required:
+                if "lat" not in pvgis_params and "lat" in config:
+                    pvgis_params["lat"] = config["lat"]
+                if "lon" not in pvgis_params and "lon" in config:
+                    pvgis_params["lon"] = config["lon"]
+                for f in ["lat", "lon"] + pvgis_required:
                     if f not in pvgis_params:
                         raise ValueError(f"Missing PVGIS parameter: {f}")
                 params[ts_key] = data_generator.pv_data_generator(**pvgis_params)
