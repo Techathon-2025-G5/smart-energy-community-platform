@@ -4,6 +4,7 @@ import pandas as pd
 import json
 from pymgrid import Microgrid
 from pymgrid import modules as mod
+from data import data_generator
 
 
 class MicrogridModel:
@@ -75,7 +76,29 @@ class MicrogridModel:
                 raise ValueError(f"Unknown component type: {comp_type}")
             ts_key = "time_series"
             profile_key = "time_series_profile"
-            if profile_key in params:
+            if profile_key in params and params[profile_key] == "PVGIS":
+                pvgis_fields = [
+                    "lat",
+                    "lon",
+                    "peakpower",
+                    "loss",
+                    "angle",
+                    "aspect",
+                    "mountingplace",
+                    "pvtechchoice",
+                    "year",
+                ]
+                pvgis_required = ["lat", "lon", "peakpower", "loss", "angle", "aspect"]
+                pvgis_params = {}
+                for f in pvgis_fields:
+                    if f in params:
+                        pvgis_params[f] = params.pop(f)
+                for f in pvgis_required:
+                    if f not in pvgis_params:
+                        raise ValueError(f"Missing PVGIS parameter: {f}")
+                params[ts_key] = data_generator.pv_data_generator(**pvgis_params)
+                params.pop(profile_key, None)
+            elif profile_key in params:
                 params[ts_key] = self._load_profile(params.pop(profile_key))
             if ts_key in params:
                 import numpy as np
