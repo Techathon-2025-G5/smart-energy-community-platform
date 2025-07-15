@@ -135,7 +135,7 @@ function App() {
       return { id: m.id, type, params: parseParams(m.params) };
     });
 
-    return {
+    const setup = {
       horizon: 24,
       timestep: 1,
       add_unbalanced_module: true,
@@ -145,6 +145,13 @@ function App() {
       lon: parseFloat(microgridConfig.lon),
       components,
     };
+
+    const lat = parseFloat(microgridConfig.lat);
+    if (!Number.isNaN(lat)) setup.lat = lat;
+    const lon = parseFloat(microgridConfig.lon);
+    if (!Number.isNaN(lon)) setup.lon = lon;
+
+    return setup;
   };
 
   const handleDrop = async (item, left, top, row, col, cellSize) => {
