@@ -29,11 +29,23 @@ async def ping():
 PROFILES_FILE = Path(__file__).resolve().parent.parent / "data" / "profiles.yaml"
 
 def load_profiles() -> Dict[str, Dict[str, str]]:
-    """Load profiles.yaml and return its contents."""
+    """Load profiles.yaml and return its contents.
+
+    Ensures that the special ``PVGIS`` solar profile exists even if it does not
+    correspond to a local file.  This allows the frontend to display the option
+    while the backend may handle it dynamically.
+    """
     if not PROFILES_FILE.exists():
-        return {}
-    with open(PROFILES_FILE, "r") as f:
-        data = yaml.safe_load(f) or {}
+        data = {}
+    else:
+        with open(PROFILES_FILE, "r") as f:
+            data = yaml.safe_load(f) or {}
+
+    # Guarantee presence of the PVGIS profile with an empty path so that the
+    # frontend can offer it regardless of local files.
+    solar_profiles = data.setdefault("solar", {})
+    solar_profiles.setdefault("PVGIS", "")
+
     return data
 
 @router.post("/setup")

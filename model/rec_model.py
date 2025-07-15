@@ -31,7 +31,15 @@ class MicrogridModel:
                 break
 
         if rel_path is None:
-            raise FileNotFoundError(f"Profile {profile} not defined in {profiles_file}")
+            raise FileNotFoundError(
+                f"Profile {profile} not defined in {profiles_file}"
+            )
+
+        if rel_path == "":
+            # An empty path indicates a profile provided dynamically (e.g. via
+            # PVGIS) rather than from a local file.  Return an empty list so
+            # modules can initialise without a time series.
+            return []
 
         file_path = data_dir / rel_path
         if not file_path.exists():
