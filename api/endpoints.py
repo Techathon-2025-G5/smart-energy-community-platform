@@ -61,7 +61,16 @@ async def setup_model(payload: SetupRequest):
         else:
             filtered.append(comp)
     config["components"] = filtered
-    await run_in_threadpool(microgrid.setup, config)
+    try:
+        await run_in_threadpool(microgrid.setup, config)
+    except ValueError as exc:
+        # Provide a 400 response when the configuration is invalid
+        raise HTTPException(status_code=400, detail=str(exc))
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        # Re-raise unexpected exceptions so they are logged properly
+        raise HTTPException(status_code=500, detail=str(exc))
     if controller_name:
         await run_in_threadpool(set_current_controller, controller_name)
         await run_in_threadpool(controller_setup)
