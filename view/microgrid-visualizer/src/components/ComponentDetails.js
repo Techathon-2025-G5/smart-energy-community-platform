@@ -26,6 +26,18 @@ const FIELD_LABELS = {
   init_soc: 'Initial SoC',
 };
 
+const PVGIS_FIELDS = [
+  'lat',
+  'lon',
+  'peakpower',
+  'loss',
+  'angle',
+  'aspect',
+  'mountingplace',
+  'pvtechchoice',
+  'year',
+];
+
 function getTitle(module) {
   if (!module) return '';
   const idx = module.backendId
@@ -144,6 +156,46 @@ function ComponentDetails({ module, onChange, isSetup }) {
     onChange({ ...module, params: newParams });
   };
 
+  const handleProfileSelect = (profile) => {
+    const newParams = { ...module.params, time_series_profile: profile };
+    if (profile === 'PVGIS') {
+      PVGIS_FIELDS.forEach((f) => {
+        if (!(f in newParams)) {
+          switch (f) {
+            case 'peakpower':
+              newParams[f] = 1;
+              break;
+            case 'loss':
+              newParams[f] = 14;
+              break;
+            case 'angle':
+              newParams[f] = 35;
+              break;
+            case 'aspect':
+              newParams[f] = 0;
+              break;
+            case 'mountingplace':
+              newParams[f] = 'free';
+              break;
+            case 'pvtechchoice':
+              newParams[f] = 'crystSi';
+              break;
+            case 'year':
+              newParams[f] = new Date().getFullYear();
+              break;
+            default:
+              newParams[f] = 0;
+          }
+        }
+      });
+    } else {
+      PVGIS_FIELDS.forEach((f) => {
+        if (f in newParams) delete newParams[f];
+      });
+    }
+    onChange({ ...module, params: newParams });
+  };
+
   const configContent = (
     <>
       <h3>{getTitle(module)}</h3>
@@ -172,9 +224,7 @@ function ComponentDetails({ module, onChange, isSetup }) {
               {FIELD_LABELS.profile}:
               <select
                 value={module.params.time_series_profile || Object.keys(profiles)[0] || ''}
-                onChange={(e) =>
-                  handleParamChange('time_series_profile', e.target.value)
-                }
+                onChange={(e) => handleProfileSelect(e.target.value)}
                 disabled={isSetup}
               >
                 {Object.keys(profiles).map((name) => (
@@ -189,6 +239,7 @@ function ComponentDetails({ module, onChange, isSetup }) {
         {Object.entries(module.params || {})
           .filter(([key]) => {
             if (['time_series', 'time_series_profile'].includes(key)) return false;
+            if (PVGIS_FIELDS.includes(key)) return module.params.time_series_profile === 'PVGIS';
             if (['house', 'building'].includes(module.type) && key === 'demand') return false;
             if (module.type === 'solar' && key === 'capacity') return false;
             if (module.type === 'controller' && key === 'name') return false;

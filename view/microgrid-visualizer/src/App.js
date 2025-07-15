@@ -101,7 +101,7 @@ function App() {
       const parsed = {};
       Object.entries(params || {}).forEach(([k, v]) => {
         if (typeof v === 'string') {
-          const num = parseFloat(v);
+          const num = Number(v);
           parsed[k] = Number.isNaN(num) ? v : num;
         } else {
           parsed[k] = v;
