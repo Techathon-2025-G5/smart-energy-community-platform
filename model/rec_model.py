@@ -67,6 +67,30 @@ class MicrogridModel:
                 raise ValueError(f"Unknown component type: {comp_type}")
             ts_key = "time_series"
             profile_key = "time_series_profile"
+
+            if (
+                comp_type == "RenewableModule"
+                and params.get(profile_key) == "PVGIS"
+            ):
+                from data.data_generator import pv_data_generator
+
+                pv_args = {}
+                for key in [
+                    "lat",
+                    "lon",
+                    "peakpower",
+                    "loss",
+                    "angle",
+                    "aspect",
+                    "mountingplace",
+                    "pvtechchoice",
+                    "year",
+                ]:
+                    if key in params:
+                        pv_args[key] = params.pop(key)
+                params.pop(profile_key, None)
+                params[ts_key] = pv_data_generator(**pv_args)
+
             if profile_key in params:
                 params[ts_key] = self._load_profile(params.pop(profile_key))
             if ts_key in params:
