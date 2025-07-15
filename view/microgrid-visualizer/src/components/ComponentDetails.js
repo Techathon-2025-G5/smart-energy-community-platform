@@ -36,8 +36,6 @@ const FIELD_LABELS = {
 };
 
 const PVGIS_FIELDS = [
-  'lat',
-  'lon',
   'peakpower',
   'loss',
   'angle',

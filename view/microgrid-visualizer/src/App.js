@@ -39,6 +39,7 @@ import gridOnImg from './assets/grid_on.png';
 import gridOffImg from './assets/grid_off.png';
 import controllerImg from './assets/controller.png';
 import { useAppState } from './context/AppState';
+import { DEFAULT_LAT, DEFAULT_LON } from './components/MapSelector';
 import { isAllowed, cellKey } from './utils/placement';
 import { parseLog } from './utils/log';
 
@@ -52,8 +53,8 @@ function App() {
   const [microgridConfig, setMicrogridConfig] = useState({
     loss_load_cost: 10,
     overgeneration_cost: 2,
-    lat: 0,
-    lon: 0,
+    lat: DEFAULT_LAT,
+    lon: DEFAULT_LON,
   });
   const intervalRef = useRef(null);
   const {

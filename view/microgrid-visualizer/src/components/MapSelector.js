@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
+export const DEFAULT_LAT = 39.47428905506321;
+export const DEFAULT_LON = -6.375852142621431;
+
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
   iconUrl: require('leaflet/dist/images/marker-icon.png'),
@@ -19,11 +22,14 @@ function ClickMarker({ position, onChange }) {
 }
 
 export default function MapSelector({ lat, lon, onChange }) {
-  const pos = lat && lon ? [lat, lon] : [0, 0];
+  const hasCoords =
+    lat !== null && lat !== undefined && !Number.isNaN(lat) &&
+    lon !== null && lon !== undefined && !Number.isNaN(lon);
+  const pos = hasCoords ? [lat, lon] : [DEFAULT_LAT, DEFAULT_LON];
   return (
     <MapContainer center={pos} zoom={5} style={{ height: '200px', width: '100%' }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <ClickMarker position={lat && lon ? [lat, lon] : null} onChange={onChange} />
+      <ClickMarker position={hasCoords ? [lat, lon] : null} onChange={onChange} />
     </MapContainer>
   );
 }
@@ -35,8 +41,8 @@ MapSelector.propTypes = {
 };
 
 MapSelector.defaultProps = {
-  lat: 0,
-  lon: 0,
+  lat: DEFAULT_LAT,
+  lon: DEFAULT_LON,
 };
 
 
