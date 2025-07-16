@@ -554,6 +554,9 @@ function App() {
     try {
       const response = await api.resetModel();
       const hasController = modules.some((m) => m.type === 'controller');
+      const isManual = modules.some(
+        (m) => m.type === 'controller' && m.params?.name === 'manual'
+      );
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
