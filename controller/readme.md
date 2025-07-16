@@ -28,6 +28,18 @@ res = requests.post("http://localhost:8000/setup", json=payload)
 print(res.json())  # -> {"message": "Microgrid setup completed."}
 ```
 
+Tambien es posible especificar la lista de prioridades como objetos con las claves
+`module` e `index`:
+
+```python
+payload["controller_config"] = {
+    "priority_list": [
+        {"module": "battery", "index": 0},
+        {"module": "grid", "index": 0},
+    ]
+}
+```
+
 El método `get_priority_list()` permite consultar el orden de despliegue calculado.
 
 ### Endpoints de la API
