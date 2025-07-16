@@ -147,6 +147,26 @@ function App() {
       components,
     };
 
+    const controller = modules.find((m) => m.type === 'controller');
+    if (controller && controller.params?.name === 'rule_based') {
+      const getDefaultPriorityList = () => {
+        const bats = modules
+          .filter((m) => m.type === 'battery')
+          .sort((a, b) => (a.idx || 0) - (b.idx || 0))
+          .map((b) => ({ module: 'battery', index: (b.idx || 1) - 1 }));
+        const grids = modules
+          .filter((m) => m.type === 'grid')
+          .sort((a, b) => (a.idx || 0) - (b.idx || 0))
+          .map((g) => ({ module: 'grid', index: (g.idx || 1) - 1 }));
+        return [...bats, ...grids];
+      };
+      const list =
+        controller.params.priority_list && controller.params.priority_list.length
+          ? controller.params.priority_list
+          : getDefaultPriorityList();
+      setup.controller_config = { priority_list: list };
+    }
+
     const lat = parseFloat(microgridConfig.lat);
     if (!Number.isNaN(lat)) setup.lat = lat;
     const lon = parseFloat(microgridConfig.lon);
