@@ -14,7 +14,9 @@ from controller import (
     step as controller_step,
     reset as controller_reset,
     has_current_controller,
+    get_current_controller,
 )
+import inspect
 from api.schemas import SetupRequest, ActionRequest
 
 router = APIRouter()
@@ -25,8 +27,10 @@ async def ping():
     """Simple health check endpoint."""
     return {"pong": True}
 
+
 # Path to the YAML file describing available time series profiles
 PROFILES_FILE = Path(__file__).resolve().parent.parent / "data" / "profiles.yaml"
+
 
 def load_profiles() -> Dict[str, Dict[str, str]]:
     """Load profiles.yaml and return its contents.
@@ -47,6 +51,7 @@ def load_profiles() -> Dict[str, Dict[str, str]]:
     solar_profiles.setdefault("PVGIS", "")
 
     return data
+
 
 @router.post("/setup")
 async def setup_model(payload: SetupRequest):
@@ -78,9 +83,11 @@ async def setup_model(payload: SetupRequest):
         await run_in_threadpool(controller_setup, **kwargs)
     return {"message": "Microgrid setup completed."}
 
+
 @router.get("/components")
 async def get_components(type: Optional[str] = Query(None)):
     return await run_in_threadpool(microgrid.get_components, type=type)
+
 
 @router.get("/profiles")
 async def get_profiles(component: Optional[str] = Query(None)):
@@ -95,14 +102,17 @@ async def get_profiles(component: Optional[str] = Query(None)):
         return profiles.get(component, {})
     return profiles
 
+
 @router.get("/actions")
 async def get_actions():
     return await run_in_threadpool(microgrid.get_actions)
+
 
 @router.get("/status")
 async def get_status():
     status = await run_in_threadpool(microgrid.get_status)
     return microgrid._to_serializable(status)
+
 
 @router.get("/log")
 async def get_log(
@@ -110,9 +120,7 @@ async def get_log(
     drop_singleton_key: bool = Query(False),
 ):
     """Return the execution log of the microgrid."""
-    log = await run_in_threadpool(
-        microgrid.get_log, as_frame, drop_singleton_key
-    )
+    log = await run_in_threadpool(microgrid.get_log, as_frame, drop_singleton_key)
     if hasattr(log, "to_dict"):
         # Convert DataFrame to a serializable structure
         log = log.to_dict()
@@ -139,16 +147,29 @@ async def get_totals(
         totals = {json.dumps(k): v for k, v in totals.items()}
     return totals
 
+
 @router.post("/run")
 async def run_model(payload: ActionRequest | None = None):
     """Execute one simulation step using the controller if present."""
     if has_current_controller():
-        raw = await run_in_threadpool(controller_step)
+        controller = get_current_controller()
+        sig = inspect.signature(controller.step)
+        if "actions" in sig.parameters:
+            if payload is None:
+                raise HTTPException(
+                    status_code=400, detail="Missing actions for controller run"
+                )
+            raw = await run_in_threadpool(controller.step, payload.actions)
+        else:
+            raw = await run_in_threadpool(controller.step)
     else:
         if payload is None:
-            raise HTTPException(status_code=400, detail="Missing actions for microgrid run")
+            raise HTTPException(
+                status_code=400, detail="Missing actions for microgrid run"
+            )
         raw = await run_in_threadpool(microgrid.run, payload.actions)
     return microgrid._to_serializable(raw)  # type: ignore[attr-defined]
+
 
 @router.post("/reset")
 async def reset_model():
@@ -159,10 +180,12 @@ async def reset_model():
         await run_in_threadpool(microgrid.reset)
     return {"message": "Microgrid has been reset."}
 
+
 @router.get("/controller/get_options")
 async def get_controller_options():
     """Return the available controller names."""
     return await run_in_threadpool(load_controller_options)
+
 
 @router.get("/controller/config")
 async def get_config():
