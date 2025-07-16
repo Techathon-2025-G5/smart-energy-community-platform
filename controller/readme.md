@@ -9,28 +9,32 @@ El controlador básico es `RuleBasedControl` de la librería `pymgrid`. Se basa 
 ### Uso
 
 ```python
-from model.rec_model import microgrid
-from controller import rule_controller
+import requests
 
-# Configurar la microgrid previamente
-microgrid.setup('config/sample_setup.yaml')
+# Ejemplo de payload abreviado
+payload = {
+    "horizon": 24,
+    "timestep": 1,
+    "components": [
+        {"id": "grid1", "type": "GridModule", "params": {"max_import": 100}},
+        {"id": "ctrl", "type": "Controller", "params": {"name": "rule_based"}},
+    ],
+    "controller_config": {
+        "priority_list": [["battery", 0], ["grid", 0]]
+    }
+}
 
-# Iniciar el controlador (se crea automáticamente la lista de prioridades)
-rule_controller.setup()
-
-# Ejecutar un paso
-result = rule_controller.step()
-print(result['observation'], result['reward'])
+res = requests.post("http://localhost:8000/setup", json=payload)
+print(res.json())  # -> {"message": "Microgrid setup completed."}
 ```
 
 El método `get_priority_list()` permite consultar el orden de despliegue calculado.
 
 ### Endpoints de la API
 
-La API expone varias rutas para gestionar los controladores:
+La API expone las siguientes rutas relacionadas con los controladores:
 
-- `POST /controller/setup`: configura la microgrid y selecciona el controlador a usar.
 - `GET  /controller/get_options`: devuelve los controladores disponibles.
 - `GET  /controller/config`: obtiene la configuración del controlador activo.
-- `POST /controller/run`: ejecuta un paso de control sobre la microgrid.
-- `POST /controller/reset`: reinicia el controlador y la microgrid.
+
+La selección y configuración del controlador se realiza a través del endpoint `/setup` al definir los componentes de la microgrid, como se muestra en el ejemplo anterior.
