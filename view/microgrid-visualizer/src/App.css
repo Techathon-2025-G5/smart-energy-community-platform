@@ -19,6 +19,12 @@
   align-items: center;
 }
 
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
 .tool-sidebar {
   grid-area: sidebar;
   padding: 1rem;
