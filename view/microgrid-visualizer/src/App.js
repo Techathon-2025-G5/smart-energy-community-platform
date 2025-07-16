@@ -70,7 +70,7 @@ function App() {
 
   const defaults = {
     house: { params: { time_series_profile: 'house' }, state: {} },
-    building: { params: { time_series_profile: 'hospital' }, state: {} },
+    building: { params: { time_series_profile: 'large_office' }, state: {} },
     solar: { params: { time_series_profile: 'solar_1' }, state: {} },
     battery: {
       params: {
@@ -209,15 +209,15 @@ function App() {
   const getBuildingImage = (profile, suffix = '') => {
     if (!profile) return buildingImg;
     const p = profile.toLowerCase();
-    if (p.includes('hospital')) {
-      if (suffix === '_on') return hospitalOnImg;
-      if (suffix === '_unmet') return hospitalUnmetImg;
-      return hospitalImg;
-    }
     if (p.includes('office')) {
       if (suffix === '_on') return officeOnImg;
       if (suffix === '_unmet') return officeUnmetImg;
       return officeImg;
+    }
+    if (p.includes('hospital')) {
+      if (suffix === '_on') return hospitalOnImg;
+      if (suffix === '_unmet') return hospitalUnmetImg;
+      return hospitalImg;
     }
     if (p.includes('hotel')) {
       if (suffix === '_on') return hotelOnImg;

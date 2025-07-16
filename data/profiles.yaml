@@ -1,6 +1,6 @@
 building:
-  hospital: load/building/hospital.csv
   large_office: load/building/large_office.csv
+  hospital: load/building/hospital.csv
   large_hotel: load/building/large_hotel.csv
   primary_school: load/building/primary_school.csv
   restaurant: load/building/restaurant.csv

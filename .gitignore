@@ -129,3 +129,4 @@ node_modules/
 view/microgrid-visualizer/node_modules/
 /api/__pycache__
 /model/.ipynb_checkpoints
+/api/__pycache__
