@@ -7,6 +7,7 @@ import importlib
 import yaml
 
 from .rule_based import RuleBasedController
+from typing import Any
 
 # Backwards compatible singleton for the basic rule based controller
 rule_controller = RuleBasedController()
@@ -19,7 +20,7 @@ rule_controller = RuleBasedController()
 CONTROLLERS_FILE = Path(__file__).resolve().parent / "controllers.yaml"
 
 # Currently loaded controller instance
-_current_controller: RuleBasedController | None = None
+_current_controller: Any | None = None
 
 
 def load_options() -> dict:
@@ -48,7 +49,7 @@ def set_current_controller(name: str):
     return _current_controller
 
 
-def get_current_controller() -> RuleBasedController:
+def get_current_controller() -> Any:
     """Return the active controller instance."""
     if _current_controller is None:
         raise RuntimeError("Controller not initialized")
@@ -63,8 +64,8 @@ def get_config():
     return get_current_controller().get_config()
 
 
-def step():
-    return get_current_controller().step()
+def step(*args, **kwargs):
+    return get_current_controller().step(*args, **kwargs)
 
 
 def reset():
