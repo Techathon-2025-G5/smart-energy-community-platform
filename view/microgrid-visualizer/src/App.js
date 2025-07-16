@@ -42,7 +42,6 @@ import { useAppState } from './context/AppState';
 import { DEFAULT_LAT, DEFAULT_LON } from './components/MapSelector';
 import { isAllowed, cellKey } from './utils/placement';
 import { parseLog } from './utils/log';
-import ManualControls from './components/ManualControls';
 
 function App() {
   const [stepEnabled, setStepEnabled] = useState(false);
@@ -461,10 +460,13 @@ function App() {
         intervalRef.current = null;
       }
       const hasController = modules.some((m) => m.type === 'controller');
+      const isManual = modules.some(
+        (m) => m.type === 'controller' && m.params?.name === 'manual'
+      );
       setStepCount(0);
       setResetEnabled(true);
       setStepEnabled(true);
-      setPlayEnabled(hasController);
+      setPlayEnabled(hasController && !isManual);
       setPauseEnabled(false);
       setIsSetup(true);
       addLog({ method: 'POST', endpoint: '/setup', payload, response });
@@ -497,7 +499,10 @@ function App() {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
-    setPlayEnabled(true);
+    const isManual = modules.some(
+      (m) => m.type === 'controller' && m.params?.name === 'manual'
+    );
+    setPlayEnabled(!isManual);
     setPauseEnabled(false);
   };
 
@@ -565,7 +570,7 @@ function App() {
           .map(() => 0),
       });
       setStepEnabled(true);
-      setPlayEnabled(hasController);
+      setPlayEnabled(hasController && !isManual);
       setPauseEnabled(false);
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response });
     } catch (err) {
@@ -593,12 +598,6 @@ function App() {
             resetDisabled={!resetEnabled}
             step={stepCount}
           />
-          {manualMode && (
-            <ManualControls
-              values={manualActions}
-              onChange={handleManualChange}
-            />
-          )}
         </div>
       </header>
 
@@ -631,6 +630,9 @@ function App() {
           module={modules.find((m) => m.id === selected)}
           onChange={updateModule}
           isSetup={isSetup}
+          manualMode={manualMode}
+          manualValues={manualActions}
+          onManualChange={handleManualChange}
         />
       </section>
 

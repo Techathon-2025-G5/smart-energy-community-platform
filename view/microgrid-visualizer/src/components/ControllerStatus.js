@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import ComponentChart from './ComponentChart';
+import ManualControls from './ManualControls';
 import api from '../api/client';
 import { parseTotalsLog } from '../utils/totals';
 import './StatusCommon.css';
 import './ControllerStatus.css';
 
-export default function ControllerStatus({ history, currentState }) {
+export default function ControllerStatus({
+  history,
+  currentState,
+  module,
+  manualMode,
+  manualValues,
+  onManualChange,
+}) {
   const fields = Object.keys(history);
   const [field, setField] = useState(fields[0] || '');
   const [actual, setActual] = useState({
@@ -79,6 +87,9 @@ export default function ControllerStatus({ history, currentState }) {
           </div>
         </div>
       </div>
+      {manualMode && module?.params?.name === 'manual' && (
+        <ManualControls values={manualValues} onChange={onManualChange} />
+      )}
       {fields.length > 0 && (
         <div className="component-history">
           <ComponentChart
@@ -102,4 +113,18 @@ export default function ControllerStatus({ history, currentState }) {
 ControllerStatus.propTypes = {
   history: PropTypes.object.isRequired,
   currentState: PropTypes.object.isRequired,
+  module: PropTypes.object,
+  manualMode: PropTypes.bool,
+  manualValues: PropTypes.shape({
+    battery: PropTypes.arrayOf(PropTypes.number),
+    grid: PropTypes.arrayOf(PropTypes.number),
+  }),
+  onManualChange: PropTypes.func,
+};
+
+ControllerStatus.defaultProps = {
+  module: null,
+  manualMode: false,
+  manualValues: { battery: [], grid: [] },
+  onManualChange: () => {},
 };

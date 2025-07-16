@@ -69,7 +69,14 @@ function getTitle(module) {
   }
 }
 
-function ComponentDetails({ module, onChange, isSetup }) {
+function ComponentDetails({
+  module,
+  onChange,
+  isSetup,
+  manualMode,
+  manualValues,
+  onManualChange,
+}) {
   const [profiles, setProfiles] = useState({});
   const [controllerOptions, setControllerOptions] = useState([]);
   const [currentState, setCurrentState] = useState({});
@@ -464,7 +471,14 @@ function ComponentDetails({ module, onChange, isSetup }) {
       break;
     case 'controller':
       statusContent = (
-        <ControllerStatus history={history} currentState={currentState} />
+        <ControllerStatus
+          history={history}
+          currentState={currentState}
+          module={module}
+          manualMode={manualMode}
+          manualValues={manualValues}
+          onManualChange={onManualChange}
+        />
       );
       break;
     default:
@@ -530,10 +544,19 @@ ComponentDetails.propTypes = {
   }),
   onChange: PropTypes.func.isRequired,
   isSetup: PropTypes.bool,
+  manualMode: PropTypes.bool,
+  manualValues: PropTypes.shape({
+    battery: PropTypes.arrayOf(PropTypes.number),
+    grid: PropTypes.arrayOf(PropTypes.number),
+  }),
+  onManualChange: PropTypes.func,
 };
 
 export default ComponentDetails;
 
 ComponentDetails.defaultProps = {
   isSetup: false,
+  manualMode: false,
+  manualValues: { battery: [], grid: [] },
+  onManualChange: () => {},
 };
