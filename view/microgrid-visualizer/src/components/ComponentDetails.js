@@ -188,7 +188,7 @@ function ComponentDetails({ module, onChange, isSetup }) {
               newParams[f] = 'crystSi';
               break;
             case 'year':
-              newParams[f] = new Date().getFullYear();
+              newParams[f] = 2005;
               break;
             default:
               newParams[f] = 0;
