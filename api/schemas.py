@@ -25,6 +25,8 @@ class SetupRequest(BaseModel):
     overgeneration_cost: Optional[float] = None
     lat: Optional[float] = None
     lon: Optional[float] = None
+    # Additional controller parameters (e.g. priority list for rule-based control)
+    controller_config: Optional[Dict[str, Any]] = None
 
 class ActionRequest(BaseModel):
     actions: Dict[str, Any]

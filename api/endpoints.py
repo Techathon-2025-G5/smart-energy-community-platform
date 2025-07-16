@@ -54,6 +54,7 @@ async def setup_model(payload: SetupRequest):
     config = payload.dict(exclude_none=True)
     components = config.get("components", [])
     controller_name = None
+    controller_cfg = config.pop("controller_config", None)
     filtered = []
     for comp in components:
         if comp.get("type") == "Controller":
@@ -73,7 +74,8 @@ async def setup_model(payload: SetupRequest):
         raise HTTPException(status_code=500, detail=str(exc))
     if controller_name:
         await run_in_threadpool(set_current_controller, controller_name)
-        await run_in_threadpool(controller_setup)
+        kwargs = controller_cfg or {}
+        await run_in_threadpool(controller_setup, **kwargs)
     return {"message": "Microgrid setup completed."}
 
 @router.get("/components")

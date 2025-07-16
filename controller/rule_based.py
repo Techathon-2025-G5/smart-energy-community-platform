@@ -12,6 +12,8 @@ class RuleBasedController:
         """Initialise the rule based controller for the current microgrid."""
         if microgrid.microgrid is None:
             raise RuntimeError("Microgrid is not initialized")
+        if priority_list is not None and len(priority_list) == 0:
+            priority_list = None
         self.rbc = RuleBasedControl(microgrid.microgrid, priority_list=priority_list)
         # Ensure the controller operates on the shared microgrid instance
         self.rbc._microgrid = microgrid.microgrid
