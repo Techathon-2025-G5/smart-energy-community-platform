@@ -313,7 +313,7 @@ function ComponentDetails({ module, onChange, isSetup }) {
             if (PVGIS_FIELDS.includes(key)) return module.params.time_series_profile === 'PVGIS';
             if (['house', 'building'].includes(module.type) && key === 'demand') return false;
             if (module.type === 'solar' && key === 'capacity') return false;
-            if (module.type === 'controller' && key === 'name') return false;
+            if (module.type === 'controller' && (key === 'name' || key === 'priority_list')) return false;
             return true;
           })
           .map(([key, value]) => (

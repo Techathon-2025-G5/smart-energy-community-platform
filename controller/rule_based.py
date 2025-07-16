@@ -1,5 +1,6 @@
 from typing import Any, List, Tuple
 from pymgrid.algos import RuleBasedControl
+from pymgrid.algos.priority_list import PriorityListElement
 from model.rec_model import microgrid
 
 class RuleBasedController:
@@ -12,9 +13,25 @@ class RuleBasedController:
         """Initialise the rule based controller for the current microgrid."""
         if microgrid.microgrid is None:
             raise RuntimeError("Microgrid is not initialized")
-        if priority_list is not None and len(priority_list) == 0:
-            priority_list = None
-        self.rbc = RuleBasedControl(microgrid.microgrid, priority_list=priority_list)
+        prio = None
+        if priority_list is not None:
+            if len(priority_list) == 0:
+                prio = None
+            else:
+                prio = []
+                for module_name, idx in priority_list:
+                    module = microgrid.microgrid.modules[module_name][idx]
+                    actions = module.action_space.shape[0]
+                    for act in range(actions):
+                        prio.append(
+                            PriorityListElement(
+                                module.name,
+                                actions,
+                                act,
+                                module.marginal_cost,
+                            )
+                        )
+        self.rbc = RuleBasedControl(microgrid.microgrid, priority_list=prio)
         # Ensure the controller operates on the shared microgrid instance
         self.rbc._microgrid = microgrid.microgrid
 
