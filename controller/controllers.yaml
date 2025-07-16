@@ -1,3 +1,6 @@
 rule_based:
   module: controller.rule_based
   class: RuleBasedController
+manual:
+  module: controller.manual
+  class: ManualController
