@@ -460,7 +460,6 @@ function App() {
         /* ignore errors */
       }
     };
-  };
 
   useEffect(() => {
     fetchAndUpdateStatus();
