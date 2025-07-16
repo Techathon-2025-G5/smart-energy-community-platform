@@ -6,7 +6,6 @@ from pymgrid import Microgrid
 from pymgrid import modules as mod
 from data import data_generator
 
-
 class MicrogridModel:
     """Wrapper to create and manage a pymgrid Microgrid from YAML configuration."""
 
