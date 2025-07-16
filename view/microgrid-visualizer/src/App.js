@@ -374,27 +374,58 @@ function App() {
     }));
   }, [modules]);
 
-  useEffect(() => {
-    const updateStatus = async () => {
+  const fetchAndUpdateStatus = async () => {
       try {
-        const status = await api.getStatus();
-        const log = await api.getLog();
+        const [status, log] = await Promise.all([api.getStatus(), api.getLog()]);
         const parsed = parseLog(log);
         const batteryStates = status?.battery || [];
         const gridStates = status?.grid || [];
+        const renewableStates = status?.renewable || [];
         const loadStates = parsed.load || {};
+        const loadStatus = status?.load || [];
         modules.forEach((m) => {
           if (!m.backendId) return;
           const idx = parseInt(m.backendId.split('_')[1], 10);
           if (m.type === 'battery') {
             const soc = batteryStates[idx]?.soc;
-            if (typeof soc === 'number' && soc !== m.state?.soc) {
-              updateModule({ ...m, state: { ...m.state, soc } });
+            const charge = batteryStates[idx]?.current_charge;
+            if (
+              (typeof soc === 'number' && soc !== m.state?.soc) ||
+              (typeof charge === 'number' && charge !== m.state?.current_charge)
+            ) {
+              updateModule({
+                ...m,
+                state: { ...m.state, soc, current_charge: charge },
+              });
             }
           } else if (m.type === 'grid') {
             const gs = gridStates[idx]?.grid_status_current;
             if (typeof gs === 'number' && gs !== m.state?.grid_status_current) {
               updateModule({ ...m, state: { ...m.state, grid_status_current: gs } });
+            }
+          } else if (m.type === 'solar') {
+            const hist = parsed.renewable?.[idx] || {};
+            const curVals = hist.renewable_current || {};
+            const usedVals = hist.renewable_used || {};
+            const steps = Object.keys(curVals).map(Number);
+            let renewable_current = m.state?.renewable_current;
+            let renewable_used = m.state?.renewable_used;
+            if (steps.length) {
+              const last = Math.max(...steps);
+              renewable_current = Number(curVals[last] || 0);
+              renewable_used = Number(usedVals[last] || 0);
+            } else if (renewableStates[idx]) {
+              renewable_current = Number(renewableStates[idx].renewable_current || 0);
+              if (renewable_used === undefined) renewable_used = 0;
+            }
+            if (
+              renewable_current !== m.state?.renewable_current ||
+              renewable_used !== m.state?.renewable_used
+            ) {
+              updateModule({
+                ...m,
+                state: { ...m.state, renewable_current, renewable_used },
+              });
             }
           } else if (['house', 'building'].includes(m.type)) {
             const hist = loadStates[idx] || {};
@@ -414,6 +445,14 @@ function App() {
                   state: { ...m.state, load_current, load_met },
                 });
               }
+            } else if (loadStatus[idx]) {
+              const cur = Math.abs(Number(loadStatus[idx].load_current || 0));
+              if (cur !== m.state?.load_current) {
+                updateModule({
+                  ...m,
+                  state: { ...m.state, load_current: cur, load_met: 0 },
+                });
+              }
             }
           }
         });
@@ -421,8 +460,11 @@ function App() {
         /* ignore errors */
       }
     };
-    updateStatus();
-    const id = setInterval(updateStatus, 3000);
+  };
+
+  useEffect(() => {
+    fetchAndUpdateStatus();
+    const id = setInterval(fetchAndUpdateStatus, 3000);
     return () => clearInterval(id);
   }, [modules]);
 
@@ -471,6 +513,7 @@ function App() {
       setIsSetup(true);
       addLog({ method: 'POST', endpoint: '/setup', payload, response });
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response: resetResponse });
+      await fetchAndUpdateStatus();
     } catch (err) {
       
       addLog({ method: 'POST', endpoint: '/setup', payload, response: { error: err.message } });
@@ -487,6 +530,7 @@ function App() {
         const response = await api.runStep(payload);
         addLog({ method: 'POST', endpoint: '/run', payload, response });
         setStepCount((s) => s + 1);
+        await fetchAndUpdateStatus();
       } catch (err) {
         const payload = manualMode ? { actions: manualActions } : null;
         addLog({ method: 'POST', endpoint: '/run', payload, response: { error: err.message } });
@@ -529,6 +573,7 @@ function App() {
       const response = await api.runStep(payload);
       addLog({ method: 'POST', endpoint: '/run', payload, response });
       setStepCount((s) => s + 1);
+      await fetchAndUpdateStatus();
     } catch (err) {
       const hasController = modules.some((m) => m.type === 'controller');
       const payload = manualMode
@@ -576,6 +621,7 @@ function App() {
       setPlayEnabled(hasController && !isManual);
       setPauseEnabled(false);
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response });
+      await fetchAndUpdateStatus();
     } catch (err) {
       
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response: { error: err.message } });
