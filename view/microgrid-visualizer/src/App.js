@@ -42,6 +42,7 @@ import { useAppState } from './context/AppState';
 import { DEFAULT_LAT, DEFAULT_LON } from './components/MapSelector';
 import { isAllowed, cellKey } from './utils/placement';
 import { parseLog } from './utils/log';
+import ManualControls from './components/ManualControls';
 
 function App() {
   const [stepEnabled, setStepEnabled] = useState(false);
@@ -56,6 +57,7 @@ function App() {
     lat: DEFAULT_LAT,
     lon: DEFAULT_LON,
   });
+  const [manualActions, setManualActions] = useState({ battery: [], grid: [] });
   const intervalRef = useRef(null);
   const {
     state: { modules, selected },
@@ -67,6 +69,19 @@ function App() {
     selectModule,
     addLog,
   } = useAppState();
+
+  const manualMode =
+    modules.find((m) => m.type === 'controller')?.params?.name === 'manual';
+
+  const handleManualChange = (type, index, value) => {
+    setManualActions((prev) => {
+      const next = { ...prev };
+      const arr = [...(next[type] || [])];
+      arr[index] = value;
+      next[type] = arr;
+      return next;
+    });
+  };
 
   const defaults = {
     house: { params: { time_series_profile: 'house' }, state: {} },
@@ -348,6 +363,19 @@ function App() {
   }, [modules.length]);
 
   useEffect(() => {
+    const bats = modules
+      .filter((m) => m.type === 'battery')
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+    const grids = modules
+      .filter((m) => m.type === 'grid')
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+    setManualActions((prev) => ({
+      battery: bats.map((_, i) => prev.battery?.[i] ?? 0),
+      grid: grids.map((_, i) => prev.grid?.[i] ?? 0),
+    }));
+  }, [modules]);
+
+  useEffect(() => {
     const updateStatus = async () => {
       try {
         const status = await api.getStatus();
@@ -453,11 +481,13 @@ function App() {
     setPauseEnabled(true);
     intervalRef.current = setInterval(async () => {
       try {
-        const response = await api.runStep();
-        addLog({ method: 'POST', endpoint: '/run', payload: null, response });
+        const payload = manualMode ? { actions: manualActions } : null;
+        const response = await api.runStep(payload);
+        addLog({ method: 'POST', endpoint: '/run', payload, response });
         setStepCount((s) => s + 1);
       } catch (err) {
-        addLog({ method: 'POST', endpoint: '/run', payload: null, response: { error: err.message } });
+        const payload = manualMode ? { actions: manualActions } : null;
+        addLog({ method: 'POST', endpoint: '/run', payload, response: { error: err.message } });
       }
     }, 2000);
   };
@@ -485,13 +515,23 @@ function App() {
 
   const handleRunStep = async () => {
     try {
-      const actions = { actions: { grid: [0], battery: [0] } };
-      const response = await api.runStep(actions);
-      addLog({ method: 'POST', endpoint: '/run', payload: actions, response });
+      const hasController = modules.some((m) => m.type === 'controller');
+      const payload = manualMode
+        ? { actions: manualActions }
+        : hasController
+        ? null
+        : { actions: { grid: [0], battery: [0] } };
+      const response = await api.runStep(payload);
+      addLog({ method: 'POST', endpoint: '/run', payload, response });
       setStepCount((s) => s + 1);
     } catch (err) {
-      
-      addLog({ method: 'POST', endpoint: '/run', payload: { actions: { grid: [0], battery: [0] } }, response: { error: err.message } });
+      const hasController = modules.some((m) => m.type === 'controller');
+      const payload = manualMode
+        ? { actions: manualActions }
+        : hasController
+        ? null
+        : { actions: { grid: [0], battery: [0] } };
+      addLog({ method: 'POST', endpoint: '/run', payload, response: { error: err.message } });
     }
   };
 
@@ -514,6 +554,16 @@ function App() {
         intervalRef.current = null;
       }
       setStepCount(0);
+      setManualActions({
+        battery: modules
+          .filter((m) => m.type === 'battery')
+          .sort((a, b) => (a.idx || 0) - (b.idx || 0))
+          .map(() => 0),
+        grid: modules
+          .filter((m) => m.type === 'grid')
+          .sort((a, b) => (a.idx || 0) - (b.idx || 0))
+          .map(() => 0),
+      });
       setStepEnabled(true);
       setPlayEnabled(hasController);
       setPauseEnabled(false);
@@ -528,7 +578,8 @@ function App() {
     <div className="app-container">
       <header className="header" id="section-1">
         <h1>Renewable Energy Community Simulator</h1>
-        <HeaderControls
+        <div className="header-right">
+          <HeaderControls
             onSetup={handleSetup}
             onRunStep={handleRunStep}
             onPlay={handlePlay}
@@ -542,6 +593,13 @@ function App() {
             resetDisabled={!resetEnabled}
             step={stepCount}
           />
+          {manualMode && (
+            <ManualControls
+              values={manualActions}
+              onChange={handleManualChange}
+            />
+          )}
+        </div>
       </header>
 
       <aside className="tool-sidebar" id="section-2">
