@@ -10,6 +10,7 @@ import BuildingStatus from "./BuildingStatus";
 import SolarStatus from "./SolarStatus";
 import GridStatus from "./GridStatus";
 import ControllerStatus from "./ControllerStatus";
+import { useAppState } from '../context/AppState';
 
 const FIELD_LABELS = {
   profile: 'Profile',
@@ -75,6 +76,21 @@ function ComponentDetails({ module, onChange, isSetup }) {
   const [history, setHistory] = useState({});
   const [field, setField] = useState('');
   const [activeTab, setActiveTab] = useState('Configuration');
+  const {
+    state: { modules },
+  } = useAppState();
+
+  const getDefaultPriorityList = () => {
+    const bats = modules
+      .filter((m) => m.type === 'battery')
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0))
+      .map((b) => ({ module: 'battery', index: (b.idx || 1) - 1 }));
+    const grids = modules
+      .filter((m) => m.type === 'grid')
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0))
+      .map((g) => ({ module: 'grid', index: (g.idx || 1) - 1 }));
+    return [...bats, ...grids];
+  };
 
   useEffect(() => {
     if (module && module.type) {
@@ -203,6 +219,23 @@ function ComponentDetails({ module, onChange, isSetup }) {
     onChange({ ...module, params: newParams });
   };
 
+  const priorityList = module.params.priority_list || getDefaultPriorityList();
+
+  const movePriority = (from, to) => {
+    const list = [...priorityList];
+    const [item] = list.splice(from, 1);
+    list.splice(to, 0, item);
+    handleParamChange('priority_list', list);
+  };
+
+  const moveUp = (idx) => {
+    if (idx > 0) movePriority(idx, idx - 1);
+  };
+
+  const moveDown = (idx) => {
+    if (idx < priorityList.length - 1) movePriority(idx, idx + 1);
+  };
+
   const configContent = (
     <>
       <h3>{getTitle(module)}</h3>
@@ -225,6 +258,37 @@ function ComponentDetails({ module, onChange, isSetup }) {
             </label>
           </div>
         )}
+        {module.type === 'controller' &&
+          (module.params.name || controllerOptions[0]) === 'rule_based' && (
+            <div className="priority-list" key="priority-list">
+              <label>Priority list:</label>
+              <ul>
+                {priorityList.map((item, idx) => (
+                  <li key={`${item.module}-${item.index}`}>
+                    {item.module === 'battery'
+                      ? `Battery ${item.index + 1}`
+                      : 'Grid'}
+                    <span className="priority-buttons">
+                      <button
+                        type="button"
+                        onClick={() => moveUp(idx)}
+                        disabled={isSetup || idx === 0}
+                      >
+                        ▲
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveDown(idx)}
+                        disabled={isSetup || idx === priorityList.length - 1}
+                      >
+                        ▼
+                      </button>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         {Object.keys(profiles).length > 0 && module.type !== 'controller' && (
           <div key="profile">
             <label>
