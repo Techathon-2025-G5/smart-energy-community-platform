@@ -142,12 +142,13 @@ function ComponentDetails({
 
     const fetchInfo = async () => {
       try {
-        const log = await api.getLog();
+        const [status, log] = await Promise.all([api.getStatus(), api.getLog()]);
         const parsed = parseLog(log);
         const [type, idxStr] = (module.backendId || '').split('_');
         const idx = parseInt(idxStr, 10);
         const hist = parsed[type]?.[idx] || {};
         setHistory(hist);
+
         const state = {};
         Object.entries(hist).forEach(([metric, values]) => {
           const steps = Object.keys(values).map(Number);
@@ -156,6 +157,12 @@ function ComponentDetails({
             state[metric] = Number(values[last]);
           }
         });
+
+        const fromStatus = status?.[type]?.[idx] || {};
+        Object.entries(fromStatus).forEach(([k, v]) => {
+          if (state[k] === undefined) state[k] = v;
+        });
+
         setCurrentState(state);
         const fields = Object.keys(hist);
         setField((f) => (fields.includes(f) ? f : fields[0] || ''));
