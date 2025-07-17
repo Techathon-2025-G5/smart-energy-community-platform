@@ -75,6 +75,13 @@ function App() {
   const manualMode =
     modules.find((m) => m.type === 'controller')?.params?.name === 'manual';
 
+  const buildManualPayload = () => ({
+    actions: {
+      grid: manualActions.grid,
+      battery: manualActions.battery.map((v) => -v),
+    },
+  });
+
   const handleManualChange = (type, index, value) => {
     setManualActions((prev) => {
       const next = { ...prev };
@@ -594,13 +601,13 @@ function App() {
     setPauseEnabled(true);
     intervalRef.current = setInterval(async () => {
       try {
-        const payload = manualMode ? { actions: manualActions } : null;
+        const payload = manualMode ? buildManualPayload() : null;
         const response = await api.runStep(payload);
         addLog({ method: 'POST', endpoint: '/run', payload, response });
         setStepCount((s) => s + 1);
         await fetchAndUpdateStatus();
       } catch (err) {
-        const payload = manualMode ? { actions: manualActions } : null;
+        const payload = manualMode ? buildManualPayload() : null;
         addLog({ method: 'POST', endpoint: '/run', payload, response: { error: err.message } });
       }
     }, 2000);
@@ -634,7 +641,7 @@ function App() {
     try {
       const hasController = modules.some((m) => m.type === 'controller');
       const payload = manualMode
-        ? { actions: manualActions }
+        ? buildManualPayload()
         : hasController
         ? null
         : { actions: { grid: [0], battery: [0] } };
@@ -645,7 +652,7 @@ function App() {
     } catch (err) {
       const hasController = modules.some((m) => m.type === 'controller');
       const payload = manualMode
-        ? { actions: manualActions }
+        ? buildManualPayload()
         : hasController
         ? null
         : { actions: { grid: [0], battery: [0] } };
