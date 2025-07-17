@@ -59,6 +59,7 @@ function App() {
   const [manualActions, setManualActions] = useState({ battery: [], grid: [] });
   const [statusData, setStatusData] = useState(null);
   const [previewValues, setPreviewValues] = useState(null);
+  const [actualValues, setActualValues] = useState(null);
   const intervalRef = useRef(null);
   const {
     state: { modules, selected },
@@ -429,6 +430,12 @@ function App() {
       energyBalance,
       moneyBalance,
     });
+    setActualValues({
+      grid: gridImport - gridExport,
+      batteries: batDischarge - batCharge,
+      energyBalance,
+      moneyBalance,
+    });
   }, [manualActions, statusData, modules, isSetup]);
 
   const fetchAndUpdateStatus = async () => {
@@ -740,6 +747,7 @@ function App() {
           manualValues={manualActions}
           onManualChange={handleManualChange}
           previewValues={previewValues}
+          actualValues={actualValues}
         />
       </section>
 

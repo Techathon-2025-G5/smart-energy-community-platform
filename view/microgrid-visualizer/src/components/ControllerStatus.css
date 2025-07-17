@@ -5,7 +5,8 @@
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
     'generated grid'
-    'batteries loads';
+    'batteries loads'
+    'energy money';
   gap: 0.5rem;
 }
 

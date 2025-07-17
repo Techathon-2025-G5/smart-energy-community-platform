@@ -15,6 +15,7 @@ export default function ControllerStatus({
   manualValues,
   onManualChange,
   previewValues,
+  actualValues,
 }) {
   const fields = Object.keys(history);
   const [field, setField] = useState(fields[0] || '');
@@ -23,6 +24,8 @@ export default function ControllerStatus({
     grid: 0,
     batteries: 0,
     loads: 0,
+    energyBalance: 0,
+    moneyBalance: 0,
   });
 
   useEffect(() => {
@@ -41,12 +44,13 @@ export default function ControllerStatus({
         const gridExp = Number(parsed.grid?.grid_export?.[last] || 0);
         const loadCur = Number(parsed.load?.load_current?.[last] || 0);
 
-        setActual({
+        setActual((prev) => ({
+          ...prev,
           generated,
           grid: gridImp - gridExp,
           batteries: batDis - batChg,
           loads: loadCur,
-        });
+        }));
       } catch (_) {
         // ignore
       }
@@ -55,6 +59,18 @@ export default function ControllerStatus({
     const id = setInterval(fetchData, 3000);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    if (actualValues) {
+      setActual((prev) => ({
+        ...prev,
+        grid: actualValues.grid,
+        batteries: actualValues.batteries,
+        energyBalance: actualValues.energyBalance,
+        moneyBalance: actualValues.moneyBalance,
+      }));
+    }
+  }, [actualValues]);
 
   return (
     <div className="component-status">
@@ -85,6 +101,18 @@ export default function ControllerStatus({
               {-actual.loads >= 1000 ? 'MWh' : 'kWh'}
             </div>
             <div className="label">Loads</div>
+          </div>
+          <div className="energy-value">
+            <div className="value" style={{ color: actual.energyBalance >= 0 ? 'var(--green)' : 'var(--red)' }}>
+              {actual.energyBalance.toFixed(2)} kWh
+            </div>
+            <div className="label">Energy Balance</div>
+          </div>
+          <div className="money-value">
+            <div className="value" style={{ color: actual.moneyBalance >= 0 ? 'var(--green)' : 'var(--red)' }}>
+              {actual.moneyBalance.toFixed(2)}€
+            </div>
+            <div className="label">Money Balance</div>
           </div>
         </div>
       </div>
@@ -158,6 +186,12 @@ ControllerStatus.propTypes = {
     energyBalance: PropTypes.number,
     moneyBalance: PropTypes.number,
   }),
+  actualValues: PropTypes.shape({
+    grid: PropTypes.number,
+    batteries: PropTypes.number,
+    energyBalance: PropTypes.number,
+    moneyBalance: PropTypes.number,
+  }),
 };
 
 ControllerStatus.defaultProps = {
@@ -166,4 +200,5 @@ ControllerStatus.defaultProps = {
   manualValues: { battery: [], grid: [] },
   onManualChange: () => {},
   previewValues: null,
+  actualValues: null,
 };
