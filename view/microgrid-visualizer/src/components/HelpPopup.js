@@ -1,19 +1,15 @@
 import { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import './HelpPopup.css';
 
 export default function HelpPopup({ onClose }) {
   const [content, setContent] = useState('');
-  const [Markdown, setMarkdown] = useState(null);
 
   useEffect(() => {
-    fetch('/USER_MANUAL.md')
+    fetch(`${process.env.PUBLIC_URL}/USER_MANUAL.md`)
       .then((res) => res.text())
       .then(setContent)
       .catch(() => setContent('Failed to load manual.'));
-
-    import('react-markdown')
-      .then((mod) => setMarkdown(() => mod.default))
-      .catch(() => setMarkdown(null));
   }, []);
 
   return (
@@ -23,7 +19,7 @@ export default function HelpPopup({ onClose }) {
           &times;
         </button>
         <div className="help-content">
-          {Markdown ? <Markdown>{content}</Markdown> : <pre>{content}</pre>}
+          <ReactMarkdown>{content}</ReactMarkdown>
         </div>
       </div>
     </div>
