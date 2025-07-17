@@ -153,15 +153,25 @@ export default function BatteryStatus({
     ...Object.keys(history.discharge_amount || {}),
   ].map(Number);
   const lastStep = stepKeys.length ? Math.max(...stepKeys) : null;
-  const chargeAmt = lastStep !== null ? Number(history.charge_amount?.[lastStep] || 0) : 0;
-  const dischargeAmt = lastStep !== null ? Number(history.discharge_amount?.[lastStep] || 0) : 0;
+  const chargeAmt =
+    lastStep !== null ? Number(history.charge_amount?.[lastStep] || 0) : 0;
+  const dischargeAmt =
+    lastStep !== null ? Number(history.discharge_amount?.[lastStep] || 0) : 0;
+
   let variation = 0;
-  let variationColor = '#444';
-  if (chargeAmt > 0) {
+
+  if (manualMode && sliderValue !== undefined) {
+    variation = sliderValue;
+  } else if (chargeAmt > 0) {
     variation = chargeAmt;
-    variationColor = 'var(--green)';
   } else if (dischargeAmt > 0) {
     variation = -dischargeAmt;
+  }
+
+  let variationColor = '#444';
+  if (variation > 0) {
+    variationColor = 'var(--green)';
+  } else if (variation < 0) {
     variationColor = 'var(--red)';
   }
 
