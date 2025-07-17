@@ -27,9 +27,11 @@ export default function ManualControls({ values, onChange }) {
           (Number(b.params?.max_capacity || 0) - (b.state?.current_charge || 0)) *
             (b.params?.efficiency || 1)
         );
-        const maxDischarge = Math.min(
-          Number(b.params?.max_discharge || 0),
-          b.state?.current_charge || 0
+        const dischargeCapacity =
+          (b.state?.current_charge || 0) - Number(b.params?.min_capacity || 0);
+        const maxDischarge = Math.max(
+          0,
+          Math.min(Number(b.params?.max_discharge || 0), dischargeCapacity)
         );
         return (
           <label key={`bat-${i}`}>
