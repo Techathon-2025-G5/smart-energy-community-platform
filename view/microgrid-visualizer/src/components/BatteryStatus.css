@@ -28,16 +28,6 @@
     flex-direction: column;
 }
 
-.soc-display {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.soc-display img {
-  width: 30px;
-  height: 30px;
-}
 
 .charge-graph {
   grid-area: graph;
