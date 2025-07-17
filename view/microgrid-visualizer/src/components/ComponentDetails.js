@@ -76,6 +76,7 @@ function ComponentDetails({
   manualMode,
   manualValues,
   onManualChange,
+  onGridAdjust,
   previewValues,
   actualValues,
 }) {
@@ -487,6 +488,7 @@ function ComponentDetails({
           manualMode={manualMode}
           manualValues={manualValues}
           onManualChange={onManualChange}
+          onGridAdjust={onGridAdjust}
           previewValues={previewValues}
           actualValues={actualValues}
         />
@@ -561,6 +563,7 @@ ComponentDetails.propTypes = {
     grid: PropTypes.arrayOf(PropTypes.number),
   }),
   onManualChange: PropTypes.func,
+  onGridAdjust: PropTypes.func,
   previewValues: PropTypes.shape({
     grid: PropTypes.number,
     costGrid: PropTypes.number,
@@ -586,6 +589,7 @@ ComponentDetails.defaultProps = {
   manualMode: false,
   manualValues: { battery: [], grid: [] },
   onManualChange: () => {},
+  onGridAdjust: () => {},
   previewValues: null,
   actualValues: null,
 };
