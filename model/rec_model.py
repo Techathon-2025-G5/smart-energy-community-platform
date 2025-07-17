@@ -172,9 +172,18 @@ class MicrogridModel:
             if cur is not None:
                 total_renewable += cur
 
+        total_battery = 0
+        for ren in status.get("battery", []):
+            if ren is None:
+                continue
+            cur = ren.get("current_charge")
+            if cur is not None:
+                total_battery += cur
+
         status["total"] = [{
             'loads': total_load,
-            'renewables': total_renewable
+            'renewables': total_renewable,
+            'batteries': total_battery
         }]
 
         return status
