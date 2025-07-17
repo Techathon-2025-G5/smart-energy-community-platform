@@ -154,7 +154,24 @@ class MicrogridModel:
         """Return current state of the microgrid as a dictionary."""
         if not self.microgrid:
             return {}
-        return self.microgrid.state_dict
+        status = self.microgrid.state_dict
+
+        total = 0
+        for load in status.get("load", []):
+            if load is None:
+                continue
+            cur = load.get("load_current")
+            if cur is not None:
+                total += cur
+        for ren in status.get("renewable", []):
+            if ren is None:
+                continue
+            cur = ren.get("renewable_current")
+            if cur is not None:
+                total += cur
+
+        status["total"] = total
+        return status
 
     def get_log(self, as_frame: bool = True, drop_singleton_key: bool = False):
         """Return the history state of the microgrid.
