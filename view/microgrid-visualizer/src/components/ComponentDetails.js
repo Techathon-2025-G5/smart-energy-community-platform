@@ -77,6 +77,7 @@ function ComponentDetails({
   manualValues,
   onManualChange,
   previewValues,
+  actualValues,
 }) {
   const [profiles, setProfiles] = useState({});
   const [controllerOptions, setControllerOptions] = useState([]);
@@ -487,6 +488,7 @@ function ComponentDetails({
           manualValues={manualValues}
           onManualChange={onManualChange}
           previewValues={previewValues}
+          actualValues={actualValues}
         />
       );
       break;
@@ -565,6 +567,12 @@ ComponentDetails.propTypes = {
     energyBalance: PropTypes.number,
     moneyBalance: PropTypes.number,
   }),
+  actualValues: PropTypes.shape({
+    grid: PropTypes.number,
+    batteries: PropTypes.number,
+    energyBalance: PropTypes.number,
+    moneyBalance: PropTypes.number,
+  }),
 };
 
 export default ComponentDetails;
@@ -575,4 +583,5 @@ ComponentDetails.defaultProps = {
   manualValues: { battery: [], grid: [] },
   onManualChange: () => {},
   previewValues: null,
+  actualValues: null,
 };
