@@ -176,7 +176,9 @@ export default function MicrogridStatus() {
         setTotals({
           exported: Number(parsedTotals.grid?.grid_export || 0),
           imported: Number(parsedTotals.grid?.grid_import || 0),
-          balance: Number(parsedTotals.grid?.grid_balance || 0),
+          balance:
+            Number(parsedTotals.grid?.grid_balance || 0) -
+            Number(parsedTotals.battery?.cycle_cost || 0),
           load_unmet: Number(parsedTotals.load?.load_met || 0),
           renewable_unused: Number(parsedTotals.renewable?.curtailment || 0),
           reward: Number(parsedTotals.balance?.reward || 0),
