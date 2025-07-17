@@ -1,6 +1,6 @@
 .battery-grid {
   display: grid;
-  grid-template-columns: 1fr 60px;
+  grid-template-columns: 1fr 80px;
   grid-template-rows: auto auto auto auto;
   grid-template-areas:
     'charge soc'
@@ -26,6 +26,17 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
+}
+
+.soc-display {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.soc-display img {
+  width: 30px;
+  height: 30px;
 }
 
 .charge-graph {
