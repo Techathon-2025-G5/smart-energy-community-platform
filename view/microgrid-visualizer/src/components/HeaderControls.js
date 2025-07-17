@@ -6,6 +6,7 @@ import {
   FaStop,
   FaWrench,
   FaRedo,
+  FaQuestionCircle,
 } from 'react-icons/fa';
 import ConnectionIndicator from './ConnectionIndicator';
 import './HeaderControls.css';
@@ -17,6 +18,7 @@ function HeaderControls({
   onPause,
   onStop,
   onReset,
+  onHelp,
   stepDisabled,
   playDisabled,
   pauseDisabled,
@@ -46,6 +48,9 @@ function HeaderControls({
       </button>
       <button onClick={onPause} title="Pause" disabled={pauseDisabled}>
         <FaPause />
+      </button>
+      <button onClick={onHelp} title="Help">
+        <FaQuestionCircle />
       </button>
       <span className="sim-time">Day {day} - {hour}h</span>
     </div>
