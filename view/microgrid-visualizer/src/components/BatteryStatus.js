@@ -176,6 +176,14 @@ export default function BatteryStatus({
     variationColor = 'var(--red)';
   }
 
+  let socValue = Number(currentState.soc || 0);
+  if (manualMode && sliderValue !== undefined) {
+    const current = Number(currentState.current_charge || 0);
+    if (maxCap) {
+      socValue = Math.max(0, Math.min(1, (current + sliderValue) / maxCap));
+    }
+  }
+
   return (
     <div className="battery-status">
       <h3>Battery {idx}</h3>
@@ -193,7 +201,7 @@ export default function BatteryStatus({
           <div className="label">Variation</div>
         </div>
         <div className="soc-graph">
-          <SocBar value={Number(currentState.soc || 0)} />
+          <SocBar value={socValue} />
           <div className="label">SoC</div>
         </div>
         <div className="charge-graph">
