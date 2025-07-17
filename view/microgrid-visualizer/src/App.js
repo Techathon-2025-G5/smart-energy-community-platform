@@ -421,10 +421,15 @@ function App() {
     let batDischarge = 0;
     let moneyBat = 0;
     manualActions.battery.forEach((val, i) => {
-      const costCycle = Number(batteryMods[i]?.params?.battery_cost_cycle || 0);
+      const params = batteryMods[i]?.params || {};
+      const costCycle = Number(params.battery_cost_cycle || 0);
+      const efficiency = Number(params.efficiency || 1);
       moneyBat -= Math.abs(val) * costCycle;
-      if (val > 0) batCharge += val;
-      else if (val < 0) batDischarge += -val;
+      if (val > 0) {
+        batCharge += val;
+      } else if (val < 0) {
+        batDischarge += -val * efficiency;
+      }
     });
 
     const energyBalance =
