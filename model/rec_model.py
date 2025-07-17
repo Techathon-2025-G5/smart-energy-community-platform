@@ -156,21 +156,27 @@ class MicrogridModel:
             return {}
         status = self.microgrid.state_dict
 
-        total = 0
+        total_load = 0
         for load in status.get("load", []):
             if load is None:
                 continue
             cur = load.get("load_current")
             if cur is not None:
-                total += cur
+                total_load += cur
+
+        total_renewable = 0
         for ren in status.get("renewable", []):
             if ren is None:
                 continue
             cur = ren.get("renewable_current")
             if cur is not None:
-                total += cur
+                total_renewable += cur
 
-        status["total"] = total
+        status["total"] = [{
+            'loads': total_load,
+            'renewables': total_renewable
+        }]
+
         return status
 
     def get_log(self, as_frame: bool = True, drop_singleton_key: bool = False):
