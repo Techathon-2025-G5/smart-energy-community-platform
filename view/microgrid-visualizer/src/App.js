@@ -503,10 +503,13 @@ function App() {
       const params = batteryMods[i]?.params || {};
       const costCycle = Number(params.battery_cost_cycle || 0);
       const efficiency = Number(params.efficiency || 1);
-      moneyBat -= Math.abs(val) * costCycle;
       if (val > 0) {
+        // Charging: cost depends on the charged amount
+        moneyBat -= val * costCycle;
         batCharge += val;
       } else if (val < 0) {
+        // Discharging: account for round-trip efficiency
+        moneyBat -= -val * efficiency * costCycle;
         batDischarge += -val * efficiency;
       }
     });
