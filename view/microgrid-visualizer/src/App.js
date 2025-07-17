@@ -92,6 +92,18 @@ function App() {
     });
   };
 
+  const resetManualActions = () => {
+    const bats = modules
+      .filter((m) => m.type === 'battery')
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0))
+      .map(() => 0);
+    const grids = modules
+      .filter((m) => m.type === 'grid')
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0))
+      .map(() => 0);
+    setManualActions({ battery: bats, grid: grids });
+  };
+
   const defaults = {
     house: { params: { time_series_profile: 'house' }, state: {} },
     building: { params: { time_series_profile: 'large_office' }, state: {} },
@@ -611,6 +623,7 @@ function App() {
         addLog({ method: 'POST', endpoint: '/run', payload, response });
         setStepCount((s) => s + 1);
         await fetchAndUpdateStatus();
+        resetManualActions();
       } catch (err) {
         const payload = manualMode ? buildManualPayload() : null;
         addLog({ method: 'POST', endpoint: '/run', payload, response: { error: err.message } });
@@ -623,6 +636,7 @@ function App() {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
+    resetManualActions();
     const isManual = modules.some(
       (m) => m.type === 'controller' && m.params?.name === 'manual'
     );
@@ -635,6 +649,7 @@ function App() {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
+    resetManualActions();
     setStepEnabled(false);
     setPlayEnabled(false);
     setPauseEnabled(false);
@@ -654,6 +669,7 @@ function App() {
       addLog({ method: 'POST', endpoint: '/run', payload, response });
       setStepCount((s) => s + 1);
       await fetchAndUpdateStatus();
+      resetManualActions();
     } catch (err) {
       const hasController = modules.some((m) => m.type === 'controller');
       const payload = manualMode
