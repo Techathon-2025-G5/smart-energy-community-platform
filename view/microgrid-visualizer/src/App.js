@@ -426,13 +426,17 @@ function App() {
 
     setPreviewValues({
       grid: gridImport - gridExport,
+      costGrid: moneyGrid,
       batteries: batDischarge - batCharge,
+      costBatteries: moneyBat,
       energyBalance,
       moneyBalance,
     });
     setActualValues({
       grid: gridImport - gridExport,
+      costGrid: moneyGrid,
       batteries: batDischarge - batCharge,
+      costBatteries: moneyBat,
       energyBalance,
       moneyBalance,
     });

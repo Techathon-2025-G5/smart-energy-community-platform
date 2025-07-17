@@ -563,13 +563,17 @@ ComponentDetails.propTypes = {
   onManualChange: PropTypes.func,
   previewValues: PropTypes.shape({
     grid: PropTypes.number,
+    costGrid: PropTypes.number,
     batteries: PropTypes.number,
+    costBatteries: PropTypes.number,
     energyBalance: PropTypes.number,
     moneyBalance: PropTypes.number,
   }),
   actualValues: PropTypes.shape({
     grid: PropTypes.number,
+    costGrid: PropTypes.number,
     batteries: PropTypes.number,
+    costBatteries: PropTypes.number,
     energyBalance: PropTypes.number,
     moneyBalance: PropTypes.number,
   }),
