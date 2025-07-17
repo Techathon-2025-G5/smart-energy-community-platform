@@ -19,8 +19,9 @@ Aplicación React que sirve como interfaz para el simulador de microgrid basado 
    a otro servidor (por ejemplo el despliegue en Railway) define la variable de
    entorno `REACT_APP_API_URL` antes de arrancar:
    ```bash
-   REACT_APP_API_URL=https://smart-energy-api-production.up.railway.app npm start
-   ```
+REACT_APP_API_URL=https://smart-energy-api-production.up.railway.app npm start
+```
+3. El visualizador incluye un icono de ayuda en forma de "?" en la barra superior desde el que se puede abrir este manual.
 
 ---
 

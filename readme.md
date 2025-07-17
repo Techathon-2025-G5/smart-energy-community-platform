@@ -28,6 +28,7 @@ El objetivo del usuario (o del agente de IA) será **satisfacer toda la demanda 
    ```bash
    REACT_APP_API_URL=https://smart-energy-api-production.up.railway.app npm start
    ```
+3. Puedes abrir el manual de usuario directamente desde el visualizador haciendo clic en el icono "?" de la barra superior.
 
 ---
 
