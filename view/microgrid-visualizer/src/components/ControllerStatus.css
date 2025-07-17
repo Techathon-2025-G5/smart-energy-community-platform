@@ -1,28 +1,22 @@
 /* Styles for ControllerStatus component */
 
-.actual-grid {
+.balance-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
-    'generated grid'
-    'batteries loads'
-    'energy money';
+    'load load'
+    'generated generated'
+    'batteries batteries_cost'
+    'grid grid_cost'
+    'energy_balance money_balance';
   gap: 0.5rem;
 }
 
+.load-value { grid-area: load; text-align: center; }
 .generated-value { grid-area: generated; text-align: center; }
-.grid-value { grid-area: grid; text-align: center; }
 .batteries-value { grid-area: batteries; text-align: center; }
-.loads-value { grid-area: loads; text-align: center; }
-
-.preview-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas:
-    'grid batteries'
-    'energy money';
-  gap: 0.5rem;
-}
-
-.energy-value { grid-area: energy; text-align: center; }
-.money-value { grid-area: money; text-align: center; }
+.batteries-cost-value { grid-area: batteries_cost; text-align: center; }
+.grid-value { grid-area: grid; text-align: center; }
+.grid-cost-value { grid-area: grid_cost; text-align: center; }
+.energy-value { grid-area: energy_balance; text-align: center; }
+.money-value { grid-area: money_balance; text-align: center; }

@@ -31,18 +31,21 @@ export default function ControllerStatus({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const log = await api.getLog();
+        const [status, log] = await Promise.all([
+          api.getStatus(),
+          api.getLog(),
+        ]);
         const parsed = parseTotalsLog(log);
         const stepList = Object.keys(parsed.renewable?.renewable_used || {})
           .map(Number)
           .sort((a, b) => a - b);
         const last = stepList[stepList.length - 1];
-        const generated = Number(parsed.renewable?.renewable_used?.[last] || 0);
+        const generated = Number(status?.total?.[0]?.renewables || 0);
         const batDis = Number(parsed.battery?.discharge_amount?.[last] || 0);
         const batChg = Number(parsed.battery?.charge_amount?.[last] || 0);
         const gridImp = Number(parsed.grid?.grid_import?.[last] || 0);
         const gridExp = Number(parsed.grid?.grid_export?.[last] || 0);
-        const loadCur = Number(parsed.load?.load_current?.[last] || 0);
+        const loadCur = Number(status?.total?.[0]?.loads || 0);
 
         setActual((prev) => ({
           ...prev,
@@ -74,79 +77,60 @@ export default function ControllerStatus({
 
   return (
     <div className="component-status">
-      <div className="actual-section">
-        <h3>Actual</h3>
-        <div className="actual-grid">
+      <div className="balance-section">
+        <h3>Balance</h3>
+        <div className="balance-grid">
+          <div className="load-value">
+            <div className="value" style={{ color: 'var(--red)' }}>
+              {(-actual.loads >= 1000 ? (actual.loads / 1000).toFixed(2) : actual.loads.toFixed(2))}{' '}
+              {-actual.loads >= 1000 ? 'MWh' : 'kWh'}
+            </div>
+            <div className="label">Load demand</div>
+          </div>
           <div className="generated-value">
             <div className="value" style={{ color: 'var(--green)' }}>
               {actual.generated.toFixed(2)} kWh
             </div>
             <div className="label">Generated</div>
           </div>
-          <div className="grid-value">
-            <div className="value" style={{ color: actual.grid >= 0 ? 'var(--red)' : 'var(--green)' }}>
-              {actual.grid.toFixed(2)} kWh
-            </div>
-            <div className="label">Grid</div>
-          </div>
           <div className="batteries-value">
             <div className="value" style={{ color: 'var(--blue)' }}>
-              {actual.batteries.toFixed(2)} kWh
+              {(previewValues?.batteries ?? 0).toFixed(2)} kWh
             </div>
             <div className="label">Batteries</div>
           </div>
-          <div className="loads-value">
-            <div className="value" style={{ color: 'var(--red)' }}>
-              {(-actual.loads >= 1000 ? (actual.loads / 1000).toFixed(2) : actual.loads.toFixed(2))}{' '}
-              {-actual.loads >= 1000 ? 'MWh' : 'kWh'}
+          <div className="batteries-cost-value">
+            <div className="value" style={{ color: (previewValues?.costBatteries ?? 0) >= 0 ? 'var(--green)' : 'var(--red)' }}>
+              {(previewValues?.costBatteries ?? 0).toFixed(2)}€
             </div>
-            <div className="label">Loads</div>
+            <div className="label">Batteries cost</div>
+          </div>
+          <div className="grid-value">
+            <div className="value" style={{ color: (previewValues?.grid ?? 0) >= 0 ? 'var(--red)' : 'var(--green)' }}>
+              {(previewValues?.grid ?? 0).toFixed(2)} kWh
+            </div>
+            <div className="label">Grid</div>
+          </div>
+          <div className="grid-cost-value">
+            <div className="value" style={{ color: (previewValues?.costGrid ?? 0) >= 0 ? 'var(--red)' : 'var(--green)' }}>
+              {(previewValues?.costGrid ?? 0).toFixed(2)}€
+            </div>
+            <div className="label">Grid earn/spent</div>
           </div>
           <div className="energy-value">
-            <div className="value" style={{ color: actual.energyBalance >= 0 ? 'var(--green)' : 'var(--red)' }}>
-              {actual.energyBalance.toFixed(2)} kWh
+            <div className="value" style={{ color: (previewValues?.energyBalance ?? 0) >= 0 ? 'var(--green)' : 'var(--red)' }}>
+              {(previewValues?.energyBalance ?? 0).toFixed(2)} kWh
             </div>
-            <div className="label">Energy Balance</div>
+            <div className="label">Energy balance</div>
           </div>
           <div className="money-value">
-            <div className="value" style={{ color: actual.moneyBalance >= 0 ? 'var(--green)' : 'var(--red)' }}>
-              {actual.moneyBalance.toFixed(2)}€
+            <div className="value" style={{ color: (previewValues?.moneyBalance ?? 0) >= 0 ? 'var(--green)' : 'var(--red)' }}>
+              {(previewValues?.moneyBalance ?? 0).toFixed(2)}€
             </div>
-            <div className="label">Money Balance</div>
+            <div className="label">Money balance</div>
           </div>
         </div>
       </div>
-      {previewValues && (
-        <div className="preview-section">
-          <h3>Preview</h3>
-          <div className="preview-grid">
-            <div className="grid-value">
-              <div className="value" style={{ color: previewValues.grid >= 0 ? 'var(--red)' : 'var(--green)' }}>
-                {previewValues.grid.toFixed(2)} kWh
-              </div>
-              <div className="label">Grid</div>
-            </div>
-            <div className="batteries-value">
-              <div className="value" style={{ color: 'var(--blue)' }}>
-                {previewValues.batteries.toFixed(2)} kWh
-              </div>
-              <div className="label">Batteries</div>
-            </div>
-            <div className="energy-value">
-              <div className="value" style={{ color: previewValues.energyBalance >= 0 ? 'var(--green)' : 'var(--red)' }}>
-                {previewValues.energyBalance.toFixed(2)} kWh
-              </div>
-              <div className="label">Energy Balance</div>
-            </div>
-            <div className="money-value">
-              <div className="value" style={{ color: previewValues.moneyBalance >= 0 ? 'var(--green)' : 'var(--red)' }}>
-                {previewValues.moneyBalance.toFixed(2)}€
-              </div>
-              <div className="label">Money Balance</div>
-            </div>
-          </div>
-        </div>
-      )}
       {manualMode && module?.params?.name === 'manual' && (
         <ManualControls values={manualValues} onChange={onManualChange} />
       )}
@@ -182,13 +166,17 @@ ControllerStatus.propTypes = {
   onManualChange: PropTypes.func,
   previewValues: PropTypes.shape({
     grid: PropTypes.number,
+    costGrid: PropTypes.number,
     batteries: PropTypes.number,
+    costBatteries: PropTypes.number,
     energyBalance: PropTypes.number,
     moneyBalance: PropTypes.number,
   }),
   actualValues: PropTypes.shape({
     grid: PropTypes.number,
+    costGrid: PropTypes.number,
     batteries: PropTypes.number,
+    costBatteries: PropTypes.number,
     energyBalance: PropTypes.number,
     moneyBalance: PropTypes.number,
   }),
