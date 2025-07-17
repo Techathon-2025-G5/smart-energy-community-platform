@@ -100,7 +100,7 @@ export default function ControllerStatus({
             <div className="label">Batteries</div>
           </div>
           <div className="batteries-cost-value">
-            <div className="value" style={{ color: (previewValues?.costBatteries ?? 0) >= 0 ? 'var(--green)' : 'var(--red)' }}>
+            <div className="value" style={{ color: 'var(--red)' }}>
               {(previewValues?.costBatteries ?? 0).toFixed(2)}€
             </div>
             <div className="label">Batteries cost</div>
@@ -112,7 +112,7 @@ export default function ControllerStatus({
             <div className="label">Grid</div>
           </div>
           <div className="grid-cost-value">
-            <div className="value" style={{ color: (previewValues?.costGrid ?? 0) >= 0 ? 'var(--red)' : 'var(--green)' }}>
+            <div className="value" style={{ color: (previewValues?.costGrid ?? 0) >= 0 ? 'var(--green)' : 'var(--red)' }}>
               {(previewValues?.costGrid ?? 0).toFixed(2)}€
             </div>
             <div className="label">Grid earn/spent</div>
