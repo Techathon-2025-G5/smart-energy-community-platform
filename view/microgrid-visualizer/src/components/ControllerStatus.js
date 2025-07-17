@@ -14,6 +14,7 @@ export default function ControllerStatus({
   manualMode,
   manualValues,
   onManualChange,
+  onGridAdjust,
   previewValues,
   actualValues,
 }) {
@@ -132,7 +133,11 @@ export default function ControllerStatus({
         </div>
       </div>
       {manualMode && module?.params?.name === 'manual' && (
-        <ManualControls values={manualValues} onChange={onManualChange} />
+        <ManualControls
+          values={manualValues}
+          onChange={onManualChange}
+          onGridAdjust={onGridAdjust}
+        />
       )}
       {fields.length > 0 && (
         <div className="component-history">
@@ -164,6 +169,7 @@ ControllerStatus.propTypes = {
     grid: PropTypes.arrayOf(PropTypes.number),
   }),
   onManualChange: PropTypes.func,
+  onGridAdjust: PropTypes.func,
   previewValues: PropTypes.shape({
     grid: PropTypes.number,
     costGrid: PropTypes.number,
@@ -187,6 +193,7 @@ ControllerStatus.defaultProps = {
   manualMode: false,
   manualValues: { battery: [], grid: [] },
   onManualChange: () => {},
+  onGridAdjust: () => {},
   previewValues: null,
   actualValues: null,
 };

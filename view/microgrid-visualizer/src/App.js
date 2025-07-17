@@ -92,6 +92,55 @@ function App() {
     });
   };
 
+  const handleGridAdjust = (index) => {
+    if (!statusData) return;
+
+    const renewable = Number(statusData?.total?.[0]?.renewables ?? 0);
+    const loads = Math.abs(Number(statusData?.total?.[0]?.loads ?? 0));
+
+    const batteryMods = modules
+      .filter((m) => m.type === 'battery')
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+    let batCharge = 0;
+    let batDischarge = 0;
+    manualActions.battery.forEach((val, i) => {
+      const params = batteryMods[i]?.params || {};
+      const efficiency = Number(params.efficiency || 1);
+      if (val > 0) {
+        batCharge += val;
+      } else if (val < 0) {
+        batDischarge += -val * efficiency;
+      }
+    });
+
+    const baseBalance = renewable + batDischarge - loads - batCharge;
+
+    const otherSum = manualActions.grid.reduce(
+      (acc, v, i) => (i === index ? acc : acc + (v || 0)),
+      0
+    );
+
+    const gridMods = modules
+      .filter((m) => m.type === 'grid')
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+    const grid = gridMods[index];
+    if (!grid) return;
+    const maxImport = Number(grid.params?.max_import || 0);
+    const maxExport = Number(grid.params?.max_export || 0);
+
+    let value = baseBalance - otherSum;
+    if (value > maxExport) value = maxExport;
+    if (value < -maxImport) value = -maxImport;
+
+    setManualActions((prev) => {
+      const next = { ...prev };
+      const arr = [...(next.grid || [])];
+      arr[index] = value;
+      next.grid = arr;
+      return next;
+    });
+  };
+
   const resetManualActions = () => {
     const bats = modules
       .filter((m) => m.type === 'battery')
@@ -778,6 +827,7 @@ function App() {
           manualMode={manualMode}
           manualValues={manualActions}
           onManualChange={handleManualChange}
+          onGridAdjust={handleGridAdjust}
           previewValues={previewValues}
           actualValues={actualValues}
         />
