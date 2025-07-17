@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import './BatteryStatus.css';
 import './StatusCommon.css';
-import { getBatteryImage } from '../utils/battery';
 function SocBar({ value }) {
   return (
     <div className="soc-bar">
@@ -159,11 +158,6 @@ export default function BatteryStatus({
   const dischargeAmt =
     lastStep !== null ? Number(history.discharge_amount?.[lastStep] || 0) : 0;
 
-  let predSoc =
-    (Number(currentState.current_charge || 0) +
-      (manualMode ? Number(sliderValue || 0) : 0)) /
-    maxCap;
-  predSoc = Math.max(0, Math.min(1, predSoc));
 
   let variation = 0;
 
@@ -199,11 +193,8 @@ export default function BatteryStatus({
           <div className="label">Variation</div>
         </div>
         <div className="soc-graph">
-            <div className="soc-display">
-              <SocBar value={Number(currentState.soc || 0)} />
-              <img src={getBatteryImage(predSoc)} alt="battery" />
-            </div>
-            <div className="label">SoC</div>
+          <SocBar value={Number(currentState.soc || 0)} />
+          <div className="label">SoC</div>
         </div>
         <div className="charge-graph">
             <div className="label">Charge History</div>     
