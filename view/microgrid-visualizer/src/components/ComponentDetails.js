@@ -153,18 +153,17 @@ function ComponentDetails({
         const hist = parsed[type]?.[idx] || {};
         setHistory(hist);
 
-        const state = {};
-        Object.entries(hist).forEach(([metric, values]) => {
-          const steps = Object.keys(values).map(Number);
-          if (steps.length > 0) {
-            const last = Math.max(...steps);
-            state[metric] = Number(values[last]);
-          }
-        });
-
         const fromStatus = status?.[type]?.[idx] || {};
-        Object.entries(fromStatus).forEach(([k, v]) => {
-          if (state[k] === undefined) state[k] = v;
+        const state = { ...fromStatus };
+
+        Object.entries(hist).forEach(([metric, values]) => {
+          if (state[metric] === undefined) {
+            const steps = Object.keys(values).map(Number);
+            if (steps.length > 0) {
+              const last = Math.max(...steps);
+              state[metric] = Number(values[last]);
+            }
+          }
         });
 
         setCurrentState(state);
