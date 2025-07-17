@@ -8,6 +8,7 @@ import SimulationCanvas from './components/SimulationCanvas';
 import CanvasItem from './components/CanvasItem';
 import ComponentDetails from './components/ComponentDetails';
 import FooterTabs from './components/FooterTabs';
+import HelpPopup from './components/HelpPopup';
 import houseImg from './assets/house.png';
 import buildingImg from './assets/building.png';
 import hospitalImg from './assets/hospital.png';
@@ -57,6 +58,7 @@ function App() {
   const [previewValues, setPreviewValues] = useState(null);
   const [previewLoadMet, setPreviewLoadMet] = useState({});
   const [actualValues, setActualValues] = useState(null);
+  const [showHelp, setShowHelp] = useState(false);
   const intervalRef = useRef(null);
   const {
     state: { modules, selected },
@@ -415,6 +417,17 @@ function App() {
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, [selected]);
+
+  useEffect(() => {
+    if (!showHelp) return;
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        setShowHelp(false);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [showHelp]);
 
   useEffect(() => {
     return () => {
@@ -805,6 +818,7 @@ function App() {
             onPause={handlePause}
             onStop={handleStop}
             onReset={handleReset}
+            onHelp={() => setShowHelp(true)}
             stepDisabled={!stepEnabled}
             playDisabled={!playEnabled}
             pauseDisabled={!pauseEnabled}
@@ -861,6 +875,7 @@ function App() {
           isSetup={isSetup}
         />
       </footer>
+      {showHelp && <HelpPopup onClose={() => setShowHelp(false)} />}
     </div>
   );
 }
