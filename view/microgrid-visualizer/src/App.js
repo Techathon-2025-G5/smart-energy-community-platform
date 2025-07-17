@@ -59,6 +59,7 @@ function App() {
   const [manualActions, setManualActions] = useState({ battery: [], grid: [] });
   const [statusData, setStatusData] = useState(null);
   const [previewValues, setPreviewValues] = useState(null);
+  const [previewLoadMet, setPreviewLoadMet] = useState({});
   const [actualValues, setActualValues] = useState(null);
   const intervalRef = useRef(null);
   const {
@@ -356,30 +357,33 @@ function App() {
 
   const getIcon = (module) => {
     switch (module.type) {
-      case 'house':
-        if (isSetup) {
-          const met = Number(module.state?.load_met ?? 0);
-          const cur = Math.abs(Number(module.state?.load_current ?? 0));
-          if (cur > 0) {
-            if (Math.abs(cur - met) < 0.001) return <img src={houseOnImg} alt="house" />;
-            if (met < cur) return <img src={houseUnmetImg} alt="house" />;
-          }
+      case 'house': {
+        const cur = Math.abs(Number(module.state?.load_current ?? 0));
+        const met = manualMode
+          ? previewLoadMet[module.id]
+          : Number(module.state?.load_met ?? 0);
+        if (cur > 0 && typeof met === 'number') {
+          if (Math.abs(cur - met) < 0.001) return <img src={houseOnImg} alt="house" />;
+          if (met < cur) return <img src={houseUnmetImg} alt="house" />;
         }
         return <img src={houseImg} alt="house" />;
+      }
       case 'building':
         return (
           <img
             src={getBuildingImage(
               module.params?.time_series_profile,
-              isSetup && module.state
-                ? (() => {
-                    const met = Number(module.state.load_met ?? 0);
-                    const cur = Math.abs(Number(module.state.load_current ?? 0));
-                    if (cur > 0 && Math.abs(cur - met) < 0.001) return '_on';
-                    if (cur > 0 && met < cur) return '_unmet';
-                    return '';
-                  })()
-                : ''
+              (() => {
+                const cur = Math.abs(Number(module.state.load_current ?? 0));
+                const met = manualMode
+                  ? previewLoadMet[module.id]
+                  : Number(module.state.load_met ?? 0);
+                if (cur > 0 && typeof met === 'number') {
+                  if (Math.abs(cur - met) < 0.001) return '_on';
+                  if (met < cur) return '_unmet';
+                }
+                return '';
+              })()
             )}
             alt="building"
           />
@@ -449,6 +453,7 @@ function App() {
   useEffect(() => {
     if (!statusData || !isSetup) {
       setPreviewValues(null);
+      setPreviewLoadMet({});
       return;
     }
 
@@ -497,6 +502,21 @@ function App() {
     const energyBalance =
       renewable + gridImport + batDischarge - (loads + gridExport + batCharge);
     const moneyBalance = moneyGrid + moneyBat;
+
+    const loadMods = modules
+      .filter((m) => ['house', 'building'].includes(m.type))
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+    const requests = loadMods.map((m) =>
+      Math.abs(Number(m.state?.load_current || 0))
+    );
+    let remaining = requests.reduce((a, b) => a + b, 0) + energyBalance;
+    const preview = {};
+    loadMods.forEach((m, i) => {
+      const met = Math.max(0, Math.min(requests[i], remaining));
+      preview[m.id] = met;
+      remaining -= met;
+    });
+    setPreviewLoadMet(preview);
 
     setPreviewValues({
       grid: gridImport - gridExport,
@@ -830,6 +850,7 @@ function App() {
           onManualChange={handleManualChange}
           onGridAdjust={handleGridAdjust}
           previewValues={previewValues}
+          previewLoadMet={previewLoadMet}
           actualValues={actualValues}
         />
       </section>

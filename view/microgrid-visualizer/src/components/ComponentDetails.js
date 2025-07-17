@@ -78,6 +78,7 @@ function ComponentDetails({
   onManualChange,
   onGridAdjust,
   previewValues,
+  previewLoadMet,
   actualValues,
 }) {
   const [profiles, setProfiles] = useState({});
@@ -457,12 +458,22 @@ function ComponentDetails({
       break;
     case 'house':
       statusContent = (
-        <HouseStatus module={module} history={history} currentState={currentState} />
+        <HouseStatus
+          module={module}
+          history={history}
+          currentState={currentState}
+          previewValue={previewLoadMet[module.id]}
+        />
       );
       break;
     case 'building':
       statusContent = (
-        <BuildingStatus module={module} history={history} currentState={currentState} />
+        <BuildingStatus
+          module={module}
+          history={history}
+          currentState={currentState}
+          previewValue={previewLoadMet[module.id]}
+        />
       );
       break;
     case 'solar':
@@ -572,6 +583,7 @@ ComponentDetails.propTypes = {
     energyBalance: PropTypes.number,
     moneyBalance: PropTypes.number,
   }),
+  previewLoadMet: PropTypes.objectOf(PropTypes.number),
   actualValues: PropTypes.shape({
     grid: PropTypes.number,
     costGrid: PropTypes.number,
@@ -591,5 +603,6 @@ ComponentDetails.defaultProps = {
   onManualChange: () => {},
   onGridAdjust: () => {},
   previewValues: null,
+  previewLoadMet: {},
   actualValues: null,
 };
