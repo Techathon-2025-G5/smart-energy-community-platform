@@ -24,27 +24,35 @@ export default function ManualControls({ values, onChange }) {
       {batteries.map((b, i) => (
         <label key={`bat-${i}`}>
           Battery {i + 1}: {values.battery[i] ?? 0}
-          <input
-            type="range"
-            min={-Number(b.params?.max_discharge || 0)}
-            max={Number(b.params?.max_charge || 0)}
-            step="0.1"
-            value={values.battery[i] ?? 0}
-            onChange={handleChange('battery', i)}
-          />
+          <span className="slider-wrapper">
+            <span>discharge</span>
+            <input
+              type="range"
+              min={-Number(b.params?.max_discharge || 0)}
+              max={Number(b.params?.max_charge || 0)}
+              step="0.1"
+              value={values.battery[i] ?? 0}
+              onChange={handleChange('battery', i)}
+            />
+            <span>charge</span>
+          </span>
         </label>
       ))}
       {grids.map((g, i) => (
         <label key={`grid-${i}`}>
           Grid {i + 1}: {values.grid[i] ?? 0}
-          <input
-            type="range"
-            min={-Number(g.params?.max_import || 0)}
-            max={Number(g.params?.max_export || 0)}
-            step="0.1"
-            value={values.grid[i] ?? 0}
-            onChange={handleChange('grid', i)}
-          />
+          <span className="slider-wrapper">
+            <span>import</span>
+            <input
+              type="range"
+              min={-Number(g.params?.max_import || 0)}
+              max={Number(g.params?.max_export || 0)}
+              step="0.1"
+              value={values.grid[i] ?? 0}
+              onChange={handleChange('grid', i)}
+            />
+            <span>export</span>
+          </span>
         </label>
       ))}
     </div>

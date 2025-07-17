@@ -10,6 +10,11 @@
   align-items: center;
   gap: 0.5rem;
 }
+.manual-controls .slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
 .manual-controls input[type='range'] {
   width: 150px;
 }
