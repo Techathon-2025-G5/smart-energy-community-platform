@@ -14,6 +14,7 @@ export default function ControllerStatus({
   manualMode,
   manualValues,
   onManualChange,
+  previewValues,
 }) {
   const fields = Object.keys(history);
   const [field, setField] = useState(fields[0] || '');
@@ -87,6 +88,37 @@ export default function ControllerStatus({
           </div>
         </div>
       </div>
+      {previewValues && (
+        <div className="preview-section">
+          <h3>Preview</h3>
+          <div className="preview-grid">
+            <div className="grid-value">
+              <div className="value" style={{ color: previewValues.grid >= 0 ? 'var(--red)' : 'var(--green)' }}>
+                {previewValues.grid.toFixed(2)} kWh
+              </div>
+              <div className="label">Grid</div>
+            </div>
+            <div className="batteries-value">
+              <div className="value" style={{ color: 'var(--blue)' }}>
+                {previewValues.batteries.toFixed(2)} kWh
+              </div>
+              <div className="label">Batteries</div>
+            </div>
+            <div className="energy-value">
+              <div className="value" style={{ color: previewValues.energyBalance >= 0 ? 'var(--green)' : 'var(--red)' }}>
+                {previewValues.energyBalance.toFixed(2)} kWh
+              </div>
+              <div className="label">Energy Balance</div>
+            </div>
+            <div className="money-value">
+              <div className="value" style={{ color: previewValues.moneyBalance >= 0 ? 'var(--green)' : 'var(--red)' }}>
+                {previewValues.moneyBalance.toFixed(2)}€
+              </div>
+              <div className="label">Money Balance</div>
+            </div>
+          </div>
+        </div>
+      )}
       {manualMode && module?.params?.name === 'manual' && (
         <ManualControls values={manualValues} onChange={onManualChange} />
       )}
@@ -120,6 +152,12 @@ ControllerStatus.propTypes = {
     grid: PropTypes.arrayOf(PropTypes.number),
   }),
   onManualChange: PropTypes.func,
+  previewValues: PropTypes.shape({
+    grid: PropTypes.number,
+    batteries: PropTypes.number,
+    energyBalance: PropTypes.number,
+    moneyBalance: PropTypes.number,
+  }),
 };
 
 ControllerStatus.defaultProps = {
@@ -127,4 +165,5 @@ ControllerStatus.defaultProps = {
   manualMode: false,
   manualValues: { battery: [], grid: [] },
   onManualChange: () => {},
+  previewValues: null,
 };

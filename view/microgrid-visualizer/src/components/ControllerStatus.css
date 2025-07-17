@@ -13,3 +13,15 @@
 .grid-value { grid-area: grid; text-align: center; }
 .batteries-value { grid-area: batteries; text-align: center; }
 .loads-value { grid-area: loads; text-align: center; }
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    'grid batteries'
+    'energy money';
+  gap: 0.5rem;
+}
+
+.energy-value { grid-area: energy; text-align: center; }
+.money-value { grid-area: money; text-align: center; }

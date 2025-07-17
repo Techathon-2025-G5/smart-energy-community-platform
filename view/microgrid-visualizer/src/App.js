@@ -57,6 +57,8 @@ function App() {
     lon: DEFAULT_LON,
   });
   const [manualActions, setManualActions] = useState({ battery: [], grid: [] });
+  const [statusData, setStatusData] = useState(null);
+  const [previewValues, setPreviewValues] = useState(null);
   const intervalRef = useRef(null);
   const {
     state: { modules, selected },
@@ -374,9 +376,65 @@ function App() {
     }));
   }, [modules]);
 
+  useEffect(() => {
+    if (!statusData || !isSetup) {
+      setPreviewValues(null);
+      return;
+    }
+
+    const renewable = Number(statusData?.total?.[0]?.renewables ?? 0);
+    const loads = Math.abs(Number(statusData?.total?.[0]?.loads ?? 0));
+
+    const gridStates = statusData.grid || [];
+    const gridMods = modules
+      .filter((m) => m.type === 'grid')
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+    let gridImport = 0;
+    let gridExport = 0;
+    let moneyGrid = 0;
+    manualActions.grid.forEach((val, i) => {
+      const impPrice = Number(gridStates[i]?.import_price_current || 0);
+      const expPrice = Number(gridStates[i]?.export_price_current || 0);
+      if (val < 0) {
+        const imp = -val;
+        gridImport += imp;
+        moneyGrid -= imp * impPrice;
+      } else if (val > 0) {
+        const exp = val;
+        gridExport += exp;
+        moneyGrid += exp * expPrice;
+      }
+    });
+
+    const batteryMods = modules
+      .filter((m) => m.type === 'battery')
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+    let batCharge = 0;
+    let batDischarge = 0;
+    let moneyBat = 0;
+    manualActions.battery.forEach((val, i) => {
+      const costCycle = Number(batteryMods[i]?.params?.battery_cost_cycle || 0);
+      moneyBat -= Math.abs(val) * costCycle;
+      if (val > 0) batCharge += val;
+      else if (val < 0) batDischarge += -val;
+    });
+
+    const energyBalance =
+      renewable + gridImport + batDischarge - (loads + gridExport + batCharge);
+    const moneyBalance = moneyGrid + moneyBat;
+
+    setPreviewValues({
+      grid: gridImport - gridExport,
+      batteries: batDischarge - batCharge,
+      energyBalance,
+      moneyBalance,
+    });
+  }, [manualActions, statusData, modules, isSetup]);
+
   const fetchAndUpdateStatus = async () => {
       try {
         const [status, log] = await Promise.all([api.getStatus(), api.getLog()]);
+        setStatusData(status);
         const parsed = parseLog(log);
         const batteryStates = status?.battery || [];
         const gridStates = status?.grid || [];
@@ -681,6 +739,7 @@ function App() {
           manualMode={manualMode}
           manualValues={manualActions}
           onManualChange={handleManualChange}
+          previewValues={previewValues}
         />
       </section>
 
