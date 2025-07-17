@@ -34,6 +34,12 @@ Aplicación React que sirve como interfaz para el simulador de microgrid basado 
 - **EnergyBalance**: gráfico que muestra la generación y el consumo obtenidos periódicamente desde el modelo.
 - **Contexto AppState**: almacena el estado global de módulos y selección para todos los componentes.
 
+## Controles manuales
+
+Cuando se emplea un controlador de tipo `manual` se muestran deslizadores para determinar la importación o exportación de las redes y la carga o descarga de las baterías. Tras ejecutar cada paso de simulación estos deslizadores se reinician a **0**, por lo que es necesario volver a fijar los valores deseados en el siguiente paso.
+
+En los controles de cada módulo de red aparece además un botón **Adjust** junto al nombre del slider. Esta opción calcula automáticamente el balance de energía de la microgrid y ajusta el valor del deslizador para que la generación y el consumo queden equilibrados.
+
 ## Conexión con la API del modelo
 
 El archivo [`src/api/client.js`](src/api/client.js) centraliza las llamadas al backend FastAPI. Los principales endpoints son:
