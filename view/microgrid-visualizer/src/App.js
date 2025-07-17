@@ -75,9 +75,10 @@ function App() {
   const manualMode =
     modules.find((m) => m.type === 'controller')?.params?.name === 'manual';
 
+  // Slider values use the opposite sign convention of the backend
   const buildManualPayload = () => ({
     actions: {
-      grid: manualActions.grid,
+      grid: manualActions.grid.map((v) => -v),
       battery: manualActions.battery.map((v) => -v),
     },
   });
