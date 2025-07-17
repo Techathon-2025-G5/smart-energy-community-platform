@@ -452,6 +452,13 @@ function ComponentDetails({
           module={module}
           history={history}
           currentState={currentState}
+          manualMode={manualMode}
+          sliderValue={(() => {
+            const idxVal = module.backendId
+              ? parseInt(module.backendId.split('_')[1], 10)
+              : (module.idx || 1) - 1;
+            return manualValues.battery[idxVal];
+          })()}
         />
       );
       break;
