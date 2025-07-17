@@ -21,23 +21,34 @@ export default function ManualControls({ values, onChange }) {
 
   return (
     <div className="manual-controls">
-      {batteries.map((b, i) => (
-        <label key={`bat-${i}`}>
-          Battery {i + 1}: {values.battery[i] ?? 0}
-          <span className="slider-wrapper">
-            <span>discharge</span>
-            <input
-              type="range"
-              min={-Number(b.params?.max_discharge || 0)}
-              max={Number(b.params?.max_charge || 0)}
-              step="0.1"
-              value={values.battery[i] ?? 0}
-              onChange={handleChange('battery', i)}
-            />
-            <span>charge</span>
-          </span>
-        </label>
-      ))}
+      {batteries.map((b, i) => {
+        const maxCharge = Math.min(
+          Number(b.params?.max_charge || 0),
+          (Number(b.params?.max_capacity || 0) - (b.state?.current_charge || 0)) *
+            (b.params?.efficiency || 1)
+        );
+        const maxDischarge = Math.min(
+          Number(b.params?.max_discharge || 0),
+          b.state?.current_charge || 0
+        );
+        return (
+          <label key={`bat-${i}`}>
+            Battery {i + 1}: {values.battery[i] ?? 0}
+            <span className="slider-wrapper">
+              <span>discharge</span>
+              <input
+                type="range"
+                min={-maxDischarge}
+                max={maxCharge}
+                step="0.1"
+                value={values.battery[i] ?? 0}
+                onChange={handleChange('battery', i)}
+              />
+              <span>charge</span>
+            </span>
+          </label>
+        );
+      })}
       {grids.map((g, i) => (
         <label key={`grid-${i}`}>
           Grid {i + 1}: {values.grid[i] ?? 0}
