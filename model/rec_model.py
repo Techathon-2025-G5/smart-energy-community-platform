@@ -267,6 +267,21 @@ class MicrogridModel:
                     balance_col = ("grid", n, "grid_balance")
                     df[balance_col] = df[earn_col] - df[spent_col]
 
+        # Compute cycle cost for battery modules
+        if not df.empty:
+            battery_numbers = sorted({idx[1] for idx in df.columns if idx[0] == "battery"})
+            for n in battery_numbers:
+                discharge_col = ("battery", n, "discharge_amount")
+                charge_col = ("battery", n, "charge_amount")
+                if discharge_col not in df.columns and charge_col not in df.columns:
+                    continue
+                mod_obj = self.microgrid.modules["battery"][n]
+                cost_per_cycle = getattr(mod_obj, "battery_cost_cycle", 0)
+                discharge = df[discharge_col] if discharge_col in df.columns else 0
+                charge = df[charge_col] if charge_col in df.columns else 0
+                cycle_col = ("battery", n, "cycle_cost")
+                df[cycle_col] = (discharge + charge) * cost_per_cycle
+
         # Compute totals across components of the same type
         if not df.empty:
             totals = (
