@@ -127,7 +127,13 @@ function RewardChart({ data, steps }) {
   return <svg ref={ref}></svg>;
 }
 
-export default function BatteryStatus({ module, history, currentState }) {
+export default function BatteryStatus({
+  module,
+  history,
+  currentState,
+  manualMode,
+  sliderValue,
+}) {
   const idx = module.backendId
     ? parseInt(module.backendId.split('_')[1], 10) + 1
     : module.idx || 1;
@@ -196,4 +202,6 @@ BatteryStatus.propTypes = {
   module: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   currentState: PropTypes.object.isRequired,
+  manualMode: PropTypes.bool,
+  sliderValue: PropTypes.number,
 };
