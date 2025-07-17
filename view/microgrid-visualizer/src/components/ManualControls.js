@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useAppState } from '../context/AppState';
 import './ManualControls.css';
 
-export default function ManualControls({ values, onChange }) {
+export default function ManualControls({ values, onChange, onGridAdjust }) {
   const {
     state: { modules },
   } = useAppState();
@@ -54,6 +54,13 @@ export default function ManualControls({ values, onChange }) {
       {grids.map((g, i) => (
         <label key={`grid-${i}`}>
           Grid {i + 1}: {values.grid[i] ?? 0}
+          <button
+            type="button"
+            className="adjust-button"
+            onClick={() => onGridAdjust(i)}
+          >
+            Adjust
+          </button>
           <span className="slider-wrapper">
             <span>import</span>
             <input
@@ -78,4 +85,9 @@ ManualControls.propTypes = {
     grid: PropTypes.arrayOf(PropTypes.number),
   }).isRequired,
   onChange: PropTypes.func.isRequired,
+  onGridAdjust: PropTypes.func,
+};
+
+ManualControls.defaultProps = {
+  onGridAdjust: () => {},
 };

@@ -18,3 +18,8 @@
 .manual-controls input[type='range'] {
   width: 150px;
 }
+
+.manual-controls .adjust-button {
+  font-size: 0.75rem;
+  margin-left: 0.25rem;
+}
