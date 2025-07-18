@@ -14,8 +14,38 @@ export default function ManualControls({ values, onChange, onGridAdjust }) {
     .filter((m) => m.type === 'grid')
     .sort((a, b) => (a.idx || 0) - (b.idx || 0));
 
+  const renewable = modules
+    .filter((m) => m.type === 'solar')
+    .reduce((acc, m) => acc + Number(m.state?.renewable_current || 0), 0);
+  const loadDemand = modules
+    .filter((m) => ['house', 'building'].includes(m.type))
+    .reduce((acc, m) => acc + Math.abs(Number(m.state?.load_current || 0)), 0);
+
+  const batteryMods = batteries;
+  let batCharge = 0;
+  let batDischarge = 0;
+  values.battery.forEach((val, i) => {
+    const eff = Number(batteryMods[i]?.params?.efficiency || 1);
+    if (val > 0) batCharge += val;
+    else if (val < 0) batDischarge += -val * eff;
+  });
+
+  const baseExport = renewable + batDischarge - loadDemand - batCharge;
+
   const handleChange = (type, index) => (e) => {
-    const val = parseFloat(e.target.value);
+    let val = parseFloat(e.target.value);
+    if (type === 'grid' && val > 0) {
+      const other = values.grid.reduce(
+        (acc, v, i) => (i === index || v <= 0 ? acc : acc + v),
+        0
+      );
+      const remaining = baseExport - other;
+      const limit = Math.min(
+        Number(grids[index]?.params?.max_export || 0),
+        remaining
+      );
+      if (val > limit) val = limit;
+    }
     onChange(type, index, val);
   };
 
@@ -66,7 +96,15 @@ export default function ManualControls({ values, onChange, onGridAdjust }) {
             <input
               type="range"
               min={-Number(g.params?.max_import || 0)}
-              max={Number(g.params?.max_export || 0)}
+              max={Math.min(
+                Number(g.params?.max_export || 0),
+                baseExport -
+                  values.grid.reduce(
+                    (acc, v, idx) =>
+                      idx === i || v <= 0 ? acc : acc + v,
+                    0
+                  )
+              )}
               step="0.1"
               value={values.grid[i] ?? 0}
               onChange={handleChange('grid', i)}
