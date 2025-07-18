@@ -93,12 +93,8 @@ function App() {
   };
 
   const handleGridAdjust = (index) => {
-    const renewable = modules
-      .filter((m) => m.type === 'solar')
-      .reduce((acc, m) => acc + Number(m.state?.renewable_current || 0), 0);
-    const loads = modules
-      .filter((m) => ['house', 'building'].includes(m.type))
-      .reduce((acc, m) => acc + Math.abs(Number(m.state?.load_current || 0)), 0);
+    const renewable = Number(statusData?.total?.[0]?.renewables ?? 0);
+    const loads = Math.abs(Number(statusData?.total?.[0]?.loads ?? 0));
 
     const batteryMods = modules
       .filter((m) => m.type === 'battery')
@@ -117,11 +113,6 @@ function App() {
 
     const baseBalance = renewable + batDischarge - loads - batCharge;
 
-    const otherSum = manualActions.grid.reduce(
-      (acc, v, i) => (i === index ? acc : acc + (v || 0)),
-      0
-    );
-
     const gridMods = modules
       .filter((m) => m.type === 'grid')
       .sort((a, b) => (a.idx || 0) - (b.idx || 0));
@@ -130,7 +121,7 @@ function App() {
     const maxImport = Number(grid.params?.max_import || 0);
     const maxExport = Number(grid.params?.max_export || 0);
 
-    let value = baseBalance - otherSum;
+    let value = baseBalance;
     if (value > 0) value = Math.min(maxExport, value);
     if (value < -maxImport) value = -maxImport;
 
@@ -870,6 +861,7 @@ function App() {
           previewValues={previewValues}
           previewLoadMet={previewLoadMet}
           actualValues={actualValues}
+          statusData={statusData}
         />
       </section>
 

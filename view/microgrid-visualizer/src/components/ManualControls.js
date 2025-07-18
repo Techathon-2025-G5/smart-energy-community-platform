@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useAppState } from '../context/AppState';
 import './ManualControls.css';
 
-export default function ManualControls({ values, onChange, onGridAdjust }) {
+export default function ManualControls({ values, onChange, onGridAdjust, statusData }) {
   const {
     state: { modules },
   } = useAppState();
@@ -14,12 +14,8 @@ export default function ManualControls({ values, onChange, onGridAdjust }) {
     .filter((m) => m.type === 'grid')
     .sort((a, b) => (a.idx || 0) - (b.idx || 0));
 
-  const renewable = modules
-    .filter((m) => m.type === 'solar')
-    .reduce((acc, m) => acc + Number(m.state?.renewable_current || 0), 0);
-  const loadDemand = modules
-    .filter((m) => ['house', 'building'].includes(m.type))
-    .reduce((acc, m) => acc + Math.abs(Number(m.state?.load_current || 0)), 0);
+  const renewable = Number(statusData?.total?.[0]?.renewables ?? 0);
+  const loadDemand = Math.abs(Number(statusData?.total?.[0]?.loads ?? 0));
 
   const batteryMods = batteries;
   let batCharge = 0;
@@ -35,14 +31,9 @@ export default function ManualControls({ values, onChange, onGridAdjust }) {
   const handleChange = (type, index) => (e) => {
     let val = parseFloat(e.target.value);
     if (type === 'grid' && val > 0) {
-      const other = values.grid.reduce(
-        (acc, v, i) => (i === index || v <= 0 ? acc : acc + v),
-        0
-      );
-      const remaining = baseExport - other;
       const limit = Math.min(
         Number(grids[index]?.params?.max_export || 0),
-        remaining
+        baseExport
       );
       if (val > limit) val = limit;
     }
@@ -96,14 +87,9 @@ export default function ManualControls({ values, onChange, onGridAdjust }) {
             <input
               type="range"
               min={-Number(g.params?.max_import || 0)}
-              max={Math.min(
-                Number(g.params?.max_export || 0),
-                baseExport -
-                  values.grid.reduce(
-                    (acc, v, idx) =>
-                      idx === i || v <= 0 ? acc : acc + v,
-                    0
-                  )
+              max={Math.max(
+                0,
+                Math.min(Number(g.params?.max_export || 0), baseExport)
               )}
               step="0.1"
               value={values.grid[i] ?? 0}
@@ -124,8 +110,10 @@ ManualControls.propTypes = {
   }).isRequired,
   onChange: PropTypes.func.isRequired,
   onGridAdjust: PropTypes.func,
+  statusData: PropTypes.object,
 };
 
 ManualControls.defaultProps = {
   onGridAdjust: () => {},
+  statusData: null,
 };
