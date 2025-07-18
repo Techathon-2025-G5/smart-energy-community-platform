@@ -80,6 +80,7 @@ function ComponentDetails({
   previewValues,
   previewLoadMet,
   actualValues,
+  statusData,
 }) {
   const [profiles, setProfiles] = useState({});
   const [controllerOptions, setControllerOptions] = useState([]);
@@ -508,6 +509,7 @@ function ComponentDetails({
           onGridAdjust={onGridAdjust}
           previewValues={previewValues}
           actualValues={actualValues}
+          statusData={statusData}
         />
       );
       break;
@@ -598,6 +600,7 @@ ComponentDetails.propTypes = {
     energyBalance: PropTypes.number,
     moneyBalance: PropTypes.number,
   }),
+  statusData: PropTypes.object,
 };
 
 export default ComponentDetails;
@@ -611,4 +614,5 @@ ComponentDetails.defaultProps = {
   previewValues: null,
   previewLoadMet: {},
   actualValues: null,
+  statusData: null,
 };

@@ -17,6 +17,7 @@ export default function ControllerStatus({
   onGridAdjust,
   previewValues,
   actualValues,
+  statusData,
 }) {
   const fields = Object.keys(history);
   const [field, setField] = useState(fields[0] || '');
@@ -137,6 +138,7 @@ export default function ControllerStatus({
           values={manualValues}
           onChange={onManualChange}
           onGridAdjust={onGridAdjust}
+          statusData={statusData}
         />
       )}
       {fields.length > 0 && (
@@ -186,6 +188,7 @@ ControllerStatus.propTypes = {
     energyBalance: PropTypes.number,
     moneyBalance: PropTypes.number,
   }),
+  statusData: PropTypes.object,
 };
 
 ControllerStatus.defaultProps = {
@@ -196,4 +199,5 @@ ControllerStatus.defaultProps = {
   onGridAdjust: () => {},
   previewValues: null,
   actualValues: null,
+  statusData: null,
 };

@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { useAppState } from '../context/AppState';
 import './ManualControls.css';
 
-export default function ManualControls({ values, onChange, onGridAdjust }) {
+export default function ManualControls({ values, onChange, onGridAdjust, statusData }) {
   const {
     state: { modules },
   } = useAppState();
@@ -14,12 +14,8 @@ export default function ManualControls({ values, onChange, onGridAdjust }) {
     .filter((m) => m.type === 'grid')
     .sort((a, b) => (a.idx || 0) - (b.idx || 0));
 
-  const renewable = modules
-    .filter((m) => m.type === 'solar')
-    .reduce((acc, m) => acc + Number(m.state?.renewable_current || 0), 0);
-  const loadDemand = modules
-    .filter((m) => ['house', 'building'].includes(m.type))
-    .reduce((acc, m) => acc + Math.abs(Number(m.state?.load_current || 0)), 0);
+  const renewable = Number(statusData?.total?.[0]?.renewables ?? 0);
+  const loadDemand = Math.abs(Number(statusData?.total?.[0]?.loads ?? 0));
 
   const batteryMods = batteries;
   let batCharge = 0;
@@ -114,8 +110,10 @@ ManualControls.propTypes = {
   }).isRequired,
   onChange: PropTypes.func.isRequired,
   onGridAdjust: PropTypes.func,
+  statusData: PropTypes.object,
 };
 
 ManualControls.defaultProps = {
   onGridAdjust: () => {},
+  statusData: null,
 };
