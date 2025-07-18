@@ -35,14 +35,9 @@ export default function ManualControls({ values, onChange, onGridAdjust }) {
   const handleChange = (type, index) => (e) => {
     let val = parseFloat(e.target.value);
     if (type === 'grid' && val > 0) {
-      const other = values.grid.reduce(
-        (acc, v, i) => (i === index || v <= 0 ? acc : acc + v),
-        0
-      );
-      const remaining = baseExport - other;
       const limit = Math.min(
         Number(grids[index]?.params?.max_export || 0),
-        remaining
+        baseExport
       );
       if (val > limit) val = limit;
     }
@@ -96,14 +91,9 @@ export default function ManualControls({ values, onChange, onGridAdjust }) {
             <input
               type="range"
               min={-Number(g.params?.max_import || 0)}
-              max={Math.min(
-                Number(g.params?.max_export || 0),
-                baseExport -
-                  values.grid.reduce(
-                    (acc, v, idx) =>
-                      idx === i || v <= 0 ? acc : acc + v,
-                    0
-                  )
+              max={Math.max(
+                0,
+                Math.min(Number(g.params?.max_export || 0), baseExport)
               )}
               step="0.1"
               value={values.grid[i] ?? 0}

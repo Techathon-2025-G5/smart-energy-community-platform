@@ -117,11 +117,6 @@ function App() {
 
     const baseBalance = renewable + batDischarge - loads - batCharge;
 
-    const otherSum = manualActions.grid.reduce(
-      (acc, v, i) => (i === index ? acc : acc + (v || 0)),
-      0
-    );
-
     const gridMods = modules
       .filter((m) => m.type === 'grid')
       .sort((a, b) => (a.idx || 0) - (b.idx || 0));
@@ -130,7 +125,7 @@ function App() {
     const maxImport = Number(grid.params?.max_import || 0);
     const maxExport = Number(grid.params?.max_export || 0);
 
-    let value = baseBalance - otherSum;
+    let value = baseBalance;
     if (value > 0) value = Math.min(maxExport, value);
     if (value < -maxImport) value = -maxImport;
 
