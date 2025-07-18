@@ -93,10 +93,12 @@ function App() {
   };
 
   const handleGridAdjust = (index) => {
-    if (!statusData) return;
-
-    const renewable = Number(statusData?.total?.[0]?.renewables ?? 0);
-    const loads = Math.abs(Number(statusData?.total?.[0]?.loads ?? 0));
+    const renewable = modules
+      .filter((m) => m.type === 'solar')
+      .reduce((acc, m) => acc + Number(m.state?.renewable_current || 0), 0);
+    const loads = modules
+      .filter((m) => ['house', 'building'].includes(m.type))
+      .reduce((acc, m) => acc + Math.abs(Number(m.state?.load_current || 0)), 0);
 
     const batteryMods = modules
       .filter((m) => m.type === 'battery')
@@ -129,7 +131,7 @@ function App() {
     const maxExport = Number(grid.params?.max_export || 0);
 
     let value = baseBalance - otherSum;
-    if (value > maxExport) value = maxExport;
+    if (value > 0) value = Math.min(maxExport, value);
     if (value < -maxImport) value = -maxImport;
 
     setManualActions((prev) => {
