@@ -59,6 +59,7 @@ function App() {
   const [previewValues, setPreviewValues] = useState(null);
   const [previewLoadMet, setPreviewLoadMet] = useState({});
   const [actualValues, setActualValues] = useState(null);
+  const [currentTotals, setCurrentTotals] = useState(null);
   const [showHelp, setShowHelp] = useState(false);
   const intervalRef = useRef(null);
   const {
@@ -465,6 +466,7 @@ function App() {
     if (!statusData || !isSetup) {
       setPreviewValues(null);
       setPreviewLoadMet({});
+      setCurrentTotals(null);
       return;
     }
 
@@ -548,6 +550,12 @@ function App() {
       costBatteries: moneyBat,
       energyBalance,
       moneyBalance,
+    });
+    setCurrentTotals({
+      renewable,
+      loads,
+      batteryCharge: batCharge,
+      batteryDischarge: batDischarge,
     });
   }, [manualActions, statusData, modules, isSetup]);
 
@@ -811,6 +819,7 @@ function App() {
           previewLoadMet={previewLoadMet}
           actualValues={actualValues}
           statusData={statusData}
+          totals={currentTotals}
           stateData={componentStatus}
         />
       </section>
