@@ -121,6 +121,10 @@ function App() {
         const efficiency = Number(m.params?.efficiency || 1);
         batCharge += Number(state.charge_amount ?? 0);
         batDischarge += Number(state.discharge_amount ?? 0) * efficiency;
+
+        const manual = manualActions.battery?.[i] ?? 0;
+        if (manual > 0) batCharge += manual;
+        if (manual < 0) batDischarge += -manual * efficiency;
       });
 
       const baseBalance = renewable + batDischarge - loads - batCharge;
