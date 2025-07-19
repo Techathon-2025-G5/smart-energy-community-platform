@@ -77,6 +77,21 @@ function App() {
   const manualMode =
     modules.find((m) => m.type === 'controller')?.params?.name === 'manual';
 
+  const getPreviewState = (module) => {
+    if (!manualMode) return module.state || {};
+    const typeMap = {
+      house: 'load',
+      building: 'load',
+      solar: 'renewable',
+      battery: 'battery',
+      grid: 'grid',
+    };
+    const key = typeMap[module.type];
+    if (!key) return module.state || {};
+    const idx = (module.idx || 1) - 1;
+    return componentStatus[key]?.[idx] || module.state || {};
+  };
+
   // Slider values use the opposite sign convention of the backend
   const buildManualPayload = () => ({
     actions: {
@@ -357,13 +372,12 @@ function App() {
 
 
   const getIcon = (module) => {
+    const state = getPreviewState(module);
     switch (module.type) {
       case 'house': {
-        const cur = Math.abs(Number(module.state?.load_current ?? 0));
-        const met = manualMode
-          ? previewLoadMet[module.id]
-          : Number(module.state?.load_met ?? 0);
-        if (cur > 0 && typeof met === 'number') {
+        const cur = Math.abs(Number(state.load_current ?? 0));
+        const met = Number(state.load_met ?? 0);
+        if (cur > 0 && !Number.isNaN(met)) {
           if (Math.abs(cur - met) < 0.001) return <img src={houseOnImg} alt="house" />;
           if (met < cur) return <img src={houseUnmetImg} alt="house" />;
         }
@@ -375,11 +389,9 @@ function App() {
             src={getBuildingImage(
               module.params?.time_series_profile,
               (() => {
-                const cur = Math.abs(Number(module.state.load_current ?? 0));
-                const met = manualMode
-                  ? previewLoadMet[module.id]
-                  : Number(module.state.load_met ?? 0);
-                if (cur > 0 && typeof met === 'number') {
+                const cur = Math.abs(Number(state.load_current ?? 0));
+                const met = Number(state.load_met ?? 0);
+                if (cur > 0 && !Number.isNaN(met)) {
                   if (Math.abs(cur - met) < 0.001) return '_on';
                   if (met < cur) return '_unmet';
                 }
@@ -392,7 +404,7 @@ function App() {
       case 'solar':
         return <img src={solarImg} alt="solar" />;
       case 'battery': {
-        const soc = module.state?.soc;
+        const soc = state.soc;
         if (!isSetup) {
           return <img src={batteryImg} alt="battery" />;
         }
@@ -400,7 +412,7 @@ function App() {
       }
       case 'grid': {
         if (isSetup) {
-          const status = module.state?.grid_status_current;
+          const status = state.grid_status_current;
           if (status === 0) return <img src={gridOffImg} alt="grid" />;
           if (status === 1) return <img src={gridOnImg} alt="grid" />;
         }
