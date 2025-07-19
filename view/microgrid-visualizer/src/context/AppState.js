@@ -74,15 +74,11 @@ export function AppStateProvider({ children }) {
   const setStatus = (status) => dispatch({ type: 'SET_STATUS', status });
   const setLogData = (log) => dispatch({ type: 'SET_LOG_DATA', log });
 
-  const updateStatusLog = async () => {
+  const refreshPreview = async () => {
     try {
-      const [status, log] = await Promise.all([api.getStatus(), api.getLog()]);
-      setStatus(status);
+      const log = await api.previewStep({ actions: { grid: [0], battery: [0] } });
       setLogData(log);
-      const states = buildCurrentStatus(
-        status,
-        log
-      );
+      const states = buildCurrentStatus({}, log);
       state.modules.forEach((m) => {
         if (!m.backendId) return;
         const [type, idxStr] = m.backendId.split('_');
@@ -96,6 +92,7 @@ export function AppStateProvider({ children }) {
           updateModule({ ...m, state: newState });
         }
       });
+      setStatus(states);
       return states;
     } catch (_) {
       // ignore errors
@@ -114,7 +111,7 @@ export function AppStateProvider({ children }) {
         selectModule,
         addEnergyPoint,
         addLog,
-        updateStatusLog,
+        refreshPreview,
       }}
     >
       {children}
