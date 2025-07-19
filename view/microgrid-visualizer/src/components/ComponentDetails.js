@@ -83,6 +83,7 @@ function ComponentDetails({
   statusData,
   totals,
   stateData,
+  step,
 }) {
   const [profiles, setProfiles] = useState({});
   const [controllerOptions, setControllerOptions] = useState([]);
@@ -168,9 +169,7 @@ function ComponentDetails({
     };
 
     fetchInfo();
-    const id = setInterval(fetchInfo, 3000);
-    return () => clearInterval(id);
-  }, [module?.id, manualMode, stateData]);
+  }, [module?.id, manualMode, stateData, step]);
 
   useEffect(() => {
     if (!isSetup) {
@@ -494,6 +493,7 @@ function ComponentDetails({
           actualValues={actualValues}
           statusData={statusData}
           totals={totals}
+          step={step}
         />
       );
       break;
@@ -592,6 +592,7 @@ ComponentDetails.propTypes = {
     batteryDischarge: PropTypes.number,
   }),
   stateData: PropTypes.object,
+  step: PropTypes.number,
 };
 
 export default ComponentDetails;
@@ -608,4 +609,5 @@ ComponentDetails.defaultProps = {
   statusData: null,
   totals: null,
   stateData: null,
+  step: 0,
 };

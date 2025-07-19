@@ -591,8 +591,6 @@ function App() {
 
   useEffect(() => {
     fetchAndUpdateStatus();
-    const id = setInterval(fetchAndUpdateStatus, 3000);
-    return () => clearInterval(id);
   }, [modules, manualActions]);
 
   const handleSetup = async () => {
@@ -821,6 +819,7 @@ function App() {
           statusData={statusData}
           totals={currentTotals}
           stateData={componentStatus}
+          step={stepCount}
         />
       </section>
 
@@ -829,6 +828,7 @@ function App() {
           config={microgridConfig}
           onConfigChange={setMicrogridConfig}
           isSetup={isSetup}
+          step={stepCount}
         />
       </footer>
       {showHelp && <HelpPopup onClose={() => setShowHelp(false)} />}

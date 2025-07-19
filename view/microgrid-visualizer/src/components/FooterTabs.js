@@ -5,7 +5,7 @@ import MicrogridStatus from './MicrogridStatus';
 import MicrogridConfig from './MicrogridConfig';
 import './FooterTabs.css';
 
-export default function FooterTabs({ config, onConfigChange, isSetup }) {
+export default function FooterTabs({ config, onConfigChange, isSetup, step }) {
   const [active, setActive] = useState('Status');
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function FooterTabs({ config, onConfigChange, isSetup }) {
       </div>
       <div className="tab-content">
         {active === 'Console' && <ConsolePanel />}
-        {active === 'Status' && <MicrogridStatus />}
+        {active === 'Status' && <MicrogridStatus step={step} />}
         {active === 'Configuration' && (
           <MicrogridConfig
             config={config}
@@ -59,8 +59,10 @@ FooterTabs.propTypes = {
   }).isRequired,
   onConfigChange: PropTypes.func.isRequired,
   isSetup: PropTypes.bool,
+  step: PropTypes.number,
 };
 
 FooterTabs.defaultProps = {
   isSetup: false,
+  step: 0,
 };
