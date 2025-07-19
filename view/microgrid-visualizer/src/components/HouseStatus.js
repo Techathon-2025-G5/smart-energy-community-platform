@@ -9,9 +9,4 @@ HouseStatus.propTypes = {
   module: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   currentState: PropTypes.object.isRequired,
-  previewValue: PropTypes.number,
-};
-
-HouseStatus.defaultProps = {
-  previewValue: undefined,
 };
