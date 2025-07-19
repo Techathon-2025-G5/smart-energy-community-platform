@@ -20,3 +20,21 @@ export function parseLog(log) {
   });
   return result;
 }
+
+export function getComponentState(status, log, type, idx, manualMode = false) {
+  const parsed = parseLog(log);
+  const hist = parsed?.[type]?.[idx] || {};
+  const fromStatus = status?.[type]?.[idx] || {};
+  if (manualMode) {
+    return { ...fromStatus };
+  }
+  const state = { ...fromStatus };
+  Object.entries(hist).forEach(([metric, values]) => {
+    const steps = Object.keys(values || {}).map(Number);
+    if (steps.length > 0) {
+      const last = Math.max(...steps);
+      state[metric] = Number(values[last]);
+    }
+  });
+  return state;
+}

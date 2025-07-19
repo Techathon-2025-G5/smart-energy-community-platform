@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import api from '../api/client';
 import ComponentChart from './ComponentChart';
 import BatteryStatus from './BatteryStatus';
-import { parseLog } from '../utils/log';
+import { parseLog, getComponentState } from '../utils/log';
 import './ComponentDetails.css';
 import HouseStatus from "./HouseStatus";
 import BuildingStatus from "./BuildingStatus";
@@ -154,19 +154,7 @@ function ComponentDetails({
         const hist = parsed[type]?.[idx] || {};
         setHistory(hist);
 
-        const fromStatus = status?.[type]?.[idx] || {};
-        const state = { ...fromStatus };
-
-        Object.entries(hist).forEach(([metric, values]) => {
-          if (state[metric] === undefined) {
-            const steps = Object.keys(values).map(Number);
-            if (steps.length > 0) {
-              const last = Math.max(...steps);
-              state[metric] = Number(values[last]);
-            }
-          }
-        });
-
+        const state = getComponentState(status, log, type, idx, manualMode);
         setCurrentState(state);
         const fields = Object.keys(hist);
         setField((f) => (fields.includes(f) ? f : fields[0] || ''));
@@ -180,7 +168,7 @@ function ComponentDetails({
     fetchInfo();
     const id = setInterval(fetchInfo, 3000);
     return () => clearInterval(id);
-  }, [module?.id]);
+  }, [module?.id, manualMode]);
 
   useEffect(() => {
     if (!isSetup) {
