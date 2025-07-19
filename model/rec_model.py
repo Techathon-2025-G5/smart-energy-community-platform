@@ -235,11 +235,15 @@ class MicrogridModel:
     def _to_serializable(self, obj):
         """Recursively convert numpy types to Python built-ins."""
         import numpy as np
+        import math
 
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         if isinstance(obj, np.generic):
-            return obj.item()
+            obj = obj.item()
+        if isinstance(obj, float):
+            if math.isnan(obj) or math.isinf(obj):
+                return None
         if isinstance(obj, dict):
             return {k: self._to_serializable(v) for k, v in obj.items()}
         if isinstance(obj, (list, tuple)):
