@@ -373,18 +373,7 @@ function App() {
       case 'solar':
         return <img src={solarImg} alt="solar" />;
       case 'battery': {
-        let soc = module.state?.soc;
-        if (manualMode) {
-          const bats = modules
-            .filter((m) => m.type === 'battery')
-            .sort((a, b) => (a.idx || 0) - (b.idx || 0));
-          const idx = bats.findIndex((b) => b.id === module.id);
-          const slider = manualActions.battery?.[idx] ?? 0;
-          const current = Number(module.state?.current_charge ?? 0);
-          const maxCap = Number(module.params?.max_capacity ?? 1);
-          soc = maxCap ? (current + Number(slider)) / maxCap : module.state?.soc;
-          soc = Math.max(0, Math.min(1, soc));
-        }
+        const soc = module.state?.soc;
         return <img src={getBatteryImage(soc)} alt="battery" />;
       }
       case 'grid': {
@@ -568,7 +557,8 @@ function App() {
         const curState = m.state || {};
         const newState = { ...curState, ...state };
         const changed = Object.keys(state).some((k) => state[k] !== curState[k]);
-        if (changed) {
+        const hasSoc = Object.prototype.hasOwnProperty.call(state, 'soc');
+        if (changed || hasSoc) {
           updateModule({ ...m, state: newState });
         }
       });
