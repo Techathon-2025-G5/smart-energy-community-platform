@@ -70,7 +70,7 @@ function App() {
     deleteModule,
     selectModule,
     addLog,
-    updateStatusLog,
+    refreshPreview,
   } = useAppState();
 
   const manualMode =
@@ -643,7 +643,7 @@ function App() {
       setIsSetup(true);
       addLog({ method: 'POST', endpoint: '/setup', payload, response });
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response: resetResponse });
-      const states = await updateStatusLog();
+      const states = await refreshPreview();
       setComponentStatus(states || {});
     } catch (err) {
       
@@ -661,7 +661,7 @@ function App() {
         const response = await api.runStep(payload);
         addLog({ method: 'POST', endpoint: '/run', payload, response });
         setStepCount((s) => s + 1);
-        const states = await updateStatusLog();
+        const states = await refreshPreview();
         setComponentStatus(states || {});
         resetManualActions();
       } catch (err) {
@@ -708,7 +708,7 @@ function App() {
       const response = await api.runStep(payload);
       addLog({ method: 'POST', endpoint: '/run', payload, response });
       setStepCount((s) => s + 1);
-      const states = await updateStatusLog();
+      const states = await refreshPreview();
       setComponentStatus(states || {});
       resetManualActions();
     } catch (err) {
@@ -758,7 +758,7 @@ function App() {
       setPlayEnabled(hasController && !isManual);
       setPauseEnabled(false);
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response });
-      const states = await updateStatusLog();
+      const states = await refreshPreview();
       setComponentStatus(states || {});
     } catch (err) {
       
