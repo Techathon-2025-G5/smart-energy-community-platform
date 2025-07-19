@@ -44,10 +44,13 @@ export function buildCurrentStatus(status = {}, log = {}) {
     ...Object.keys(parsed || {}),
   ]);
   types.forEach((type) => {
-    const statusArr = status[type] || [];
+    const statusEntry = status[type] || [];
     const logEntries = parsed[type] || {};
+    const statusIdxs = Array.isArray(statusEntry)
+      ? statusEntry.map((_, i) => i)
+      : Object.keys(statusEntry).map((i) => parseInt(i, 10));
     const idxs = new Set([
-      ...statusArr.map((_, i) => i),
+      ...statusIdxs,
       ...Object.keys(logEntries).map((i) => parseInt(i, 10)),
     ]);
     idxs.forEach((idx) => {
