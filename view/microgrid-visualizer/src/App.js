@@ -98,6 +98,18 @@ function App() {
     },
   });
 
+  const buildZeroActions = () => {
+    const grids = modules
+      .filter((m) => m.type === 'grid')
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0))
+      .map(() => 0);
+    const batteries = modules
+      .filter((m) => m.type === 'battery')
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0))
+      .map(() => 0);
+    return { grid: grids, battery: batteries };
+  };
+
   const handleManualChange = (type, index, value) => {
     setManualActions((prev) => {
       const next = { ...prev };
@@ -694,7 +706,7 @@ function App() {
         ? buildManualPayload()
         : hasController
         ? null
-        : { actions: { grid: [0], battery: [0] } };
+        : { actions: buildZeroActions() };
       const response = await api.runStep(payload);
       addLog({ method: 'POST', endpoint: '/run', payload, response });
       setStepCount((s) => s + 1);
@@ -707,7 +719,7 @@ function App() {
         ? buildManualPayload()
         : hasController
         ? null
-        : { actions: { grid: [0], battery: [0] } };
+        : { actions: buildZeroActions() };
       addLog({ method: 'POST', endpoint: '/run', payload, response: { error: err.message } });
     }
   };
