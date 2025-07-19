@@ -592,7 +592,12 @@ function App() {
       batteryCharge: batCharge,
       batteryDischarge: batDischarge,
     });
-    setComponentStatus(states);
+    // Preview results should not overwrite the actual component status
+    // fetched from the backend. This avoids showing "future" values in the
+    // status panel when manual controls are used.
+    if (!manualMode) {
+      setComponentStatus(states);
+    }
   }, 300);
 
     return () => {
