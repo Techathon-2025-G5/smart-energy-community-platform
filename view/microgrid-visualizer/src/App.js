@@ -732,6 +732,7 @@ function App() {
   const handleReset = async () => {
     try {
       const response = await api.resetModel();
+      const states = await refreshPreview();
       const hasController = modules.some((m) => m.type === 'controller');
       const isManual = modules.some(
         (m) => m.type === 'controller' && m.params?.name === 'manual'
@@ -755,7 +756,6 @@ function App() {
       setPlayEnabled(hasController && !isManual);
       setPauseEnabled(false);
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response });
-      const states = await refreshPreview();
       setComponentStatus(states || {});
     } catch (err) {
       
