@@ -93,46 +93,62 @@ function App() {
     });
   };
 
-  const handleGridAdjust = (index) => {
-    const renewable = Number(statusData?.total?.[0]?.renewables ?? 0);
-    const loads = Math.abs(Number(statusData?.total?.[0]?.loads ?? 0));
+  const handleGridAdjust = async (index) => {
+    try {
+      const log = await api.getLog();
+      const states = buildCurrentStatus(
+        statusData,
+        log,
+        manualMode,
+        modules,
+        manualActions
+      );
 
-    const batteryMods = modules
-      .filter((m) => m.type === 'battery')
-      .sort((a, b) => (a.idx || 0) - (b.idx || 0));
-    let batCharge = 0;
-    let batDischarge = 0;
-    manualActions.battery.forEach((val, i) => {
-      const params = batteryMods[i]?.params || {};
-      const efficiency = Number(params.efficiency || 1);
-      if (val > 0) {
-        batCharge += val;
-      } else if (val < 0) {
-        batDischarge += -val * efficiency;
-      }
-    });
+      const renewable = Object.values(states.renewable || {}).reduce(
+        (acc, s) => acc + Number(s.renewable_current ?? 0),
+        0
+      );
+      const loads = Object.values(states.load || {}).reduce(
+        (acc, s) => acc + Math.abs(Number(s.load_current ?? 0)),
+        0
+      );
 
-    const baseBalance = renewable + batDischarge - loads - batCharge;
+      const batteryMods = modules
+        .filter((m) => m.type === 'battery')
+        .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+      let batCharge = 0;
+      let batDischarge = 0;
+      batteryMods.forEach((m, i) => {
+        const state = states.battery?.[i] || {};
+        const efficiency = Number(m.params?.efficiency || 1);
+        batCharge += Number(state.charge_amount ?? 0);
+        batDischarge += Number(state.discharge_amount ?? 0) * efficiency;
+      });
 
-    const gridMods = modules
-      .filter((m) => m.type === 'grid')
-      .sort((a, b) => (a.idx || 0) - (b.idx || 0));
-    const grid = gridMods[index];
-    if (!grid) return;
-    const maxImport = Number(grid.params?.max_import || 0);
-    const maxExport = Number(grid.params?.max_export || 0);
+      const baseBalance = renewable + batDischarge - loads - batCharge;
 
-    let value = baseBalance;
-    if (value > 0) value = Math.min(maxExport, value);
-    if (value < -maxImport) value = -maxImport;
+      const gridMods = modules
+        .filter((m) => m.type === 'grid')
+        .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+      const grid = gridMods[index];
+      if (!grid) return;
+      const maxImport = Number(grid.params?.max_import || 0);
+      const maxExport = Number(grid.params?.max_export || 0);
 
-    setManualActions((prev) => {
-      const next = { ...prev };
-      const arr = [...(next.grid || [])];
-      arr[index] = value;
-      next.grid = arr;
-      return next;
-    });
+      let value = baseBalance;
+      if (value > 0) value = Math.min(maxExport, value);
+      if (value < -maxImport) value = -maxImport;
+
+      setManualActions((prev) => {
+        const next = { ...prev };
+        const arr = [...(next.grid || [])];
+        arr[index] = value;
+        next.grid = arr;
+        return next;
+      });
+    } catch (_) {
+      // ignore errors
+    }
   };
 
   const resetManualActions = () => {
