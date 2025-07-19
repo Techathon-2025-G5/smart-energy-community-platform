@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useEffect } from 'react';
 import { useAppState } from '../context/AppState';
 import './ManualControls.css';
 
@@ -27,6 +28,21 @@ export default function ManualControls({ values, onChange, onGridAdjust, statusD
   });
 
   const baseExport = renewable + batDischarge - loadDemand - batCharge;
+
+  useEffect(() => {
+    grids.forEach((g, i) => {
+      const maxImport = Number(g.params?.max_import || 0);
+      const maxExport = Math.max(
+        0,
+        Math.min(Number(g.params?.max_export || 0), baseExport)
+      );
+      const val = values.grid[i] ?? 0;
+      const clipped = Math.max(-maxImport, Math.min(val, maxExport));
+      if (clipped !== val) {
+        onChange('grid', i, clipped);
+      }
+    });
+  }, [grids, baseExport]);
 
   const handleChange = (type, index) => (e) => {
     let val = parseFloat(e.target.value);
