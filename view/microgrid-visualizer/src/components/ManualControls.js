@@ -65,7 +65,7 @@ export default function ManualControls({ values, onChange, onGridAdjust, totals 
         );
         return (
           <label key={`bat-${i}`}>
-            Battery {i + 1}: {values.battery[i] ?? 0}
+            Battery {i + 1}: {Number(values.battery[i] ?? 0).toFixed(2)}
             <span className="slider-wrapper">
               <span>discharge</span>
               <input
@@ -83,7 +83,7 @@ export default function ManualControls({ values, onChange, onGridAdjust, totals 
       })}
       {grids.map((g, i) => (
         <label key={`grid-${i}`}>
-          Grid {i + 1}: {values.grid[i] ?? 0}
+          Grid {i + 1}: {Number(values.grid[i] ?? 0).toFixed(2)}
           <button
             type="button"
             className="adjust-button"
