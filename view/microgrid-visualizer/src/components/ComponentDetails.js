@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import api from '../api/client';
 import ComponentChart from './ComponentChart';
 import BatteryStatus from './BatteryStatus';
 import { parseLog } from '../utils/log';
