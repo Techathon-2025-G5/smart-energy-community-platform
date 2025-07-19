@@ -55,3 +55,40 @@ def test_preview_does_not_modify_state():
     assert any("battery" in k for k in result)
 
     microgrid.reset()
+
+
+def test_preview_returns_serialized_dict():
+    config = {
+        "horizon": 1,
+        "timestep": 1,
+        "components": [
+            {
+                "type": "GridModule",
+                "params": {"max_import": 10, "max_export": 10, "time_series": [[0, 0, 0, True]]},
+            },
+            {
+                "type": "BatteryModule",
+                "params": {
+                    "min_capacity": 0,
+                    "max_capacity": 10,
+                    "max_charge": 2,
+                    "max_discharge": 2,
+                    "efficiency": 1.0,
+                    "init_soc": 0.5,
+                },
+            },
+        ],
+    }
+    microgrid.setup(config)
+
+    payload = ActionRequest(actions={"grid": [np.array([0.0])], "battery": [np.array([0.0])]})
+
+    async def call():
+        return await preview_model(payload)
+
+    result = asyncio.run(call())
+
+    assert isinstance(result, dict)
+    assert all(isinstance(k, str) for k in result.keys())
+
+    microgrid.reset()
