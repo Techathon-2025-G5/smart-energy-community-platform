@@ -139,7 +139,7 @@ function RewardChart({ data, steps }) {
   return <svg ref={ref}></svg>;
 }
 
-export default function LoadStatus({ module, history, currentState, previewValue }) {
+export default function LoadStatus({ module, history, currentState }) {
   const idx = module.backendId
     ? parseInt(module.backendId.split('_')[1], 10) + 1
     : module.idx || 1;
@@ -156,10 +156,7 @@ export default function LoadStatus({ module, history, currentState, previewValue
   const rewardHist = steps.map((s) => Number(history.reward?.[s] || 0));
 
   const requested = Math.abs(Number(currentState.load_current || 0));
-  const available =
-    typeof previewValue === 'number'
-      ? Math.max(0, previewValue)
-      : Math.max(0, Number(currentState.load_met || 0));
+  const available = Math.max(0, Number(currentState.load_met || 0));
   const metFrac = requested > 0 ? Math.min(available / requested, 1) : 0;
   const maxReq = requestedHist.length ? Math.max(...requestedHist) : 1;
 
@@ -200,9 +197,4 @@ LoadStatus.propTypes = {
   module: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   currentState: PropTypes.object.isRequired,
-  previewValue: PropTypes.number,
-};
-
-LoadStatus.defaultProps = {
-  previewValue: undefined,
 };

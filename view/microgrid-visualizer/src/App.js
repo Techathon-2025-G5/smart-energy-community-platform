@@ -57,7 +57,6 @@ function App() {
   const [manualActions, setManualActions] = useState({ battery: [], grid: [] });
   const [componentStatus, setComponentStatus] = useState({});
   const [previewValues, setPreviewValues] = useState(null);
-  const [previewLoadMet, setPreviewLoadMet] = useState({});
   const [actualValues, setActualValues] = useState(null);
   const [currentTotals, setCurrentTotals] = useState(null);
   const [showHelp, setShowHelp] = useState(false);
@@ -484,7 +483,6 @@ function App() {
   useEffect(() => {
     if (!statusData || !isSetup) {
       setPreviewValues(null);
-      setPreviewLoadMet({});
       setCurrentTotals(null);
       return;
     }
@@ -564,11 +562,6 @@ function App() {
       renewable + gridImport + batDischarge - (loads + gridExport + batCharge);
     const moneyBalance = moneyGrid + moneyBat;
 
-    const preview = {};
-    loadMods.forEach((m, i) => {
-      preview[m.id] = Number(states.load?.[i]?.load_met ?? 0);
-    });
-    setPreviewLoadMet(preview);
 
     setPreviewValues({
       grid: gridImport - gridExport,
@@ -830,7 +823,6 @@ function App() {
           onManualChange={handleManualChange}
           onGridAdjust={handleGridAdjust}
           previewValues={previewValues}
-          previewLoadMet={previewLoadMet}
           actualValues={actualValues}
           statusData={statusData}
           totals={currentTotals}

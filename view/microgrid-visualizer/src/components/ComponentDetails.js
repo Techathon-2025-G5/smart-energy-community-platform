@@ -78,7 +78,6 @@ function ComponentDetails({
   onManualChange,
   onGridAdjust,
   previewValues,
-  previewLoadMet,
   actualValues,
   statusData,
   totals,
@@ -450,7 +449,6 @@ function ComponentDetails({
           module={module}
           history={history}
           currentState={currentState}
-          previewValue={manualMode ? undefined : previewLoadMet[module.id]}
         />
       );
       break;
@@ -460,7 +458,6 @@ function ComponentDetails({
           module={module}
           history={history}
           currentState={currentState}
-          previewValue={manualMode ? undefined : previewLoadMet[module.id]}
         />
       );
       break;
@@ -574,7 +571,6 @@ ComponentDetails.propTypes = {
     energyBalance: PropTypes.number,
     moneyBalance: PropTypes.number,
   }),
-  previewLoadMet: PropTypes.objectOf(PropTypes.number),
   actualValues: PropTypes.shape({
     grid: PropTypes.number,
     costGrid: PropTypes.number,
@@ -603,7 +599,6 @@ ComponentDetails.defaultProps = {
   onManualChange: () => {},
   onGridAdjust: () => {},
   previewValues: null,
-  previewLoadMet: {},
   actualValues: null,
   statusData: null,
   totals: null,
