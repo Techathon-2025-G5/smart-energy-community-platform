@@ -125,8 +125,11 @@ async def get_log(
         # Convert DataFrame to a serializable structure
         log = log.to_dict()
     if isinstance(log, dict):
-        # Ensure dictionary keys are JSON serializable
-        log = {json.dumps(k): v for k, v in log.items()}
+        # Ensure dictionary keys are JSON serializable and values JSON-friendly
+        log = {
+            json.dumps(k): microgrid._to_serializable(v)  # type: ignore[attr-defined]
+            for k, v in log.items()
+        }
     return log
 
 
@@ -144,7 +147,10 @@ async def get_totals(
     if hasattr(totals, "to_dict"):
         totals = totals.to_dict()
     if isinstance(totals, dict):
-        totals = {json.dumps(k): v for k, v in totals.items()}
+        totals = {
+            json.dumps(k): microgrid._to_serializable(v)  # type: ignore[attr-defined]
+            for k, v in totals.items()
+        }
     return totals
 
 
@@ -157,7 +163,10 @@ async def preview_model(payload: ActionRequest):
     if hasattr(log, "to_dict"):
         log = log.to_dict()
     if isinstance(log, dict):
-        log = {json.dumps(k): v for k, v in log.items()}
+        log = {
+            json.dumps(k): microgrid._to_serializable(v)  # type: ignore[attr-defined]
+            for k, v in log.items()
+        }
     return log
 
 
