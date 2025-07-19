@@ -55,7 +55,6 @@ function App() {
     lon: DEFAULT_LON,
   });
   const [manualActions, setManualActions] = useState({ battery: [], grid: [] });
-  const [statusData, setStatusData] = useState(null);
   const [componentStatus, setComponentStatus] = useState({});
   const [previewValues, setPreviewValues] = useState(null);
   const [previewLoadMet, setPreviewLoadMet] = useState({});
@@ -64,7 +63,7 @@ function App() {
   const [showHelp, setShowHelp] = useState(false);
   const intervalRef = useRef(null);
   const {
-    state: { modules, selected },
+    state: { modules, selected, status: statusData, log: logData },
     addModule,
     moveModule,
     updateModule,
@@ -72,6 +71,7 @@ function App() {
     deleteModule,
     selectModule,
     addLog,
+    updateStatusLog,
   } = useAppState();
 
   const manualMode =
@@ -97,10 +97,9 @@ function App() {
 
   const handleGridAdjust = async (index) => {
     try {
-      const log = await api.getLog();
       const states = buildCurrentStatus(
         statusData,
-        log,
+        logData || {},
         manualMode,
         modules,
         manualActions
@@ -477,7 +476,7 @@ function App() {
 
     const states = buildCurrentStatus(
       statusData,
-      {},
+      logData || {},
       manualMode,
       modules,
       manualActions,
@@ -562,41 +561,9 @@ function App() {
       batteryCharge: batCharge,
       batteryDischarge: batDischarge,
     });
-  }, [manualActions, statusData, modules, isSetup]);
+    setComponentStatus(states);
+  }, [manualActions, statusData, modules, isSetup, logData]);
 
-  const fetchAndUpdateStatus = async () => {
-    try {
-      const [status, log] = await Promise.all([api.getStatus(), api.getLog()]);
-      setStatusData(status);
-      const states = buildCurrentStatus(
-        status,
-        log,
-        manualMode,
-        modules,
-        manualActions
-      );
-      setComponentStatus(states);
-      modules.forEach((m) => {
-        if (!m.backendId) return;
-        const [type, idxStr] = m.backendId.split('_');
-        const idx = parseInt(idxStr, 10);
-        const state = states?.[type]?.[idx] || {};
-        const curState = m.state || {};
-        const newState = { ...curState, ...state };
-        const changed = Object.keys(state).some((k) => state[k] !== curState[k]);
-        const hasSoc = Object.prototype.hasOwnProperty.call(state, 'soc');
-        if (changed || hasSoc) {
-          updateModule({ ...m, state: newState });
-        }
-      });
-    } catch (_) {
-      /* ignore errors */
-    }
-  };
-
-  useEffect(() => {
-    fetchAndUpdateStatus();
-  }, [modules, manualActions]);
 
   const handleSetup = async () => {
     let payload = null;
@@ -643,7 +610,8 @@ function App() {
       setIsSetup(true);
       addLog({ method: 'POST', endpoint: '/setup', payload, response });
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response: resetResponse });
-      await fetchAndUpdateStatus();
+      const states = await updateStatusLog(manualMode, manualActions);
+      setComponentStatus(states || {});
     } catch (err) {
       
       addLog({ method: 'POST', endpoint: '/setup', payload, response: { error: err.message } });
@@ -660,7 +628,8 @@ function App() {
         const response = await api.runStep(payload);
         addLog({ method: 'POST', endpoint: '/run', payload, response });
         setStepCount((s) => s + 1);
-        await fetchAndUpdateStatus();
+        const states = await updateStatusLog(manualMode, manualActions);
+        setComponentStatus(states || {});
         resetManualActions();
       } catch (err) {
         const payload = manualMode ? buildManualPayload() : null;
@@ -706,7 +675,8 @@ function App() {
       const response = await api.runStep(payload);
       addLog({ method: 'POST', endpoint: '/run', payload, response });
       setStepCount((s) => s + 1);
-      await fetchAndUpdateStatus();
+      const states = await updateStatusLog(manualMode, manualActions);
+      setComponentStatus(states || {});
       resetManualActions();
     } catch (err) {
       const hasController = modules.some((m) => m.type === 'controller');
@@ -755,7 +725,8 @@ function App() {
       setPlayEnabled(hasController && !isManual);
       setPauseEnabled(false);
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response });
-      await fetchAndUpdateStatus();
+      const states = await updateStatusLog(manualMode, manualActions);
+      setComponentStatus(states || {});
     } catch (err) {
       
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response: { error: err.message } });
