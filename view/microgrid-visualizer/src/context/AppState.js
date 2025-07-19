@@ -76,7 +76,17 @@ export function AppStateProvider({ children }) {
 
   const refreshPreview = async () => {
     try {
-      const log = await api.previewStep({ actions: { grid: [0], battery: [0] } });
+      const gridModules = state.modules
+        .filter((m) => m.type === 'grid')
+        .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+      const batteryModules = state.modules
+        .filter((m) => m.type === 'battery')
+        .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+      const actions = {
+        grid: gridModules.map(() => 0),
+        battery: batteryModules.map(() => 0),
+      };
+      const log = await api.previewStep({ actions });
       setLogData(log);
       const states = buildCurrentStatus({}, log);
       state.modules.forEach((m) => {
