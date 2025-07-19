@@ -111,10 +111,7 @@ function App() {
 
   const handleGridAdjust = async (index) => {
     try {
-      const states = buildCurrentStatus(
-        statusData,
-        logData || {}
-      );
+      const states = componentStatus;
 
       const renewable = Object.values(states.renewable || {}).reduce(
         (acc, s) => acc + Number(s.renewable_current ?? 0),
