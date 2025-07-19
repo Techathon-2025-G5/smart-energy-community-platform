@@ -450,7 +450,7 @@ function ComponentDetails({
           module={module}
           history={history}
           currentState={currentState}
-          previewValue={previewLoadMet[module.id]}
+          previewValue={manualMode ? undefined : previewLoadMet[module.id]}
         />
       );
       break;
@@ -460,7 +460,7 @@ function ComponentDetails({
           module={module}
           history={history}
           currentState={currentState}
-          previewValue={previewLoadMet[module.id]}
+          previewValue={manualMode ? undefined : previewLoadMet[module.id]}
         />
       );
       break;

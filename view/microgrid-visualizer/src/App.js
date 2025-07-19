@@ -592,6 +592,10 @@ function App() {
       batteryCharge: batCharge,
       batteryDischarge: batDischarge,
     });
+    // Always reflect the latest log entry in the status panels.
+    // In manual mode the preview log already represents the simulated
+    // state for the current slider settings, so we update the component
+    // status with those values as well.
     setComponentStatus(states);
   }, 300);
 
