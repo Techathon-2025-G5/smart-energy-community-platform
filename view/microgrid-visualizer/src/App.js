@@ -139,6 +139,7 @@ function App() {
       let value = baseBalance;
       if (value > 0) value = Math.min(maxExport, value);
       if (value < -maxImport) value = -maxImport;
+      value = Number(value.toFixed(2));
 
       setManualActions((prev) => {
         const next = { ...prev };
