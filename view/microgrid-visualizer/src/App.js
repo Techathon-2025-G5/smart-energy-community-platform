@@ -581,7 +581,7 @@ function App() {
     fetchAndUpdateStatus();
     const id = setInterval(fetchAndUpdateStatus, 3000);
     return () => clearInterval(id);
-  }, [modules]);
+  }, [modules, manualActions]);
 
   const handleSetup = async () => {
     let payload = null;
