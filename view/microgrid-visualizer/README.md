@@ -32,7 +32,7 @@ REACT_APP_API_URL=https://smart-energy-api-production.up.railway.app npm start
 - **ModulePalette**: paleta de módulos (casa, edificio, solar, batería, red) que se pueden arrastrar al lienzo.
 - **SimulationCanvas** y **CanvasItem**: área de dibujo donde se colocan los módulos y se pueden mover con `drag & drop`.
 - **ComponentDetails**: panel lateral para editar los parámetros de cada módulo y consultar su estado. Los campos de eficiencia e *initial SoC* de la batería se ajustan mediante una barra deslizante entre 0 y 1.
-- **EnergyBalance**: gráfico que muestra la generación y el consumo obtenidos periódicamente desde el modelo.
+- **EnergyBalance**: gráfico que muestra la generación y el consumo obtenidos tras cada paso del modelo.
 - **Contexto AppState**: almacena el estado global de módulos y selección para todos los componentes.
 
 ## Controles manuales
@@ -53,7 +53,7 @@ El archivo [`src/api/client.js`](src/api/client.js) centraliza las llamadas al b
 - `POST /run` – ejecuta un paso de simulación enviando las acciones deseadas.
 - `POST /reset` – reinicia la simulación.
 
-`App.js` utiliza estas funciones para enviar las acciones desde la interfaz y actualizar el resultado mostrado al usuario. El componente `EnergyBalance` consulta de forma periódica el endpoint `/status` para actualizar el gráfico con la generación y el consumo.
+`App.js` utiliza estas funciones para enviar las acciones desde la interfaz y actualizar el resultado mostrado al usuario. El componente `EnergyBalance` obtiene los datos del modelo tras cada ejecución de `/run` o `/reset`, evitando llamadas constantes a `/status` cuando no hay cambios.
 ### Perfil PVGIS
 Para un componente solar puede elegirse el perfil especial `PVGIS`.
 La interfaz debe enviar en `params` los campos `lat`, `lon`, `peakpower`, `loss`,

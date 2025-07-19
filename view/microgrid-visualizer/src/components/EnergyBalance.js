@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import api from '../api/client';
 import { parseLog } from '../utils/log';
 import './EnergyBalance.css';
 
-export default function EnergyBalance() {
+export default function EnergyBalance({ step }) {
   const [points, setPoints] = useState([]);
   const svgRef = useRef(null);
 
@@ -29,9 +30,7 @@ export default function EnergyBalance() {
       }
     };
     fetchData();
-    const id = setInterval(fetchData, 3000);
-    return () => clearInterval(id);
-  }, []);
+  }, [step]);
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);
@@ -82,3 +81,7 @@ export default function EnergyBalance() {
     </div>
   );
 }
+
+EnergyBalance.propTypes = {
+  step: PropTypes.number.isRequired,
+};

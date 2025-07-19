@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import api from '../api/client';
 import { parseTotalsLog, parseTotalsTotals } from '../utils/totals';
@@ -134,7 +135,7 @@ function RewardChart({ data, steps }) {
   return <svg ref={ref}></svg>;
 }
 
-export default function MicrogridStatus() {
+export default function MicrogridStatus({ step }) {
   const [totals, setTotals] = useState({
     exported: 0,
     imported: 0,
@@ -188,9 +189,7 @@ export default function MicrogridStatus() {
       }
     };
     fetchData();
-    const id = setInterval(fetchData, 3000);
-    return () => clearInterval(id);
-  }, []);
+  }, [step]);
 
   const balanceColor = totals.balance >= 0 ? 'var(--green)' : 'var(--red)';
 
@@ -277,3 +276,7 @@ export default function MicrogridStatus() {
     </div>
   );
 }
+
+MicrogridStatus.propTypes = {
+  step: PropTypes.number.isRequired,
+};

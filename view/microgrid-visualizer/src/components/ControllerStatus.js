@@ -19,6 +19,7 @@ export default function ControllerStatus({
   actualValues,
   statusData,
   totals,
+  step,
 }) {
   const fields = Object.keys(history);
   const [field, setField] = useState(fields[0] || '');
@@ -62,9 +63,7 @@ export default function ControllerStatus({
       }
     };
     fetchData();
-    const id = setInterval(fetchData, 3000);
-    return () => clearInterval(id);
-  }, []);
+  }, [step]);
 
   useEffect(() => {
     if (actualValues) {
@@ -196,6 +195,7 @@ ControllerStatus.propTypes = {
     batteryCharge: PropTypes.number,
     batteryDischarge: PropTypes.number,
   }),
+  step: PropTypes.number,
 };
 
 ControllerStatus.defaultProps = {
@@ -208,4 +208,5 @@ ControllerStatus.defaultProps = {
   actualValues: null,
   statusData: null,
   totals: null,
+  step: 0,
 };
