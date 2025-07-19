@@ -154,6 +154,8 @@ async def preview_model(payload: ActionRequest):
     if payload is None:
         raise HTTPException(status_code=400, detail="Missing actions for preview")
     log = await run_in_threadpool(microgrid.preview, payload.actions)
+    if hasattr(log, "to_dict"):
+        log = log.to_dict()
     if isinstance(log, dict):
         log = {json.dumps(k): v for k, v in log.items()}
     return log
