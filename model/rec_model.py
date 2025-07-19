@@ -277,27 +277,6 @@ class MicrogridModel:
 
         df = mg_copy.get_log(as_frame=True, drop_singleton_key=drop_singleton_key)
 
-        # Build a DataFrame row from the post-action state
-        state_dict = mg_copy.state_dict
-        row = {}
-        for name, modules in state_dict.items():
-            for idx, state in enumerate(modules):
-                if state is None:
-                    continue
-                for key, val in state.items():
-                    row[(name, idx, key)] = val
-
-        if row:
-            row_df = pd.DataFrame([row])
-            col_names = ["module_name", "module_number", "field"]
-            if isinstance(df.columns, pd.MultiIndex):
-                row_df.columns = pd.MultiIndex.from_tuples(row_df.columns, names=df.columns.names)
-            else:
-                row_df.columns = pd.MultiIndex.from_tuples(row_df.columns, names=col_names)
-            next_idx = (df.index.max() + 1) if len(df.index) else 0
-            row_df.index = [next_idx]
-            df = pd.concat([df, row_df], axis=0)
-
         df = self._process_log(df)
 
         if as_frame:
@@ -369,7 +348,6 @@ class MicrogridModel:
                     balance_col = ("grid", n, "grid_balance")
                     df[balance_col] = df[earn_col] - df[spent_col]
 
-        # Compute cycle cost for battery modules
         if not df.empty:
             battery_numbers = sorted({idx[1] for idx in df.columns if idx[0] == "battery"})
             for n in battery_numbers:
@@ -378,11 +356,30 @@ class MicrogridModel:
                 if discharge_col not in df.columns and charge_col not in df.columns:
                     continue
                 mod_obj = self.microgrid.modules["battery"][n]
-                cost_per_cycle = getattr(mod_obj, "battery_cost_cycle", 0)
+
                 discharge = df[discharge_col] if discharge_col in df.columns else 0
                 charge = df[charge_col] if charge_col in df.columns else 0
+
+                # Battery attributes
+                efficiency = getattr(mod_obj, "efficiency", 0)
+                cost_per_cycle = getattr(mod_obj, "battery_cost_cycle", 0)
+
+                # Compute cycle cost for battery modules
                 cycle_col = ("battery", n, "cycle_cost")
                 df[cycle_col] = (discharge + charge) * cost_per_cycle
+
+                # Compute charge variation for batteries modules
+                chg_var_col = ("battery", n, "charge_variation")
+                df[chg_var_col] = charge * efficiency  - discharge / efficiency
+
+                # Compute current charge for battery modules
+                curr_chg_col = ("battery", n, "current_charge")
+                df[curr_chg_col] = df[curr_chg_col] + df[chg_var_col]
+
+                # Compute current soc for batteries modules
+                max_capacity = getattr(mod_obj, "max_capacity", 0)
+                soc_col = ("battery", n, "soc")
+                df[soc_col] = df[curr_chg_col] / max_capacity
 
         # Compute totals across components of the same type
         if not df.empty:

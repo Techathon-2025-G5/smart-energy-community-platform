@@ -154,18 +154,19 @@ export default function BatteryStatus({ module, history, currentState }) {
     lastStep !== null ? Number(history.discharge_amount?.[lastStep] || 0) : 0;
 
 
-  let variation = 0;
-  const chargeNow = Number(currentState.charge_amount ?? 0);
-  const dischargeNow = Number(currentState.discharge_amount ?? 0);
-  if (chargeNow > 0) {
-    variation = chargeNow;
-  } else if (dischargeNow > 0) {
-    variation = -dischargeNow;
-  } else if (chargeAmt > 0) {
-    variation = chargeAmt;
-  } else if (dischargeAmt > 0) {
-    variation = -dischargeAmt;
-  }
+//   let variation = 0;
+//   const chargeNow = Number(currentState.charge_amount ?? 0);
+//   const dischargeNow = Number(currentState.discharge_amount ?? 0);
+//   if (chargeNow > 0) {
+//     variation = chargeNow;
+//   } else if (dischargeNow > 0) {
+//     variation = -dischargeNow;
+//   } else if (chargeAmt > 0) {
+//     variation = chargeAmt;
+//   } else if (dischargeAmt > 0) {
+//     variation = -dischargeAmt;
+//   }
+  const variation = Number(currentState.charge_variation ?? 0);
 
   let variationColor = '#444';
   if (variation > 0) {
