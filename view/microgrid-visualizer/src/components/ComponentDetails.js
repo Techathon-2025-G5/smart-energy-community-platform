@@ -81,6 +81,7 @@ function ComponentDetails({
   previewLoadMet,
   actualValues,
   statusData,
+  stateData,
 }) {
   const [profiles, setProfiles] = useState({});
   const [controllerOptions, setControllerOptions] = useState([]);
@@ -147,26 +148,14 @@ function ComponentDetails({
 
     const fetchInfo = async () => {
       try {
-        const [status, log] = await Promise.all([api.getStatus(), api.getLog()]);
+        const log = await api.getLog();
         const parsed = parseLog(log);
         const [type, idxStr] = (module.backendId || '').split('_');
         const idx = parseInt(idxStr, 10);
         const hist = parsed[type]?.[idx] || {};
         setHistory(hist);
 
-        const fromStatus = status?.[type]?.[idx] || {};
-        const state = { ...fromStatus };
-
-        Object.entries(hist).forEach(([metric, values]) => {
-          if (state[metric] === undefined) {
-            const steps = Object.keys(values).map(Number);
-            if (steps.length > 0) {
-              const last = Math.max(...steps);
-              state[metric] = Number(values[last]);
-            }
-          }
-        });
-
+        const state = stateData?.[type]?.[idx] || {};
         setCurrentState(state);
         const fields = Object.keys(hist);
         setField((f) => (fields.includes(f) ? f : fields[0] || ''));
@@ -180,7 +169,7 @@ function ComponentDetails({
     fetchInfo();
     const id = setInterval(fetchInfo, 3000);
     return () => clearInterval(id);
-  }, [module?.id]);
+  }, [module?.id, manualMode, stateData]);
 
   useEffect(() => {
     if (!isSetup) {
@@ -453,13 +442,6 @@ function ComponentDetails({
           module={module}
           history={history}
           currentState={currentState}
-          manualMode={manualMode}
-          sliderValue={(() => {
-            const idxVal = module.backendId
-              ? parseInt(module.backendId.split('_')[1], 10)
-              : (module.idx || 1) - 1;
-            return manualValues.battery[idxVal];
-          })()}
         />
       );
       break;
@@ -601,6 +583,7 @@ ComponentDetails.propTypes = {
     moneyBalance: PropTypes.number,
   }),
   statusData: PropTypes.object,
+  stateData: PropTypes.object,
 };
 
 export default ComponentDetails;
@@ -615,4 +598,5 @@ ComponentDetails.defaultProps = {
   previewLoadMet: {},
   actualValues: null,
   statusData: null,
+  stateData: null,
 };

@@ -37,7 +37,7 @@ import controllerImg from './assets/controller.png';
 import { useAppState } from './context/AppState';
 import { DEFAULT_LAT, DEFAULT_LON } from './components/MapSelector';
 import { isAllowed, cellKey } from './utils/placement';
-import { parseLog } from './utils/log';
+import { buildCurrentStatus } from './utils/log';
 import { getBatteryImage } from './utils/battery';
 
 function App() {
@@ -55,6 +55,7 @@ function App() {
   });
   const [manualActions, setManualActions] = useState({ battery: [], grid: [] });
   const [statusData, setStatusData] = useState(null);
+  const [componentStatus, setComponentStatus] = useState({});
   const [previewValues, setPreviewValues] = useState(null);
   const [previewLoadMet, setPreviewLoadMet] = useState({});
   const [actualValues, setActualValues] = useState(null);
@@ -548,92 +549,33 @@ function App() {
   }, [manualActions, statusData, modules, isSetup]);
 
   const fetchAndUpdateStatus = async () => {
-      try {
-        const [status, log] = await Promise.all([api.getStatus(), api.getLog()]);
-        setStatusData(status);
-        const parsed = parseLog(log);
-        const batteryStates = status?.battery || [];
-        const gridStates = status?.grid || [];
-        const renewableStates = status?.renewable || [];
-        const loadStates = parsed.load || {};
-        const loadStatus = status?.load || [];
-        modules.forEach((m) => {
-          if (!m.backendId) return;
-          const idx = parseInt(m.backendId.split('_')[1], 10);
-          if (m.type === 'battery') {
-            const soc = batteryStates[idx]?.soc;
-            const charge = batteryStates[idx]?.current_charge;
-            if (
-              (typeof soc === 'number' && soc !== m.state?.soc) ||
-              (typeof charge === 'number' && charge !== m.state?.current_charge)
-            ) {
-              updateModule({
-                ...m,
-                state: { ...m.state, soc, current_charge: charge },
-              });
-            }
-          } else if (m.type === 'grid') {
-            const gs = gridStates[idx]?.grid_status_current;
-            if (typeof gs === 'number' && gs !== m.state?.grid_status_current) {
-              updateModule({ ...m, state: { ...m.state, grid_status_current: gs } });
-            }
-          } else if (m.type === 'solar') {
-            const hist = parsed.renewable?.[idx] || {};
-            const curVals = hist.renewable_current || {};
-            const usedVals = hist.renewable_used || {};
-            const steps = Object.keys(curVals).map(Number);
-            let renewable_current = m.state?.renewable_current;
-            let renewable_used = m.state?.renewable_used;
-            if (steps.length) {
-              const last = Math.max(...steps);
-              renewable_current = Number(curVals[last] || 0);
-              renewable_used = Number(usedVals[last] || 0);
-            } else if (renewableStates[idx]) {
-              renewable_current = Number(renewableStates[idx].renewable_current || 0);
-              if (renewable_used === undefined) renewable_used = 0;
-            }
-            if (
-              renewable_current !== m.state?.renewable_current ||
-              renewable_used !== m.state?.renewable_used
-            ) {
-              updateModule({
-                ...m,
-                state: { ...m.state, renewable_current, renewable_used },
-              });
-            }
-          } else if (['house', 'building'].includes(m.type)) {
-            const hist = loadStates[idx] || {};
-            const curVals = hist.load_current || {};
-            const metVals = hist.load_met || {};
-            const steps = Object.keys(curVals).map(Number);
-            if (steps.length) {
-              const last = Math.max(...steps);
-              const load_current = Math.abs(Number(curVals[last] || 0));
-              const load_met = Math.abs(Number(metVals[last] || 0));
-              if (
-                load_current !== m.state?.load_current ||
-                load_met !== m.state?.load_met
-              ) {
-                updateModule({
-                  ...m,
-                  state: { ...m.state, load_current, load_met },
-                });
-              }
-            } else if (loadStatus[idx]) {
-              const cur = Math.abs(Number(loadStatus[idx].load_current || 0));
-              if (cur !== m.state?.load_current) {
-                updateModule({
-                  ...m,
-                  state: { ...m.state, load_current: cur, load_met: 0 },
-                });
-              }
-            }
-          }
-        });
-      } catch (_) {
-        /* ignore errors */
-      }
-    };
+    try {
+      const [status, log] = await Promise.all([api.getStatus(), api.getLog()]);
+      setStatusData(status);
+      const states = buildCurrentStatus(
+        status,
+        log,
+        manualMode,
+        modules,
+        manualActions
+      );
+      setComponentStatus(states);
+      modules.forEach((m) => {
+        if (!m.backendId) return;
+        const [type, idxStr] = m.backendId.split('_');
+        const idx = parseInt(idxStr, 10);
+        const state = states?.[type]?.[idx] || {};
+        const curState = m.state || {};
+        const newState = { ...curState, ...state };
+        const changed = Object.keys(state).some((k) => state[k] !== curState[k]);
+        if (changed) {
+          updateModule({ ...m, state: newState });
+        }
+      });
+    } catch (_) {
+      /* ignore errors */
+    }
+  };
 
   useEffect(() => {
     fetchAndUpdateStatus();
@@ -865,6 +807,7 @@ function App() {
           previewLoadMet={previewLoadMet}
           actualValues={actualValues}
           statusData={statusData}
+          stateData={componentStatus}
         />
       </section>
 
