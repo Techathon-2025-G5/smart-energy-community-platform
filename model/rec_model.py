@@ -207,7 +207,84 @@ class MicrogridModel:
         df = self.microgrid.get_log(
             as_frame=True, drop_singleton_key=drop_singleton_key
         )
+        df = self._process_log(df)
 
+        if as_frame:
+            return df
+
+        return df.to_dict()
+
+    def get_totals(
+        self,
+        *,
+        as_frame: bool = True,
+        drop_singleton_key: bool = False,
+    ):
+        """Return cumulative totals of the microgrid log columns."""
+        df = self.get_log(as_frame=True, drop_singleton_key=drop_singleton_key)
+        if isinstance(df, pd.DataFrame) and not df.empty:
+            totals = df.sum(axis=0)
+            totals_df = totals.to_frame().T
+            totals_df.index = ["total"]
+        else:
+            totals_df = pd.DataFrame()
+        if as_frame:
+            return totals_df
+        return totals_df.to_dict()
+
+    def _to_serializable(self, obj):
+        """Recursively convert numpy types to Python built-ins."""
+        import numpy as np
+
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, np.generic):
+            return obj.item()
+        if isinstance(obj, dict):
+            return {k: self._to_serializable(v) for k, v in obj.items()}
+        if isinstance(obj, (list, tuple)):
+            return [self._to_serializable(v) for v in obj]
+        return obj
+
+    def run(self, actions):
+        """Run one simulation step with provided actions."""
+        if not self.microgrid:
+            raise RuntimeError("Microgrid is not initialized")
+        obs, reward, done, info = self.microgrid.run(actions, normalized=False)
+        result = {
+            "observation": obs,
+            "reward": reward,
+            "done": done,
+            "info": info,
+        }
+        return result
+
+    def preview(self, actions, as_frame: bool = True, drop_singleton_key: bool = False):
+        """Execute *actions* on a copy of the microgrid and return its log."""
+        if not self.microgrid:
+            raise RuntimeError("Microgrid is not initialized")
+        import copy
+
+        # Clone current microgrid so state is not modified
+        mg_copy = copy.deepcopy(self.microgrid)
+        mg_copy.run(actions, normalized=False)
+
+        df = mg_copy.get_log(
+            as_frame=True, drop_singleton_key=drop_singleton_key
+        )
+
+        df = self._process_log(df)
+
+        if as_frame:
+            return df
+
+        return df.to_dict()
+
+    def reset(self):
+        if self.microgrid:
+            self.microgrid.reset()
+
+    def _process_log(self, df):
         if not df.empty and ("balancing", 0, "loss_load") in df.columns:
             loss = df[("balancing", 0, "loss_load")].copy()
 
@@ -296,72 +373,7 @@ class MicrogridModel:
             )
             df = pd.concat([df, totals], axis=1)
 
-        if as_frame:
-            return df
-
-        return df.to_dict()
-
-    def get_totals(
-        self,
-        *,
-        as_frame: bool = True,
-        drop_singleton_key: bool = False,
-    ):
-        """Return cumulative totals of the microgrid log columns."""
-        df = self.get_log(as_frame=True, drop_singleton_key=drop_singleton_key)
-        if isinstance(df, pd.DataFrame) and not df.empty:
-            totals = df.sum(axis=0)
-            totals_df = totals.to_frame().T
-            totals_df.index = ["total"]
-        else:
-            totals_df = pd.DataFrame()
-        if as_frame:
-            return totals_df
-        return totals_df.to_dict()
-
-    def _to_serializable(self, obj):
-        """Recursively convert numpy types to Python built-ins."""
-        import numpy as np
-
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        if isinstance(obj, np.generic):
-            return obj.item()
-        if isinstance(obj, dict):
-            return {k: self._to_serializable(v) for k, v in obj.items()}
-        if isinstance(obj, (list, tuple)):
-            return [self._to_serializable(v) for v in obj]
-        return obj
-
-    def run(self, actions):
-        """Run one simulation step with provided actions."""
-        if not self.microgrid:
-            raise RuntimeError("Microgrid is not initialized")
-        obs, reward, done, info = self.microgrid.run(actions, normalized=False)
-        result = {
-            "observation": obs,
-            "reward": reward,
-            "done": done,
-            "info": info,
-        }
-        return result
-
-    def preview(self, actions):
-        """Execute *actions* on a copy of the microgrid and return its log."""
-        if not self.microgrid:
-            raise RuntimeError("Microgrid is not initialized")
-        import copy
-
-        # Clone current microgrid so state is not modified
-        mg_copy = copy.deepcopy(self.microgrid)
-        mg_copy.run(actions, normalized=False)
-        log = mg_copy.get_log(as_frame=False)
-        return self._to_serializable(log)
-
-    def reset(self):
-        if self.microgrid:
-            self.microgrid.reset()
-
-
+        return df
+    
 # Singleton instance used by API
 microgrid = MicrogridModel()
