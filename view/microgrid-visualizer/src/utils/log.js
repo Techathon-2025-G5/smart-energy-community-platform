@@ -38,3 +38,25 @@ export function getComponentState(status, log, type, idx, manualMode = false) {
   });
   return state;
 }
+
+export function buildCurrentStatus(status = {}, log = {}, manualMode = false) {
+  const parsed = parseLog(log);
+  const result = {};
+  const types = new Set([
+    ...Object.keys(status || {}),
+    ...Object.keys(parsed || {}),
+  ]);
+  types.forEach((type) => {
+    const statusArr = status[type] || [];
+    const logEntries = parsed[type] || {};
+    const idxs = new Set([
+      ...statusArr.map((_, i) => i),
+      ...Object.keys(logEntries).map((i) => parseInt(i, 10)),
+    ]);
+    idxs.forEach((idx) => {
+      if (!result[type]) result[type] = {};
+      result[type][idx] = getComponentState(status, log, type, idx, manualMode);
+    });
+  });
+  return result;
+}

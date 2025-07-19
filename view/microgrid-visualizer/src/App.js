@@ -37,7 +37,7 @@ import controllerImg from './assets/controller.png';
 import { useAppState } from './context/AppState';
 import { DEFAULT_LAT, DEFAULT_LON } from './components/MapSelector';
 import { isAllowed, cellKey } from './utils/placement';
-import { getComponentState } from './utils/log';
+import { getComponentState, buildCurrentStatus } from './utils/log';
 import { getBatteryImage } from './utils/battery';
 
 function App() {
@@ -55,6 +55,7 @@ function App() {
   });
   const [manualActions, setManualActions] = useState({ battery: [], grid: [] });
   const [statusData, setStatusData] = useState(null);
+  const [componentStatus, setComponentStatus] = useState({});
   const [previewValues, setPreviewValues] = useState(null);
   const [previewLoadMet, setPreviewLoadMet] = useState({});
   const [actualValues, setActualValues] = useState(null);
@@ -551,11 +552,13 @@ function App() {
     try {
       const [status, log] = await Promise.all([api.getStatus(), api.getLog()]);
       setStatusData(status);
+      const states = buildCurrentStatus(status, log, manualMode);
+      setComponentStatus(states);
       modules.forEach((m) => {
         if (!m.backendId) return;
         const [type, idxStr] = m.backendId.split('_');
         const idx = parseInt(idxStr, 10);
-        const state = getComponentState(status, log, type, idx, manualMode);
+        const state = states?.[type]?.[idx] || {};
         const curState = m.state || {};
         const newState = { ...curState, ...state };
         const changed = Object.keys(state).some((k) => state[k] !== curState[k]);
@@ -798,6 +801,7 @@ function App() {
           previewLoadMet={previewLoadMet}
           actualValues={actualValues}
           statusData={statusData}
+          stateData={componentStatus}
         />
       </section>
 

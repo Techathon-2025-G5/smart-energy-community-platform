@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import api from '../api/client';
 import ComponentChart from './ComponentChart';
 import BatteryStatus from './BatteryStatus';
-import { parseLog, getComponentState } from '../utils/log';
+import { parseLog } from '../utils/log';
 import './ComponentDetails.css';
 import HouseStatus from "./HouseStatus";
 import BuildingStatus from "./BuildingStatus";
@@ -81,6 +81,7 @@ function ComponentDetails({
   previewLoadMet,
   actualValues,
   statusData,
+  stateData,
 }) {
   const [profiles, setProfiles] = useState({});
   const [controllerOptions, setControllerOptions] = useState([]);
@@ -147,14 +148,14 @@ function ComponentDetails({
 
     const fetchInfo = async () => {
       try {
-        const [status, log] = await Promise.all([api.getStatus(), api.getLog()]);
+        const log = await api.getLog();
         const parsed = parseLog(log);
         const [type, idxStr] = (module.backendId || '').split('_');
         const idx = parseInt(idxStr, 10);
         const hist = parsed[type]?.[idx] || {};
         setHistory(hist);
 
-        const state = getComponentState(status, log, type, idx, manualMode);
+        const state = stateData?.[type]?.[idx] || {};
         setCurrentState(state);
         const fields = Object.keys(hist);
         setField((f) => (fields.includes(f) ? f : fields[0] || ''));
@@ -168,7 +169,7 @@ function ComponentDetails({
     fetchInfo();
     const id = setInterval(fetchInfo, 3000);
     return () => clearInterval(id);
-  }, [module?.id, manualMode]);
+  }, [module?.id, manualMode, stateData]);
 
   useEffect(() => {
     if (!isSetup) {
@@ -589,6 +590,7 @@ ComponentDetails.propTypes = {
     moneyBalance: PropTypes.number,
   }),
   statusData: PropTypes.object,
+  stateData: PropTypes.object,
 };
 
 export default ComponentDetails;
@@ -603,4 +605,5 @@ ComponentDetails.defaultProps = {
   previewLoadMet: {},
   actualValues: null,
   statusData: null,
+  stateData: null,
 };
