@@ -468,70 +468,68 @@ function App() {
       return;
     }
 
-    const renewable = Number(statusData?.total?.[0]?.renewables ?? 0);
-    const loads = Math.abs(Number(statusData?.total?.[0]?.loads ?? 0));
+    const states = buildCurrentStatus(
+      statusData,
+      {},
+      manualMode,
+      modules,
+      manualActions,
+    );
 
-    const gridStates = statusData.grid || [];
     const gridMods = modules
       .filter((m) => m.type === 'grid')
       .sort((a, b) => (a.idx || 0) - (b.idx || 0));
-    let gridImport = 0;
-    let gridExport = 0;
-    let moneyGrid = 0;
-    manualActions.grid.forEach((val, i) => {
-      const impPrice = Number(gridStates[i]?.import_price_current || 0);
-      const expPrice = Number(gridStates[i]?.export_price_current || 0);
-      if (val < 0) {
-        const imp = -val;
-        gridImport += imp;
-        moneyGrid -= imp * impPrice;
-      } else if (val > 0) {
-        const exp = val;
-        gridExport += exp;
-        moneyGrid += exp * expPrice;
-      }
-    });
-
     const batteryMods = modules
       .filter((m) => m.type === 'battery')
       .sort((a, b) => (a.idx || 0) - (b.idx || 0));
-    let batCharge = 0;
-    let batDischarge = 0;
-    let moneyBat = 0;
-    manualActions.battery.forEach((val, i) => {
-      const params = batteryMods[i]?.params || {};
-      const costCycle = Number(params.battery_cost_cycle || 0);
-      const efficiency = Number(params.efficiency || 1);
-      if (val > 0) {
-        // Charging: cost depends on the charged amount
-        moneyBat -= val * costCycle;
-        batCharge += val;
-      } else if (val < 0) {
-        // Discharging: account for round-trip efficiency
-        moneyBat -= -val * efficiency * costCycle;
-        batDischarge += -val * efficiency;
-      }
-    });
+    const loadMods = modules
+      .filter((m) => ['house', 'building'].includes(m.type))
+      .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+
+    const gridImport = gridMods.reduce(
+      (acc, _, i) => acc + Number(states.grid?.[i]?.grid_import ?? 0),
+      0,
+    );
+    const gridExport = gridMods.reduce(
+      (acc, _, i) => acc + Number(states.grid?.[i]?.grid_export ?? 0),
+      0,
+    );
+    const moneyGrid = gridMods.reduce(
+      (acc, _, i) => acc + Number(states.grid?.[i]?.grid_balance ?? 0),
+      0,
+    );
+
+    const batCharge = batteryMods.reduce(
+      (acc, _, i) => acc + Number(states.battery?.[i]?.charge_amount ?? 0),
+      0,
+    );
+    const batDischarge = batteryMods.reduce(
+      (acc, _, i) => acc + Number(states.battery?.[i]?.discharge_amount ?? 0),
+      0,
+    );
+    const moneyBat = batteryMods.reduce((acc, m, i) => {
+      const cost = Number(m.params?.battery_cost_cycle || 0);
+      const charge = Number(states.battery?.[i]?.charge_amount ?? 0);
+      const discharge = Number(states.battery?.[i]?.discharge_amount ?? 0);
+      return acc - cost * (charge + discharge);
+    }, 0);
+
+    const renewable = Object.values(states.renewable || {}).reduce(
+      (acc, s) => acc + Number(s.renewable_current ?? 0),
+      0,
+    );
+    const loads = loadMods.reduce(
+      (acc, _, i) => acc + Math.abs(Number(states.load?.[i]?.load_current ?? 0)),
+      0,
+    );
 
     const energyBalance =
       renewable + gridImport + batDischarge - (loads + gridExport + batCharge);
     const moneyBalance = moneyGrid + moneyBat;
 
-    const loadMods = modules
-      .filter((m) => ['house', 'building'].includes(m.type))
-      .sort((a, b) => (a.idx || 0) - (b.idx || 0));
-    const loadStates = statusData.load || [];
-    const requests = loadMods.map((m, i) => {
-      const latest = loadStates[i]?.load_current;
-      const fallback = m.state?.load_current;
-      return Math.abs(Number(latest ?? fallback ?? 0));
-    });
-    let remaining = requests.reduce((a, b) => a + b, 0) + energyBalance;
     const preview = {};
     loadMods.forEach((m, i) => {
-      const met = Math.max(0, Math.min(requests[i], remaining));
-      preview[m.id] = met;
-      remaining -= met;
+      preview[m.id] = Number(states.load?.[i]?.load_met ?? 0);
     });
     setPreviewLoadMet(preview);
 
