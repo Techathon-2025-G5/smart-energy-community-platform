@@ -57,6 +57,10 @@ Al seleccionarlo se deben indicar en los parámetros `lat`, `lon`, `peakpower`,
 `loss`, `angle` y `aspect` (opcionalmente `mountingplace` y `pvtechchoice`).
 La serie horaria se descarga automáticamente desde la API PVGIS.
 
+Para obtener una vista previa de un paso de simulación sin modificar el estado
+actual, la API dispone del endpoint `POST /preview` que acepta el mismo payload
+que `/run` y devuelve el log resultante.
+
 ---
 
 #### 3. Flujo de juego / simulación

@@ -33,6 +33,7 @@ export const getTotals = (asFrame = true, dropSingletonKey = false) =>
     `/totals?as_frame=${asFrame}&drop_singleton_key=${dropSingletonKey}`
   );
 export const runStep = (actions) => request('POST', '/run', actions);
+export const previewStep = (actions) => request('POST', '/preview', actions);
 export const resetModel = () => request('POST', '/reset');
 export const getProfiles = (component) =>
   request('GET', `/profiles${component ? `?component=${component}` : ''}`);
@@ -48,6 +49,7 @@ const apiClient = {
   getLog,
   getTotals,
   runStep,
+  previewStep,
   resetModel,
   getProfiles,
   ping,
