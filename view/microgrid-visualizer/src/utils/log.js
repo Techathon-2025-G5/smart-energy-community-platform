@@ -20,3 +20,43 @@ export function parseLog(log) {
   });
   return result;
 }
+
+export function getComponentState(status, log, type, idx, manualMode = false) {
+  const parsed = parseLog(log);
+  const hist = parsed?.[type]?.[idx] || {};
+  const fromStatus = status?.[type]?.[idx] || {};
+  if (manualMode) {
+    return { ...fromStatus };
+  }
+  const state = { ...fromStatus };
+  Object.entries(hist).forEach(([metric, values]) => {
+    const steps = Object.keys(values || {}).map(Number);
+    if (steps.length > 0) {
+      const last = Math.max(...steps);
+      state[metric] = Number(values[last]);
+    }
+  });
+  return state;
+}
+
+export function buildCurrentStatus(status = {}, log = {}, manualMode = false) {
+  const parsed = parseLog(log);
+  const result = {};
+  const types = new Set([
+    ...Object.keys(status || {}),
+    ...Object.keys(parsed || {}),
+  ]);
+  types.forEach((type) => {
+    const statusArr = status[type] || [];
+    const logEntries = parsed[type] || {};
+    const idxs = new Set([
+      ...statusArr.map((_, i) => i),
+      ...Object.keys(logEntries).map((i) => parseInt(i, 10)),
+    ]);
+    idxs.forEach((idx) => {
+      if (!result[type]) result[type] = {};
+      result[type][idx] = getComponentState(status, log, type, idx, manualMode);
+    });
+  });
+  return result;
+}
