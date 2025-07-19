@@ -81,6 +81,7 @@ function ComponentDetails({
   previewLoadMet,
   actualValues,
   statusData,
+  totals,
   stateData,
 }) {
   const [profiles, setProfiles] = useState({});
@@ -492,6 +493,7 @@ function ComponentDetails({
           previewValues={previewValues}
           actualValues={actualValues}
           statusData={statusData}
+          totals={totals}
         />
       );
       break;
@@ -583,6 +585,12 @@ ComponentDetails.propTypes = {
     moneyBalance: PropTypes.number,
   }),
   statusData: PropTypes.object,
+  totals: PropTypes.shape({
+    renewable: PropTypes.number,
+    loads: PropTypes.number,
+    batteryCharge: PropTypes.number,
+    batteryDischarge: PropTypes.number,
+  }),
   stateData: PropTypes.object,
 };
 
@@ -598,5 +606,6 @@ ComponentDetails.defaultProps = {
   previewLoadMet: {},
   actualValues: null,
   statusData: null,
+  totals: null,
   stateData: null,
 };

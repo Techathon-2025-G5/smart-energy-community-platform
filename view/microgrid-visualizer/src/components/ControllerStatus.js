@@ -18,6 +18,7 @@ export default function ControllerStatus({
   previewValues,
   actualValues,
   statusData,
+  totals,
 }) {
   const fields = Object.keys(history);
   const [field, setField] = useState(fields[0] || '');
@@ -138,7 +139,7 @@ export default function ControllerStatus({
           values={manualValues}
           onChange={onManualChange}
           onGridAdjust={onGridAdjust}
-          statusData={statusData}
+          totals={totals}
         />
       )}
       {fields.length > 0 && (
@@ -189,6 +190,12 @@ ControllerStatus.propTypes = {
     moneyBalance: PropTypes.number,
   }),
   statusData: PropTypes.object,
+  totals: PropTypes.shape({
+    renewable: PropTypes.number,
+    loads: PropTypes.number,
+    batteryCharge: PropTypes.number,
+    batteryDischarge: PropTypes.number,
+  }),
 };
 
 ControllerStatus.defaultProps = {
@@ -200,4 +207,5 @@ ControllerStatus.defaultProps = {
   previewValues: null,
   actualValues: null,
   statusData: null,
+  totals: null,
 };

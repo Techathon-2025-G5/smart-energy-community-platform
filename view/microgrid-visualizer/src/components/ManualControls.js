@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useAppState } from '../context/AppState';
 import './ManualControls.css';
 
-export default function ManualControls({ values, onChange, onGridAdjust, statusData }) {
+export default function ManualControls({ values, onChange, onGridAdjust, totals }) {
   const {
     state: { modules },
   } = useAppState();
@@ -15,17 +15,10 @@ export default function ManualControls({ values, onChange, onGridAdjust, statusD
     .filter((m) => m.type === 'grid')
     .sort((a, b) => (a.idx || 0) - (b.idx || 0));
 
-  const renewable = Number(statusData?.total?.[0]?.renewables ?? 0);
-  const loadDemand = Math.abs(Number(statusData?.total?.[0]?.loads ?? 0));
-
-  const batteryMods = batteries;
-  let batCharge = 0;
-  let batDischarge = 0;
-  values.battery.forEach((val, i) => {
-    const eff = Number(batteryMods[i]?.params?.efficiency || 1);
-    if (val > 0) batCharge += val;
-    else if (val < 0) batDischarge += -val * eff;
-  });
+  const renewable = Number(totals?.renewable ?? 0);
+  const loadDemand = Math.abs(Number(totals?.loads ?? 0));
+  const batCharge = Number(totals?.batteryCharge ?? 0);
+  const batDischarge = Number(totals?.batteryDischarge ?? 0);
 
   const baseExport = renewable + batDischarge - loadDemand - batCharge;
 
@@ -126,10 +119,15 @@ ManualControls.propTypes = {
   }).isRequired,
   onChange: PropTypes.func.isRequired,
   onGridAdjust: PropTypes.func,
-  statusData: PropTypes.object,
+  totals: PropTypes.shape({
+    renewable: PropTypes.number,
+    loads: PropTypes.number,
+    batteryCharge: PropTypes.number,
+    batteryDischarge: PropTypes.number,
+  }),
 };
 
 ManualControls.defaultProps = {
   onGridAdjust: () => {},
-  statusData: null,
+  totals: null,
 };
