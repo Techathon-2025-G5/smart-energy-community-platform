@@ -29,6 +29,7 @@ import schoolUnmetImg from './assets/school_unmet.png';
 import restaurantOnImg from './assets/restaurant_on.png';
 import restaurantUnmetImg from './assets/restaurant_unmet.png';
 import solarImg from './assets/solar_panel.png';
+import batteryImg from './assets/battery.png';
 
 import gridImg from './assets/grid.png';
 import gridOnImg from './assets/grid_on.png';
@@ -391,6 +392,9 @@ function App() {
         return <img src={solarImg} alt="solar" />;
       case 'battery': {
         const soc = module.state?.soc;
+        if (!isSetup) {
+          return <img src={batteryImg} alt="battery" />;
+        }
         return <img src={getBatteryImage(soc)} alt="battery" />;
       }
       case 'grid': {
