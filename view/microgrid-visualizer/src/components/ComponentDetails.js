@@ -92,7 +92,7 @@ function ComponentDetails({
   const [field, setField] = useState('');
   const [activeTab, setActiveTab] = useState('Configuration');
   const {
-    state: { modules },
+    state: { modules, log: logData },
   } = useAppState();
 
   const getDefaultPriorityList = () => {
@@ -150,8 +150,7 @@ function ComponentDetails({
 
     const fetchInfo = async () => {
       try {
-        const log = await api.getLog();
-        const parsed = parseLog(log);
+        const parsed = parseLog(logData || {});
         const [type, idxStr] = (module.backendId || '').split('_');
         const idx = parseInt(idxStr, 10);
         const hist = parsed[type]?.[idx] || {};
@@ -169,7 +168,7 @@ function ComponentDetails({
     };
 
     fetchInfo();
-  }, [module?.id, manualMode, stateData, step]);
+  }, [module?.id, manualMode, stateData, step, logData]);
 
   useEffect(() => {
     if (!isSetup) {

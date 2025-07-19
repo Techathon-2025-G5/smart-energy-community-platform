@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import ComponentChart from './ComponentChart';
 import ManualControls from './ManualControls';
-import api from '../api/client';
+import { useAppState } from '../context/AppState';
 import { parseTotalsLog } from '../utils/totals';
 import './StatusCommon.css';
 import './ControllerStatus.css';
@@ -32,24 +32,24 @@ export default function ControllerStatus({
     moneyBalance: 0,
   });
 
+  const {
+    state: { log: logData },
+  } = useAppState();
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = () => {
       try {
-        const [status, log] = await Promise.all([
-          api.getStatus(),
-          api.getLog(),
-        ]);
-        const parsed = parseTotalsLog(log);
+        const parsed = parseTotalsLog(logData || {});
         const stepList = Object.keys(parsed.renewable?.renewable_used || {})
           .map(Number)
           .sort((a, b) => a - b);
         const last = stepList[stepList.length - 1];
-        const generated = Number(status?.total?.[0]?.renewables || 0);
+        const generated = Number(statusData?.total?.[0]?.renewables || 0);
         const batDis = Number(parsed.battery?.discharge_amount?.[last] || 0);
         const batChg = Number(parsed.battery?.charge_amount?.[last] || 0);
         const gridImp = Number(parsed.grid?.grid_import?.[last] || 0);
         const gridExp = Number(parsed.grid?.grid_export?.[last] || 0);
-        const loadCur = Number(status?.total?.[0]?.loads || 0);
+        const loadCur = Number(statusData?.total?.[0]?.loads || 0);
 
         setActual((prev) => ({
           ...prev,
@@ -63,7 +63,7 @@ export default function ControllerStatus({
       }
     };
     fetchData();
-  }, [step]);
+  }, [step, logData, statusData]);
 
   useEffect(() => {
     if (actualValues) {

@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useReducer } from 'react';
+import api from '../api/client';
+import { buildCurrentStatus } from '../utils/log';
 
 const AppStateContext = createContext();
 
@@ -7,6 +9,8 @@ const initialState = {
   selected: null,
   energyPoints: [],
   logs: [],
+  status: null,
+  log: null,
 };
 
 function reducer(state, action) {
@@ -46,6 +50,10 @@ function reducer(state, action) {
     case 'ADD_LOG':
       const logs = [...state.logs, action.log];
       return { ...state, logs: logs.slice(-50) };
+    case 'SET_STATUS':
+      return { ...state, status: action.status };
+    case 'SET_LOG_DATA':
+      return { ...state, log: action.log };
     default:
       return state;
   }
@@ -63,10 +71,54 @@ export function AppStateProvider({ children }) {
   const selectModule = (id) => dispatch({ type: 'SELECT_MODULE', id });
   const addEnergyPoint = (point) => dispatch({ type: 'ADD_ENERGY_POINT', point });
   const addLog = (log) => dispatch({ type: 'ADD_LOG', log });
+  const setStatus = (status) => dispatch({ type: 'SET_STATUS', status });
+  const setLogData = (log) => dispatch({ type: 'SET_LOG_DATA', log });
+
+  const updateStatusLog = async (manualMode = false, manualActions = { battery: [], grid: [] }) => {
+    try {
+      const [status, log] = await Promise.all([api.getStatus(), api.getLog()]);
+      setStatus(status);
+      setLogData(log);
+      const states = buildCurrentStatus(
+        status,
+        log,
+        manualMode,
+        state.modules,
+        manualActions
+      );
+      state.modules.forEach((m) => {
+        if (!m.backendId) return;
+        const [type, idxStr] = m.backendId.split('_');
+        const idx = parseInt(idxStr, 10);
+        const stateData = states?.[type]?.[idx] || {};
+        const curState = m.state || {};
+        const newState = { ...curState, ...stateData };
+        const changed = Object.keys(stateData).some((k) => stateData[k] !== curState[k]);
+        const hasSoc = Object.prototype.hasOwnProperty.call(stateData, 'soc');
+        if (changed || hasSoc) {
+          updateModule({ ...m, state: newState });
+        }
+      });
+      return states;
+    } catch (_) {
+      // ignore errors
+    }
+  };
 
   return (
     <AppStateContext.Provider
-      value={{ state, addModule, moveModule, updateModule, setBackendId, deleteModule, selectModule, addEnergyPoint, addLog }}
+      value={{
+        state,
+        addModule,
+        moveModule,
+        updateModule,
+        setBackendId,
+        deleteModule,
+        selectModule,
+        addEnergyPoint,
+        addLog,
+        updateStatusLog,
+      }}
     >
       {children}
     </AppStateContext.Provider>

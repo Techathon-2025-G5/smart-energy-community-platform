@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import api from '../api/client';
+import { useAppState } from '../context/AppState';
 import { parseTotalsLog, parseTotalsTotals } from '../utils/totals';
 import './MicrogridStatus.css';
 import './StatusCommon.css';
@@ -147,13 +148,15 @@ export default function MicrogridStatus({ step }) {
   const [coverData, setCoverData] = useState([]);
   const [rewardHist, setRewardHist] = useState([]);
   const [steps, setSteps] = useState([]);
+  const {
+    state: { log: logData },
+  } = useAppState();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const log = await api.getLog();
         const totalsResp = await api.getTotals();
-        const parsedSteps = parseTotalsLog(log);
+        const parsedSteps = parseTotalsLog(logData || {});
         const parsedTotals = parseTotalsTotals(totalsResp);
         const stepList = Object.keys(parsedSteps.renewable?.renewable_used || {})
           .map(Number)
@@ -189,7 +192,7 @@ export default function MicrogridStatus({ step }) {
       }
     };
     fetchData();
-  }, [step]);
+  }, [step, logData]);
 
   const balanceColor = totals.balance >= 0 ? 'var(--green)' : 'var(--red)';
 
