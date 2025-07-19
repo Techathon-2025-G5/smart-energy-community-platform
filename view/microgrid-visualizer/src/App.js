@@ -592,12 +592,11 @@ function App() {
       batteryCharge: batCharge,
       batteryDischarge: batDischarge,
     });
-    // Preview results should not overwrite the actual component status
-    // fetched from the backend. This avoids showing "future" values in the
-    // status panel when manual controls are used.
-    if (!manualMode) {
-      setComponentStatus(states);
-    }
+    // Always reflect the latest log entry in the status panels.
+    // In manual mode the preview log already represents the simulated
+    // state for the current slider settings, so we update the component
+    // status with those values as well.
+    setComponentStatus(states);
   }, 300);
 
     return () => {
