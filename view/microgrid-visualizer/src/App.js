@@ -514,9 +514,12 @@ function App() {
     const loadMods = modules
       .filter((m) => ['house', 'building'].includes(m.type))
       .sort((a, b) => (a.idx || 0) - (b.idx || 0));
-    const requests = loadMods.map((m) =>
-      Math.abs(Number(m.state?.load_current || 0))
-    );
+    const loadStates = statusData.load || [];
+    const requests = loadMods.map((m, i) => {
+      const latest = loadStates[i]?.load_current;
+      const fallback = m.state?.load_current;
+      return Math.abs(Number(latest ?? fallback ?? 0));
+    });
     let remaining = requests.reduce((a, b) => a + b, 0) + energyBalance;
     const preview = {};
     loadMods.forEach((m, i) => {
