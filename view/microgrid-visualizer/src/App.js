@@ -149,11 +149,20 @@ function App() {
         if (manual < 0) batDischarge += -manual * efficiency;
       });
 
-      const baseBalance = renewable + batDischarge - loads - batCharge;
-
       const gridMods = modules
         .filter((m) => m.type === 'grid')
         .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+
+      const otherGrids = gridMods.reduce((acc, g, i) => {
+        if (i === index) return acc;
+        const imp = Number(states.grid?.[i]?.grid_import ?? 0);
+        const exp = Number(states.grid?.[i]?.grid_export ?? 0);
+        return acc + (exp - imp);
+      }, 0);
+
+      const baseBalance =
+        renewable + batDischarge - loads - batCharge - otherGrids;
+
       const grid = gridMods[index];
       if (!grid) return;
       const maxImport = Number(grid.params?.max_import || 0);
