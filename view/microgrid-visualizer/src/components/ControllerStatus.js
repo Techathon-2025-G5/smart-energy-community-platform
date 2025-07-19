@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import ComponentChart from './ComponentChart';
 import ManualControls from './ManualControls';
-import { useAppState } from '../context/AppState';
-import { parseTotalsLog } from '../utils/totals';
 import './StatusCommon.css';
 import './ControllerStatus.css';
 
@@ -16,66 +14,12 @@ export default function ControllerStatus({
   onManualChange,
   onGridAdjust,
   previewValues,
-  actualValues,
   statusData,
   totals,
   step,
 }) {
   const fields = Object.keys(history);
   const [field, setField] = useState(fields[0] || '');
-  const [actual, setActual] = useState({
-    generated: 0,
-    grid: 0,
-    batteries: 0,
-    loads: 0,
-    energyBalance: 0,
-    moneyBalance: 0,
-  });
-
-  const {
-    state: { log: logData },
-  } = useAppState();
-
-  useEffect(() => {
-    const fetchData = () => {
-      try {
-        const parsed = parseTotalsLog(logData || {});
-        const stepList = Object.keys(parsed.renewable?.renewable_used || {})
-          .map(Number)
-          .sort((a, b) => a - b);
-        const last = stepList[stepList.length - 1];
-        const generated = Number(statusData?.total?.[0]?.renewables || 0);
-        const batDis = Number(parsed.battery?.discharge_amount?.[last] || 0);
-        const batChg = Number(parsed.battery?.charge_amount?.[last] || 0);
-        const gridImp = Number(parsed.grid?.grid_import?.[last] || 0);
-        const gridExp = Number(parsed.grid?.grid_export?.[last] || 0);
-        const loadCur = Number(statusData?.total?.[0]?.loads || 0);
-
-        setActual((prev) => ({
-          ...prev,
-          generated,
-          grid: gridImp - gridExp,
-          batteries: batDis - batChg,
-          loads: loadCur,
-        }));
-      } catch (_) {
-        // ignore
-      }
-    };
-    fetchData();
-  }, [step, logData, statusData]);
-
-  useEffect(() => {
-    if (actualValues) {
-      setActual((prev) => ({
-        ...prev,
-        grid: actualValues.grid,
-        batteries: actualValues.batteries,
-        energyBalance: actualValues.energyBalance,
-        moneyBalance: actualValues.moneyBalance,
-      }));
-    }
-  }, [actualValues]);
 
   return (
     <div className="component-status">
@@ -84,14 +28,16 @@ export default function ControllerStatus({
         <div className="balance-grid">
           <div className="load-value">
             <div className="value" style={{ color: 'var(--red)' }}>
-              {(-actual.loads >= 1000 ? (actual.loads / 1000).toFixed(2) : actual.loads.toFixed(2))}{' '}
-              {-actual.loads >= 1000 ? 'MWh' : 'kWh'}
+              {(-(previewValues?.loads ?? 0) >= 1000
+                ? ((previewValues?.loads ?? 0) / 1000).toFixed(2)
+                : (previewValues?.loads ?? 0).toFixed(2))}{' '}
+              {-(previewValues?.loads ?? 0) >= 1000 ? 'MWh' : 'kWh'}
             </div>
             <div className="label">Load demand</div>
           </div>
           <div className="generated-value">
             <div className="value" style={{ color: 'var(--green)' }}>
-              {actual.generated.toFixed(2)} kWh
+              {(previewValues?.generated ?? 0).toFixed(2)} kWh
             </div>
             <div className="label">Generated</div>
           </div>
@@ -179,14 +125,8 @@ ControllerStatus.propTypes = {
     costBatteries: PropTypes.number,
     energyBalance: PropTypes.number,
     moneyBalance: PropTypes.number,
-  }),
-  actualValues: PropTypes.shape({
-    grid: PropTypes.number,
-    costGrid: PropTypes.number,
-    batteries: PropTypes.number,
-    costBatteries: PropTypes.number,
-    energyBalance: PropTypes.number,
-    moneyBalance: PropTypes.number,
+    generated: PropTypes.number,
+    loads: PropTypes.number,
   }),
   statusData: PropTypes.object,
   totals: PropTypes.shape({
@@ -205,7 +145,6 @@ ControllerStatus.defaultProps = {
   onManualChange: () => {},
   onGridAdjust: () => {},
   previewValues: null,
-  actualValues: null,
   statusData: null,
   totals: null,
   step: 0,
