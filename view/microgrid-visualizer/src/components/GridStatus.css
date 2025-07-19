@@ -10,12 +10,12 @@
   gap: 0.5rem;
 }
 
-.energy-value {
+.grid-energy-value {
   grid-area: energy;
   text-align: center;
 }
 
-.money-value {
+.grid-money-value {
   grid-area: money;
   text-align: center;
 }

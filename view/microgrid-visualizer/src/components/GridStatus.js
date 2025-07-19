@@ -266,11 +266,11 @@ export default function GridStatus({ history, currentState }) {
     <div className="grid-status">
       <h3>Grid</h3>
       <div className="grid-grid">
-        <div className="energy-value">
+        <div className="grid-energy-value">
           <div className="value" style={{ color: energyColor }}>{energy.toFixed(2)} kWh</div>
           <div className="label">{energyLabel}</div>
         </div>
-        <div className="money-value">
+        <div className="grid-money-value">
           <div className="value" style={{ color: moneyColor }}>{money.toFixed(2)}&euro;</div>
           <div className="label">{moneyLabel}</div>
         </div>
