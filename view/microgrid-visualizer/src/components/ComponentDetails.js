@@ -78,7 +78,6 @@ function ComponentDetails({
   onManualChange,
   onGridAdjust,
   previewValues,
-  actualValues,
   statusData,
   totals,
   stateData,
@@ -486,7 +485,6 @@ function ComponentDetails({
           onManualChange={onManualChange}
           onGridAdjust={onGridAdjust}
           previewValues={previewValues}
-          actualValues={actualValues}
           statusData={statusData}
           totals={totals}
           step={step}
@@ -570,14 +568,8 @@ ComponentDetails.propTypes = {
     costBatteries: PropTypes.number,
     energyBalance: PropTypes.number,
     moneyBalance: PropTypes.number,
-  }),
-  actualValues: PropTypes.shape({
-    grid: PropTypes.number,
-    costGrid: PropTypes.number,
-    batteries: PropTypes.number,
-    costBatteries: PropTypes.number,
-    energyBalance: PropTypes.number,
-    moneyBalance: PropTypes.number,
+    generated: PropTypes.number,
+    loads: PropTypes.number,
   }),
   statusData: PropTypes.object,
   totals: PropTypes.shape({
@@ -599,7 +591,6 @@ ComponentDetails.defaultProps = {
   onManualChange: () => {},
   onGridAdjust: () => {},
   previewValues: null,
-  actualValues: null,
   statusData: null,
   totals: null,
   stateData: null,

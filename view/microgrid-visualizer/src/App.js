@@ -57,7 +57,6 @@ function App() {
   const [manualActions, setManualActions] = useState({ battery: [], grid: [] });
   const [componentStatus, setComponentStatus] = useState({});
   const [previewValues, setPreviewValues] = useState(null);
-  const [actualValues, setActualValues] = useState(null);
   const [currentTotals, setCurrentTotals] = useState(null);
   const [showHelp, setShowHelp] = useState(false);
   const intervalRef = useRef(null);
@@ -567,14 +566,8 @@ function App() {
       costBatteries: moneyBat,
       energyBalance,
       moneyBalance,
-    });
-    setActualValues({
-      grid: gridImport - gridExport,
-      costGrid: moneyGrid,
-      batteries: batDischarge - batCharge,
-      costBatteries: moneyBat,
-      energyBalance,
-      moneyBalance,
+      generated: renewable,
+      loads,
     });
     setCurrentTotals({
       renewable,
@@ -820,7 +813,6 @@ function App() {
           onManualChange={handleManualChange}
           onGridAdjust={handleGridAdjust}
           previewValues={previewValues}
-          actualValues={actualValues}
           statusData={statusData}
           totals={currentTotals}
           stateData={componentStatus}
