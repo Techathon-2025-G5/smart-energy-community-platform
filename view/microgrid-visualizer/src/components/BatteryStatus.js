@@ -127,13 +127,7 @@ function RewardChart({ data, steps }) {
   return <svg ref={ref}></svg>;
 }
 
-export default function BatteryStatus({
-  module,
-  history,
-  currentState,
-  manualMode,
-  sliderValue,
-}) {
+export default function BatteryStatus({ module, history, currentState }) {
   const idx = module.backendId
     ? parseInt(module.backendId.split('_')[1], 10) + 1
     : module.idx || 1;
@@ -161,13 +155,12 @@ export default function BatteryStatus({
 
 
   let variation = 0;
-
-  if (manualMode && sliderValue !== undefined) {
-    if (sliderValue > 0) {
-      variation = sliderValue * efficiency;
-    } else {
-      variation = sliderValue;
-    }
+  const chargeNow = Number(currentState.charge_amount ?? 0);
+  const dischargeNow = Number(currentState.discharge_amount ?? 0);
+  if (chargeNow > 0) {
+    variation = chargeNow;
+  } else if (dischargeNow > 0) {
+    variation = -dischargeNow;
   } else if (chargeAmt > 0) {
     variation = chargeAmt;
   } else if (dischargeAmt > 0) {
@@ -181,13 +174,7 @@ export default function BatteryStatus({
     variationColor = 'var(--red)';
   }
 
-  let socValue = Number(currentState.soc || 0);
-  if (manualMode && sliderValue !== undefined) {
-    const current = Number(currentState.current_charge || 0);
-    if (maxCap) {
-      socValue = Math.max(0, Math.min(1, (current + sliderValue) / maxCap));
-    }
-  }
+  const socValue = Number(currentState.soc || 0);
 
   return (
     <div className="battery-status">
@@ -226,6 +213,4 @@ BatteryStatus.propTypes = {
   module: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   currentState: PropTypes.object.isRequired,
-  manualMode: PropTypes.bool,
-  sliderValue: PropTypes.number,
 };
