@@ -79,7 +79,7 @@ export default function ManualControls({ values, onChange, onGridAdjust, statusD
                 type="range"
                 min={-maxDischarge}
                 max={maxCharge}
-                step="0.1"
+                step="0.01"
                 value={values.battery[i] ?? 0}
                 onChange={handleChange('battery', i)}
               />
@@ -107,7 +107,7 @@ export default function ManualControls({ values, onChange, onGridAdjust, statusD
                 0,
                 Math.min(Number(g.params?.max_export || 0), baseExport)
               )}
-              step="0.1"
+              step="0.01"
               value={values.grid[i] ?? 0}
               onChange={handleChange('grid', i)}
             />
