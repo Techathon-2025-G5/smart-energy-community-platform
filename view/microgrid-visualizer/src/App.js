@@ -99,10 +99,7 @@ function App() {
     try {
       const states = buildCurrentStatus(
         statusData,
-        logData || {},
-        manualMode,
-        modules,
-        manualActions
+        logData || {}
       );
 
       const renewable = Object.values(states.renewable || {}).reduce(
@@ -466,6 +463,8 @@ function App() {
     }));
   }, [modules]);
 
+  const previewTimer = useRef(null);
+
   useEffect(() => {
     if (!statusData || !isSetup) {
       setPreviewValues(null);
@@ -474,13 +473,29 @@ function App() {
       return;
     }
 
-    const states = buildCurrentStatus(
-      statusData,
-      logData || {},
-      manualMode,
-      modules,
-      manualActions,
-    );
+    if (previewTimer.current) clearTimeout(previewTimer.current);
+    previewTimer.current = setTimeout(async () => {
+      let states;
+      try {
+        if (manualMode) {
+          const payload = buildManualPayload();
+          const log = await api.previewStep(payload);
+          states = buildCurrentStatus(
+            statusData,
+            log || {}
+          );
+        } else {
+          states = buildCurrentStatus(
+            statusData,
+            logData || {}
+          );
+        }
+      } catch (_) {
+        states = buildCurrentStatus(
+          statusData,
+          logData || {}
+        );
+      }
 
     const gridMods = modules
       .filter((m) => m.type === 'grid')
@@ -562,6 +577,11 @@ function App() {
       batteryDischarge: batDischarge,
     });
     setComponentStatus(states);
+  }, 300);
+
+    return () => {
+      if (previewTimer.current) clearTimeout(previewTimer.current);
+    };
   }, [manualActions, statusData, modules, isSetup, logData]);
 
 
@@ -610,7 +630,7 @@ function App() {
       setIsSetup(true);
       addLog({ method: 'POST', endpoint: '/setup', payload, response });
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response: resetResponse });
-      const states = await updateStatusLog(manualMode, manualActions);
+      const states = await updateStatusLog();
       setComponentStatus(states || {});
     } catch (err) {
       
@@ -628,7 +648,7 @@ function App() {
         const response = await api.runStep(payload);
         addLog({ method: 'POST', endpoint: '/run', payload, response });
         setStepCount((s) => s + 1);
-        const states = await updateStatusLog(manualMode, manualActions);
+        const states = await updateStatusLog();
         setComponentStatus(states || {});
         resetManualActions();
       } catch (err) {
@@ -675,7 +695,7 @@ function App() {
       const response = await api.runStep(payload);
       addLog({ method: 'POST', endpoint: '/run', payload, response });
       setStepCount((s) => s + 1);
-      const states = await updateStatusLog(manualMode, manualActions);
+      const states = await updateStatusLog();
       setComponentStatus(states || {});
       resetManualActions();
     } catch (err) {
@@ -725,7 +745,7 @@ function App() {
       setPlayEnabled(hasController && !isManual);
       setPauseEnabled(false);
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response });
-      const states = await updateStatusLog(manualMode, manualActions);
+      const states = await updateStatusLog();
       setComponentStatus(states || {});
     } catch (err) {
       

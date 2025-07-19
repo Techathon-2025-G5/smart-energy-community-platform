@@ -74,17 +74,14 @@ export function AppStateProvider({ children }) {
   const setStatus = (status) => dispatch({ type: 'SET_STATUS', status });
   const setLogData = (log) => dispatch({ type: 'SET_LOG_DATA', log });
 
-  const updateStatusLog = async (manualMode = false, manualActions = { battery: [], grid: [] }) => {
+  const updateStatusLog = async () => {
     try {
       const [status, log] = await Promise.all([api.getStatus(), api.getLog()]);
       setStatus(status);
       setLogData(log);
       const states = buildCurrentStatus(
         status,
-        log,
-        manualMode,
-        state.modules,
-        manualActions
+        log
       );
       state.modules.forEach((m) => {
         if (!m.backendId) return;

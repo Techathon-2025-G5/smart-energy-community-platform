@@ -346,6 +346,18 @@ class MicrogridModel:
         }
         return result
 
+    def preview(self, actions):
+        """Execute *actions* on a copy of the microgrid and return its log."""
+        if not self.microgrid:
+            raise RuntimeError("Microgrid is not initialized")
+        import copy
+
+        # Clone current microgrid so state is not modified
+        mg_copy = copy.deepcopy(self.microgrid)
+        mg_copy.run(actions, normalized=False)
+        log = mg_copy.get_log(as_frame=False)
+        return self._to_serializable(log)
+
     def reset(self):
         if self.microgrid:
             self.microgrid.reset()

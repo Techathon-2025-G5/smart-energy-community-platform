@@ -148,6 +148,17 @@ async def get_totals(
     return totals
 
 
+@router.post("/preview")
+async def preview_model(payload: ActionRequest):
+    """Run actions on a copy of the microgrid and return the resulting log."""
+    if payload is None:
+        raise HTTPException(status_code=400, detail="Missing actions for preview")
+    log = await run_in_threadpool(microgrid.preview, payload.actions)
+    if isinstance(log, dict):
+        log = {json.dumps(k): v for k, v in log.items()}
+    return log
+
+
 @router.post("/run")
 async def run_model(payload: ActionRequest | None = None):
     """Execute one simulation step using the controller if present."""
