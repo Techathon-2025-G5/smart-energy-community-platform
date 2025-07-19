@@ -26,9 +26,15 @@ El objetivo del usuario (o del agente de IA) será **satisfacer toda la demanda 
    Por defecto el frontend consulta la API local. Para usar un servidor remoto
    define la variable `REACT_APP_API_URL`, por ejemplo:
    ```bash
-   REACT_APP_API_URL=https://smart-energy-api-production.up.railway.app npm start
-   ```
+  REACT_APP_API_URL=https://smart-energy-api-production.up.railway.app npm start
+  ```
 3. Puedes abrir el manual de usuario directamente desde el visualizador haciendo clic en el icono "?" de la barra superior.
+
+4. Para ejecutar las pruebas unitarias instala también las dependencias de test y luego ejecuta `pytest`:
+   ```bash
+   pip install -r requirements-test.txt
+   pytest
+   ```
 
 ---
 

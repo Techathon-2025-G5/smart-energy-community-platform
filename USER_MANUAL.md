@@ -8,6 +8,11 @@ This document explains how to start the backend and frontend applications and pr
    ```bash
    pip install -r requirements.txt
    ```
+   To run the unit tests install the test dependencies and execute `pytest`:
+   ```bash
+   pip install -r requirements-test.txt
+   pytest
+   ```
 2. Launch the FastAPI server with `uvicorn` from the repository root:
    ```bash
    uvicorn api.main:app --reload
