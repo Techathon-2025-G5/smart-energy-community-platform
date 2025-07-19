@@ -263,15 +263,36 @@ class MicrogridModel:
         """Execute *actions* on a copy of the microgrid and return its log."""
         if not self.microgrid:
             raise RuntimeError("Microgrid is not initialized")
+
         import copy
+        import pandas as pd
 
         # Clone current microgrid so state is not modified
         mg_copy = copy.deepcopy(self.microgrid)
         mg_copy.run(actions, normalized=False)
 
-        df = mg_copy.get_log(
-            as_frame=True, drop_singleton_key=drop_singleton_key
-        )
+        df = mg_copy.get_log(as_frame=True, drop_singleton_key=drop_singleton_key)
+
+        # Build a DataFrame row from the post-action state
+        state_dict = mg_copy.state_dict
+        row = {}
+        for name, modules in state_dict.items():
+            for idx, state in enumerate(modules):
+                if state is None:
+                    continue
+                for key, val in state.items():
+                    row[(name, idx, key)] = val
+
+        if row:
+            row_df = pd.DataFrame([row])
+            col_names = ["module_name", "module_number", "field"]
+            if isinstance(df.columns, pd.MultiIndex):
+                row_df.columns = pd.MultiIndex.from_tuples(row_df.columns, names=df.columns.names)
+            else:
+                row_df.columns = pd.MultiIndex.from_tuples(row_df.columns, names=col_names)
+            next_idx = (df.index.max() + 1) if len(df.index) else 0
+            row_df.index = [next_idx]
+            df = pd.concat([df, row_df], axis=0)
 
         df = self._process_log(df)
 
