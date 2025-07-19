@@ -92,3 +92,44 @@ def test_preview_returns_serialized_dict():
     assert all(isinstance(k, str) for k in result.keys())
 
     microgrid.reset()
+
+
+def test_preview_log_reflects_post_state():
+    config = {
+        "horizon": 1,
+        "timestep": 1,
+        "components": [
+            {
+                "type": "GridModule",
+                "params": {"max_import": 10, "max_export": 10, "time_series": [[0, 0, 0, True]]},
+            },
+            {
+                "type": "BatteryModule",
+                "params": {
+                    "min_capacity": 0,
+                    "max_capacity": 10,
+                    "max_charge": 2,
+                    "max_discharge": 2,
+                    "efficiency": 1.0,
+                    "init_soc": 0.5,
+                },
+            },
+        ],
+    }
+    microgrid.setup(config)
+
+    payload = ActionRequest(actions={"grid": [np.array([1.0])], "battery": [np.array([-1.0])]})
+
+    import copy
+
+    mg_copy = copy.deepcopy(microgrid.microgrid)
+    mg_copy.run(payload.actions, normalized=False)
+    expected = mg_copy.state_dict
+
+    df = microgrid.preview(payload.actions)
+    last = df.index.max()
+    assert df.loc[last, ("battery", 0, "current_charge")] == expected["battery"][0]["current_charge"]
+    assert df.loc[last, ("battery", 0, "soc")] == expected["battery"][0]["soc"]
+    assert df.loc[last, ("grid", 0, "grid_status_current")] == expected["grid"][0]["grid_status_current"]
+
+    microgrid.reset()
