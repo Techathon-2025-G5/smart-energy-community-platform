@@ -40,6 +40,12 @@ def _safe_step(module_step):
         try:
             return module_step(self, action, normalized=normalized)
         except Exception:
+            # Fall back to a no-op step keeping the log and step counter
+            try:
+                self._log(self.state_dict(), provided_energy=0.0, absorbed_energy=0.0)
+                self._update_step()
+            except Exception:
+                pass
             state = self.to_normalized(self.state, obs=True)
             return state, 0.0, False, {}
     return wrapper
