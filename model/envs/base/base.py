@@ -74,31 +74,16 @@ class BaseMicrogridEnv(Microgrid, Env):
                  add_unbalanced_module=True,
                  loss_load_cost=10,
                  overgeneration_cost=2,
-                 reward_shaping_func=None,
-                 trajectory_func=None,
                  flat_spaces=True,
                  observation_keys=(),
                  step_callback=None,
                  reset_callback=None
                  ):
 
-        if isinstance(modules, (Microgrid, int)):
-            environment_signature_error(self.__class__.__name__, modules)
-
-        # debug
-        import inspect
-
-        signature = inspect.signature(super().__init__).parameters
-        for name, parameter in signature.items():
-            print(name, parameter.default, parameter.annotation, parameter.kind)
-        # end debug
-
         super().__init__(modules,
                          add_unbalanced_module=add_unbalanced_module,
                          loss_load_cost=loss_load_cost,
-                         overgeneration_cost=overgeneration_cost,
-                         reward_shaping_func=reward_shaping_func,
-                         trajectory_func=trajectory_func)
+                         overgeneration_cost=overgeneration_cost)
 
         self._flat_spaces = flat_spaces
         self.observation_keys = self._validate_observation_keys(observation_keys)
@@ -353,58 +338,3 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         """
         return self._flat_spaces
-
-    @classmethod
-    def from_microgrid(cls, microgrid, **kwargs):
-        """
-        Construct an RL environment from a microgrid.
-
-        Effectively wraps the microgrid with the environment API.
-
-        .. warning::
-            Any logs contained in the microgrid will not be ported over to the environment.
-
-        Parameters
-        ----------
-        microgrid : :class:`pymgrid.Microgrid`
-            Microgrid to wrap.
-
-        Returns
-        -------
-        env
-            The environment, suitable for reinforcement learning.
-
-        """
-        
-        modules = microgrid.modules
-
-        kwargs = kwargs.copy()
-
-        kwargs['add_unbalanced_module'] = kwargs.pop('add_unbalanced_module', False)
-        kwargs['reward_shaping_func'] = kwargs.pop('reward_shaping_func', microgrid.reward_shaping_func)
-        kwargs['trajectory_func'] = kwargs.pop('trajectory_func', microgrid.trajectory_func)
-
-        return cls(modules.to_tuples(), **kwargs)
-
-    @classmethod
-    def from_scenario(cls, microgrid_number=0, **kwargs):
-        env = super().from_scenario(microgrid_number=microgrid_number)
-
-        if kwargs:
-            return cls.from_microgrid(env, **kwargs)
-
-        return env
-
-    @classmethod
-    def load(cls, stream):
-        return cls.from_microgrid(super().load(stream))
-
-def environment_signature_error(cls, modules):
-    if isinstance(modules, (Microgrid)):
-        msg = f'Initializing a {cls} with a microgrid is deprecated as of version 1.5.0. ' \
-              f'Use {cls}.from_microgrid() as a drop in replacement.'
-    else:
-        msg = f'Initializing a {cls} with a scenario integer is deprecated as of version 1.5.0. ' \
-              f'Use {cls}.from_scenario() as a drop in replacement.'
-
-    raise Exception(msg)

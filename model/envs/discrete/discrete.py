@@ -4,7 +4,7 @@ from gym.spaces import Discrete
 from warnings import warn
 
 from pymgrid.algos.priority_list import PriorityListAlgo
-from pymgrid.envs.base import BaseMicrogridEnv
+from model.envs.base import BaseMicrogridEnv
 
 
 class DiscreteMicrogridEnv(BaseMicrogridEnv, PriorityListAlgo):
