@@ -98,7 +98,8 @@ class NetLoadContinuousMicrogridEnv(BaseMicrogridEnv):
         def extract_box(module_space):
             return Box(low=0.0, high=1.0, shape=module_space.normalized.shape)
 
-        controllable_as = self._modules.controllable.get_attrs('action_space', 'module_type')
+        df = self._spaces_df
+        controllable_as = df[df['module_type'].apply(lambda t: 'controllable' in t)][['action_space', 'module_type']]
 
         if self._slack_module is not None:
             controllable_as = controllable_as.drop(index=self._slack_module)

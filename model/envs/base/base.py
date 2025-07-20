@@ -8,6 +8,7 @@ from gym.spaces import Box, Dict, Tuple, flatten_space, flatten
 from abc import abstractmethod
 
 from pymgrid import Microgrid
+from model.utils.space import MicrogridSpace
 
 class BaseMicrogridEnv(Microgrid, Env):
     """
@@ -83,8 +84,40 @@ class BaseMicrogridEnv(Microgrid, Env):
         self.step_callback = step_callback if step_callback is not None else lambda *a, **k: None
         self.reset_callback = reset_callback if reset_callback is not None else lambda *a, **k: None
 
+        # Build DataFrame of module spaces for MicrogridSpace construction
+        self._spaces_df = self._build_space_dataframe()
+        self.microgrid_action_space = MicrogridSpace.from_module_spaces(self._spaces_df, 'act')
+        self.microgrid_observation_space = MicrogridSpace.from_module_spaces(self._spaces_df, 'obs')
+
         self.action_space = self._get_action_space()
         self.observation_space, self._nested_observation_space = self._get_observation_space()
+
+    def _build_space_dataframe(self):
+        rows = []
+
+        def convert_ms(ms):
+            from model.utils.space import ModuleSpace as LocalModuleSpace
+            return LocalModuleSpace(
+                ms.unnormalized.low,
+                ms.unnormalized.high,
+                normalized_bounds=(ms.normalized.low, ms.normalized.high),
+                clip_vals=getattr(ms, 'clip_vals', True),
+                shape=ms.unnormalized.shape,
+                dtype=ms.unnormalized.dtype,
+            )
+
+        for name, module_list in self.modules.iterdict():
+            for num, module in enumerate(module_list):
+                rows.append({
+                    'module_name': name,
+                    'module_number': num,
+                    'action_space': convert_ms(module.action_space),
+                    'observation_space': convert_ms(module.observation_space),
+                    'module_type': module.module_type,
+                })
+
+        df = pd.DataFrame(rows).set_index(['module_name', 'module_number'])
+        return df
 
     def _validate_observation_keys(self, keys):
         if not keys:
@@ -218,7 +251,7 @@ class BaseMicrogridEnv(Microgrid, Env):
         action = self.convert_action(action)
         self._log_action(action, normalized)
 
-        obs, reward, done, info = super().step(action, normalized=normalized)
+        obs, reward, done, info = super().run(action, normalized=normalized)
         obs = self._get_obs()
 
         self.step_callback(**self._get_step_callback_info(action, obs, reward, done, info))
@@ -302,21 +335,22 @@ class BaseMicrogridEnv(Microgrid, Env):
         """
 
         try:
-            fixed_consumption = self.modules.fixed.get_attrs('max_consumption', as_pandas=False, drop_attr_names=True)
-            fixed_consumption = np.sum(list(fixed_consumption.values()))
-        except AttributeError:
-            fixed_consumption = 0.0
+            fixed_modules = list(self.modules.fixed.iterlist())
+            fixed_consumption = sum(getattr(m, 'max_consumption', 0.0) for m in fixed_modules)
         except IndexError:
-            # Exhausted available data. Episode should be over
             assert self.current_step == self.final_step
             return 0.0
+        except Exception:
+            fixed_consumption = 0.0
 
         try:
-            flex_max_prod = [m.max_production for m in self.modules.flex.iterlist() if m.marginal_cost == 0]
+            flex_modules = list(self.modules.flex.iterlist())
+            flex_max_prod = [m.max_production for m in flex_modules if getattr(m, 'marginal_cost', None) == 0]
         except IndexError:
-            # Exhausted available data. Episode should be over
             assert self.current_step == self.final_step
             return 0.0
+        except Exception:
+            flex_max_prod = []
 
         flex_production = sum(flex_max_prod)
 
