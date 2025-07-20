@@ -21,6 +21,31 @@ export function parseLog(log) {
   return result;
 }
 
+// Parse *log* and drop the last step entry to obtain pure history data
+export function parseHistory(log) {
+  const parsed = parseLog(log);
+  const steps = [];
+  Object.values(parsed).forEach((mods) => {
+    Object.values(mods).forEach((metrics) => {
+      Object.values(metrics).forEach((values) => {
+        steps.push(...Object.keys(values || {}).map(Number));
+      });
+    });
+  });
+  if (!steps.length) return parsed;
+  const last = Math.max(...steps);
+  Object.values(parsed).forEach((mods) => {
+    Object.values(mods).forEach((metrics) => {
+      Object.values(metrics).forEach((values) => {
+        if (Object.prototype.hasOwnProperty.call(values, last)) {
+          delete values[last];
+        }
+      });
+    });
+  });
+  return parsed;
+}
+
 export function getComponentState(status, log, type, idx) {
   const parsed = parseLog(log);
   const hist = parsed?.[type]?.[idx] || {};
