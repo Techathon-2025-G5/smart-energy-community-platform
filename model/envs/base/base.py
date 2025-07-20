@@ -19,15 +19,7 @@ class BaseMicrogridEnv(Microgrid, Env):
     Parameters
     ----------
     modules : list, Microgrid, or int.
-        The constructor can be called in three ways:
-
-        1. Passing a list of microgrid modules. This is identical to the :class:`.Microgrid` constructor.
-
-        2. Passing a :class:`.Microgrid` instance.
-           This will effectively wrap the microgrid instance with the Gym API.
-
-        3. Passing an integer in [0, 25).
-           This will be result in loading the corresponding `pymgrid25` benchmark microgrids.
+        The constructor can be called passing a list of microgrid modules. This is identical to the :class:`.Microgrid` constructor.
 
     add_unbalanced_module : bool, default True.
         Whether to add an unbalanced energy module to your microgrid. Such a module computes and attributes
@@ -84,6 +76,7 @@ class BaseMicrogridEnv(Microgrid, Env):
                          add_unbalanced_module=add_unbalanced_module,
                          loss_load_cost=loss_load_cost,
                          overgeneration_cost=overgeneration_cost)
+
 
         self._flat_spaces = flat_spaces
         self.observation_keys = self._validate_observation_keys(observation_keys)
