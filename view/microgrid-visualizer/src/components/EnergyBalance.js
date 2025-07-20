@@ -2,20 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import { useAppState } from '../context/AppState';
-import { parseLog } from '../utils/log';
 import './EnergyBalance.css';
 
 export default function EnergyBalance({ step }) {
   const [points, setPoints] = useState([]);
   const svgRef = useRef(null);
   const {
-    state: { log: logData },
+    state: { history },
   } = useAppState();
 
   useEffect(() => {
     const fetchData = () => {
       try {
-        const parsed = parseLog(logData || {});
+        const parsed = history || {};
         const bal = parsed.balance?.[0] || {};
         const gens = bal.overall_provided_to_microgrid || {};
         const cons = bal.overall_absorbed_from_microgrid || {};
@@ -32,7 +31,7 @@ export default function EnergyBalance({ step }) {
       }
     };
     fetchData();
-  }, [step, logData]);
+  }, [step, history]);
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);

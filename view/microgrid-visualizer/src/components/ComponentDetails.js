@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import api from '../api/client';
 import ComponentChart from './ComponentChart';
 import BatteryStatus from './BatteryStatus';
-import { parseLog } from '../utils/log';
 import './ComponentDetails.css';
 import HouseStatus from "./HouseStatus";
 import BuildingStatus from "./BuildingStatus";
@@ -90,7 +89,7 @@ function ComponentDetails({
   const [field, setField] = useState('');
   const [activeTab, setActiveTab] = useState('Configuration');
   const {
-    state: { modules, log: logData },
+    state: { modules, history: globalHistory },
   } = useAppState();
 
   const getDefaultPriorityList = () => {
@@ -148,7 +147,7 @@ function ComponentDetails({
 
     const fetchInfo = async () => {
       try {
-        const parsed = parseLog(logData || {});
+        const parsed = globalHistory || {};
         const [type, idxStr] = (module.backendId || '').split('_');
         const idx = parseInt(idxStr, 10);
         const hist = parsed[type]?.[idx] || {};
@@ -166,7 +165,7 @@ function ComponentDetails({
     };
 
     fetchInfo();
-  }, [module?.id, manualMode, stateData, step, logData]);
+  }, [module?.id, manualMode, stateData, step, globalHistory]);
 
   useEffect(() => {
     if (!isSetup) {

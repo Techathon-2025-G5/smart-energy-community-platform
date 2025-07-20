@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer } from 'react';
 import api from '../api/client';
-import { buildCurrentStatus } from '../utils/log';
+import { buildCurrentStatus, parseHistory } from '../utils/log';
 
 const AppStateContext = createContext();
 
@@ -11,6 +11,7 @@ const initialState = {
   logs: [],
   status: null,
   log: null,
+  history: {},
 };
 
 function reducer(state, action) {
@@ -54,6 +55,8 @@ function reducer(state, action) {
       return { ...state, status: action.status };
     case 'SET_LOG_DATA':
       return { ...state, log: action.log };
+    case 'SET_HISTORY':
+      return { ...state, history: action.history };
     default:
       return state;
   }
@@ -73,6 +76,7 @@ export function AppStateProvider({ children }) {
   const addLog = (log) => dispatch({ type: 'ADD_LOG', log });
   const setStatus = (status) => dispatch({ type: 'SET_STATUS', status });
   const setLogData = (log) => dispatch({ type: 'SET_LOG_DATA', log });
+  const setHistory = (history) => dispatch({ type: 'SET_HISTORY', history });
 
   const refreshPreview = async () => {
     try {
@@ -88,6 +92,8 @@ export function AppStateProvider({ children }) {
       };
       const log = await api.previewStep({ actions });
       setLogData(log);
+      const history = parseHistory(log);
+      setHistory(history);
       const states = buildCurrentStatus({}, log);
       state.modules.forEach((m) => {
         if (!m.backendId) return;
@@ -113,6 +119,7 @@ export function AppStateProvider({ children }) {
     <AppStateContext.Provider
       value={{
         state,
+        history: state.history,
         addModule,
         moveModule,
         updateModule,
