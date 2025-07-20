@@ -74,19 +74,26 @@ export function AppStateProvider({ children }) {
   const setStatus = (status) => dispatch({ type: 'SET_STATUS', status });
   const setLogData = (log) => dispatch({ type: 'SET_LOG_DATA', log });
 
-  const refreshPreview = async () => {
+  const refreshPreview = async (manualMode = false) => {
     try {
-      const gridModules = state.modules
-        .filter((m) => m.type === 'grid')
-        .sort((a, b) => (a.idx || 0) - (b.idx || 0));
-      const batteryModules = state.modules
-        .filter((m) => m.type === 'battery')
-        .sort((a, b) => (a.idx || 0) - (b.idx || 0));
-      const actions = {
-        grid: gridModules.map(() => 0),
-        battery: batteryModules.map(() => 0),
-      };
-      const log = await api.previewStep({ actions });
+      let log;
+
+      if (manualMode) {
+        const gridModules = state.modules
+          .filter((m) => m.type === 'grid')
+          .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+        const batteryModules = state.modules
+          .filter((m) => m.type === 'battery')
+          .sort((a, b) => (a.idx || 0) - (b.idx || 0));
+        const actions = {
+          grid: gridModules.map(() => 0),
+          battery: batteryModules.map(() => 0),
+        };
+        log = await api.previewStep({ actions });
+      } else {
+        log = await api.getLog(true, false);
+      }
+
       setLogData(log);
       const states = buildCurrentStatus({}, log);
       state.modules.forEach((m) => {

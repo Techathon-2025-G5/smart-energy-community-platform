@@ -650,7 +650,7 @@ function App() {
       setIsSetup(true);
       addLog({ method: 'POST', endpoint: '/setup', payload, response });
       addLog({ method: 'POST', endpoint: '/reset', payload: null, response: resetResponse });
-      const states = await refreshPreview();
+      const states = await refreshPreview(manualMode);
       setComponentStatus(states || {});
     } catch (err) {
       
@@ -668,7 +668,7 @@ function App() {
         const response = await api.runStep(payload);
         addLog({ method: 'POST', endpoint: '/run', payload, response });
         setStepCount((s) => s + 1);
-        const states = await refreshPreview();
+        const states = await refreshPreview(manualMode);
         setComponentStatus(states || {});
         resetManualActions();
       } catch (err) {
@@ -715,7 +715,7 @@ function App() {
       const response = await api.runStep(payload);
       addLog({ method: 'POST', endpoint: '/run', payload, response });
       setStepCount((s) => s + 1);
-      const states = await refreshPreview();
+      const states = await refreshPreview(manualMode);
       setComponentStatus(states || {});
       resetManualActions();
     } catch (err) {
@@ -742,7 +742,7 @@ function App() {
   const handleReset = async () => {
     try {
       const response = await api.resetModel();
-      const states = await refreshPreview();
+      const states = await refreshPreview(manualMode);
       const hasController = modules.some((m) => m.type === 'controller');
       const isManual = modules.some(
         (m) => m.type === 'controller' && m.params?.name === 'manual'
