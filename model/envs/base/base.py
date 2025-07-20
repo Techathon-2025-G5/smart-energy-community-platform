@@ -7,9 +7,7 @@ from gym import Env
 from gym.spaces import Box, Dict, Tuple, flatten_space, flatten
 from abc import abstractmethod
 
-from pymgrid import NonModularMicrogrid, Microgrid
-from pymgrid.errors.env_signature import environment_signature_error
-
+from pymgrid import Microgrid
 
 class BaseMicrogridEnv(Microgrid, Env):
     """
@@ -20,12 +18,12 @@ class BaseMicrogridEnv(Microgrid, Env):
 
     Parameters
     ----------
-    modules : list, Microgrid, NonModularMicrogrid, or int.
+    modules : list, Microgrid, or int.
         The constructor can be called in three ways:
 
         1. Passing a list of microgrid modules. This is identical to the :class:`.Microgrid` constructor.
 
-        2. Passing a :class:`.Microgrid` or :class:`.NonModularMicrogrid` instance.
+        2. Passing a :class:`.Microgrid` instance.
            This will effectively wrap the microgrid instance with the Gym API.
 
         3. Passing an integer in [0, 25).
@@ -84,8 +82,16 @@ class BaseMicrogridEnv(Microgrid, Env):
                  reset_callback=None
                  ):
 
-        if isinstance(modules, (NonModularMicrogrid, Microgrid, int)):
+        if isinstance(modules, (Microgrid, int)):
             environment_signature_error(self.__class__.__name__, modules)
+
+        # debug
+        import inspect
+
+        signature = inspect.signature(super().__init__).parameters
+        for name, parameter in signature.items():
+            print(name, parameter.default, parameter.annotation, parameter.kind)
+        # end debug
 
         super().__init__(modules,
                          add_unbalanced_module=add_unbalanced_module,
@@ -369,11 +375,8 @@ class BaseMicrogridEnv(Microgrid, Env):
             The environment, suitable for reinforcement learning.
 
         """
-        try:
-            modules = microgrid.modules
-        except AttributeError:
-            assert isinstance(microgrid, NonModularMicrogrid)
-            return cls.from_nonmodular(microgrid, **kwargs)
+        
+        modules = microgrid.modules
 
         kwargs = kwargs.copy()
 
@@ -382,11 +385,6 @@ class BaseMicrogridEnv(Microgrid, Env):
         kwargs['trajectory_func'] = kwargs.pop('trajectory_func', microgrid.trajectory_func)
 
         return cls(modules.to_tuples(), **kwargs)
-
-    @classmethod
-    def from_nonmodular(cls, nonmodular, **kwargs):
-        microgrid = super().from_nonmodular(nonmodular)
-        return cls.from_microgrid(microgrid, **kwargs)
 
     @classmethod
     def from_scenario(cls, microgrid_number=0, **kwargs):
@@ -400,3 +398,13 @@ class BaseMicrogridEnv(Microgrid, Env):
     @classmethod
     def load(cls, stream):
         return cls.from_microgrid(super().load(stream))
+
+def environment_signature_error(cls, modules):
+    if isinstance(modules, (Microgrid)):
+        msg = f'Initializing a {cls} with a microgrid is deprecated as of version 1.5.0. ' \
+              f'Use {cls}.from_microgrid() as a drop in replacement.'
+    else:
+        msg = f'Initializing a {cls} with a scenario integer is deprecated as of version 1.5.0. ' \
+              f'Use {cls}.from_scenario() as a drop in replacement.'
+
+    raise Exception(msg)
