@@ -36,6 +36,12 @@ El objetivo del usuario (o del agente de IA) será **satisfacer toda la demanda 
    pytest
    ```
 
+5. Las funcionalidades de control por aprendizaje por refuerzo requieren
+   instalar `stable-baselines3` de forma adicional:
+   ```bash
+   pip install stable-baselines3>=2.6
+   ```
+
 ---
 
 #### 2. Componentes principales

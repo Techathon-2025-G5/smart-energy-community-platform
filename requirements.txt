@@ -8,3 +8,4 @@ requests
 pymgrid
 pytest
 pytest-asyncio
+stable-baselines3>=2.6
