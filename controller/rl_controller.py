@@ -4,6 +4,7 @@ from typing import Any
 
 from model.envs import ContinuousMicrogridEnv
 from model.rec_model import microgrid
+from stable_baselines3 import PPO, A2C, DQN, SAC
 
 
 class RLController:
@@ -32,13 +33,6 @@ class RLController:
         self.env._microgrid_logger.log = lambda *a, **k: None
 
         algo_name = algorithm.lower()
-        try:
-            from stable_baselines3 import PPO, A2C, DQN, SAC  # type: ignore
-        except ModuleNotFoundError as exc:  # pragma: no cover - library optional
-            raise RuntimeError(
-                "stable-baselines3 is required for RLController"
-            ) from exc
-
         algo_map = {
             "ppo": PPO,
             "a2c": A2C,
