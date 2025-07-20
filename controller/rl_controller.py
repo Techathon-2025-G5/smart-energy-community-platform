@@ -4,7 +4,13 @@ from typing import Any
 
 from model.envs import ContinuousMicrogridEnv
 from model.rec_model import microgrid
-from stable_baselines3 import PPO, A2C, DQN, SAC
+
+try:  # noqa: WPS505
+    from stable_baselines3 import PPO, A2C, DQN, SAC
+except Exception as exc:  # pragma: no cover - runtime dependency check
+    raise RuntimeError(
+        "RLController requires the stable-baselines3 package. Install it via 'pip install stable-baselines3'."
+    ) from exc
 
 
 class RLController:
