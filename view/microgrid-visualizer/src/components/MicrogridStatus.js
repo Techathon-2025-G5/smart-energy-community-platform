@@ -183,7 +183,7 @@ export default function MicrogridStatus({ step }) {
           balance:
             Number(parsedTotals.grid?.grid_balance || 0) -
             Number(parsedTotals.battery?.cycle_cost || 0),
-          load_unmet: Number(parsedTotals.load?.load_met || 0),
+          load_unmet: Number(parsedTotals.balancing?.loss_load || 0),
           renewable_unused: Number(parsedTotals.renewable?.curtailment || 0),
           reward: Number(parsedTotals.balance?.reward || 0),
         });
