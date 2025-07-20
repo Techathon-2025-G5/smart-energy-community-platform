@@ -4,6 +4,6 @@ rule_based:
 manual:
   module: controller.manual
   class: ManualController
-rl:
-  module: controller.rl_controller
-  class: RLController
+# rl:
+#   module: controller.rl_controller
+#   class: RLController
