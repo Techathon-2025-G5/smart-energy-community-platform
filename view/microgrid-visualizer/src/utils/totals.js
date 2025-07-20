@@ -40,3 +40,24 @@ export function parseTotalsTotals(data) {
   });
   return result;
 }
+
+// Parse totals log and drop the last step entry
+export function parseTotalsHistory(log) {
+  const parsed = parseTotalsLog(log);
+  const steps = [];
+  Object.values(parsed).forEach((fields) => {
+    Object.values(fields).forEach((values) => {
+      steps.push(...Object.keys(values || {}).map(Number));
+    });
+  });
+  if (!steps.length) return parsed;
+  const last = Math.max(...steps);
+  Object.values(parsed).forEach((fields) => {
+    Object.values(fields).forEach((values) => {
+      if (Object.prototype.hasOwnProperty.call(values, last)) {
+        delete values[last];
+      }
+    });
+  });
+  return parsed;
+}
