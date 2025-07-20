@@ -21,6 +21,46 @@ export function parseLog(log) {
   return result;
 }
 
+export function splitLogLatest(log) {
+  const parsed = parseLog(log);
+  let lastStep = null;
+  Object.values(parsed || {}).forEach((components) => {
+    Object.values(components || {}).forEach((metrics) => {
+      Object.values(metrics || {}).forEach((values) => {
+        Object.keys(values || {}).forEach((s) => {
+          const n = Number(s);
+          if (!Number.isNaN(n) && (lastStep === null || n > lastStep)) {
+            lastStep = n;
+          }
+        });
+      });
+    });
+  });
+  if (lastStep === null) return { history: {}, current: {} };
+  const history = {};
+  const current = {};
+  Object.entries(parsed).forEach(([type, comps]) => {
+    Object.entries(comps).forEach(([idx, metrics]) => {
+      Object.entries(metrics).forEach(([metric, values]) => {
+        Object.entries(values).forEach(([stepStr, val]) => {
+          const step = Number(stepStr);
+          if (step === lastStep) {
+            if (!current[type]) current[type] = {};
+            if (!current[type][idx]) current[type][idx] = {};
+            current[type][idx][metric] = Number(val);
+          } else {
+            if (!history[type]) history[type] = {};
+            if (!history[type][idx]) history[type][idx] = {};
+            if (!history[type][idx][metric]) history[type][idx][metric] = {};
+            history[type][idx][metric][step] = val;
+          }
+        });
+      });
+    });
+  });
+  return { history, current };
+}
+
 export function getComponentState(status, log, type, idx) {
   const parsed = parseLog(log);
   const hist = parsed?.[type]?.[idx] || {};
@@ -61,3 +101,4 @@ export function buildCurrentStatus(status = {}, log = {}) {
 
   return result;
 }
+
