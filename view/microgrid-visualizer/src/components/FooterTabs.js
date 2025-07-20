@@ -9,7 +9,11 @@ export default function FooterTabs({ config, onConfigChange, isSetup, step }) {
   const [active, setActive] = useState('Status');
 
   useEffect(() => {
-    if (!isSetup) setActive('Configuration');
+    if (isSetup) {
+      setActive('Status');
+    } else {
+      setActive('Configuration');
+    }
   }, [isSetup]);
 
   return (

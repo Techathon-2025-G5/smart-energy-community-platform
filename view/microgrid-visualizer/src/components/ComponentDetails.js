@@ -169,7 +169,9 @@ function ComponentDetails({
   }, [module?.id, step, logData]);
 
   useEffect(() => {
-    if (!isSetup) {
+    if (isSetup) {
+      setActiveTab('Status');
+    } else {
       setActiveTab('Configuration');
     }
   }, [isSetup]);
