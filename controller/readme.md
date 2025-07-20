@@ -50,3 +50,25 @@ La API expone las siguientes rutas relacionadas con los controladores:
 - `GET  /controller/config`: obtiene la configuración del controlador activo.
 
 La selección y configuración del controlador se realiza a través del endpoint `/setup` al definir los componentes de la microgrid, como se muestra en el ejemplo anterior.
+
+## RLController
+
+`RLController` permite emplear modelos de aprendizaje por refuerzo mediante la librería `stable-baselines3`.
+
+### Uso básico
+
+```python
+payload = {
+    "horizon": 24,
+    "timestep": 1,
+    "components": [
+        {"type": "GridModule", "params": {"max_import": 100}},
+        {"type": "Controller", "params": {"name": "rl"}},
+    ],
+    "controller_config": {"algorithm": "ppo", "train": true}
+}
+
+res = requests.post("http://localhost:8000/setup", json=payload)
+```
+
+Si `train` es `True` el modelo se actualizará en cada paso llamando a `learn()`. También es posible cargar un modelo existente usando `model_path`.

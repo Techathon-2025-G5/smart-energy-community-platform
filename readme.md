@@ -101,6 +101,7 @@ que `/run` y devuelve el log resultante.
   * Recompensa = − coste − penalización fuerte si energía < 0.
 
 Se pueden comparar reglas vs. RL en un “torneo” de escenarios.
+El proyecto incluye un `RLController` basado en Stable-Baselines3 para aplicar políticas entrenadas.
 
 ---
 
