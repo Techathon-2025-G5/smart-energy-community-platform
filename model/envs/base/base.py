@@ -135,7 +135,7 @@ class BaseMicrogridEnv(Microgrid, Env):
     def _get_observation_space(self):
         obs_space = {}
 
-        state_series = self.state_series()
+        state_series = self.state_series
 
         if self.observation_keys is None or len(self.observation_keys) == 0:
             observation_keys = state_series.index.get_level_values(-1)
@@ -178,7 +178,7 @@ class BaseMicrogridEnv(Microgrid, Env):
         return (flatten_space(obs_space) if self._flat_spaces else obs_space), obs_space
 
     def potential_observation_keys(self):
-        return self.state_series().index.get_level_values(-1).unique()
+        return self.state_series.index.get_level_values(-1).unique()
 
     def reset(self):
         super().reset()
@@ -271,7 +271,7 @@ class BaseMicrogridEnv(Microgrid, Env):
 
     def _get_obs(self):
         if self.observation_keys:
-            obs = self.state_series(normalized=True).loc[pd.IndexSlice[:, :, self.observation_keys]]
+            obs = self.state_series.loc[pd.IndexSlice[:, :, self.observation_keys]]
 
             if self._flat_spaces:
                 obs = obs.values
@@ -279,9 +279,9 @@ class BaseMicrogridEnv(Microgrid, Env):
                 obs = obs.to_frame().unstack(level=1).T.droplevel(level=1, axis=1).to_dict(orient='list')
 
         elif self._flat_spaces:
-            obs = self.state_series(normalized=True).values
+            obs = self.state_series.values
         else:
-            obs = self.state_dict(normalized=True, as_run_output=True)
+            obs = self.env_state_dict(normalized=True, as_run_output=True)
 
         return obs
 
@@ -301,7 +301,7 @@ class BaseMicrogridEnv(Microgrid, Env):
     def sample_action(self, strict_bound=False, sample_flex_modules=False):
         return self.action_space.sample()
 
-    def state_dict(self, normalized=False, as_run_output=False, _initial=None):
+    def env_state_dict(self, normalized=False, as_run_output=False, _initial=None):
         net_load = self.compute_net_load(normalized=normalized)
 
         if as_run_output:
@@ -310,7 +310,10 @@ class BaseMicrogridEnv(Microgrid, Env):
             net_load_entry = {'net_load': net_load}
 
         state_dict = {'general': [net_load_entry]}
-        return super().state_dict(normalized=normalized, as_run_output=as_run_output, _initial=state_dict)
+        base_dict = super().state_dict
+        if _initial is not None:
+            base_dict = {**_initial, **base_dict}
+        return {**state_dict, **base_dict}
 
     @staticmethod
     def flatten_obs(observation_space, obs):
