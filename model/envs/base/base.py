@@ -9,6 +9,7 @@ from abc import abstractmethod
 
 from pymgrid import Microgrid
 from model.utils.space import MicrogridSpace
+from model.utils.logger import ModularLogger
 
 class BaseMicrogridEnv(Microgrid, Env):
     """
@@ -91,6 +92,9 @@ class BaseMicrogridEnv(Microgrid, Env):
 
         self.action_space = self._get_action_space()
         self.observation_space, self._nested_observation_space = self._get_observation_space()
+
+        self._balance_logger = ModularLogger()
+        self._microgrid_logger = ModularLogger()  # log additional information.
 
     def _build_space_dataframe(self):
         rows = []
