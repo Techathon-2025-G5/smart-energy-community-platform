@@ -387,6 +387,9 @@ function App() {
     const state = getPreviewState(module);
     switch (module.type) {
       case 'house': {
+        if (!isSetup) {
+          return <img src={houseImg} alt="house" />;
+        }
         const cur = Math.abs(Number(state.load_current ?? 0));
         const met = Number(state.load_met ?? 0);
         if (cur > 0 && !Number.isNaN(met)) {
@@ -396,6 +399,14 @@ function App() {
         return <img src={houseImg} alt="house" />;
       }
       case 'building':
+        if (!isSetup) {
+          return (
+            <img
+              src={getBuildingImage(module.params?.time_series_profile)}
+              alt="building"
+            />
+          );
+        }
         return (
           <img
             src={getBuildingImage(
