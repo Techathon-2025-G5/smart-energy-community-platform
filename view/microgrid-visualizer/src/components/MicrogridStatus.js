@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import api from '../api/client';
 import { useAppState } from '../context/AppState';
-import { parseTotalsLog, parseTotalsTotals } from '../utils/totals';
+import { splitTotalsLogLatest, parseTotalsTotals } from '../utils/totals';
 import './MicrogridStatus.css';
 import './StatusCommon.css';
 
@@ -156,26 +156,23 @@ export default function MicrogridStatus({ step }) {
     const fetchData = async () => {
       try {
         const totalsResp = await api.getTotals();
-        const parsedSteps = parseTotalsLog(logData || {});
+        const { history } = splitTotalsLogLatest(logData || {});
         const parsedTotals = parseTotalsTotals(totalsResp);
-        const stepList = Object.keys(parsedSteps.renewable?.renewable_used || {})
+        const stepList = Object.keys(history.totals?.renewable?.renewable_used || {})
           .map(Number)
           .sort((a, b) => a - b);
         setSteps(stepList);
-        const last = stepList[stepList.length - 1];
 
         const cover = stepList.map((s) => ({
-          renewables: Number(parsedSteps.renewable?.renewable_used?.[s] || 0),
-          batteries: Number(parsedSteps.battery?.discharge_amount?.[s] || 0),
-          grid: Number(parsedSteps.grid?.grid_import?.[s] || 0),
-          unmet: Math.max(
-            0,
-            - Number(parsedSteps.load?.load_current?.[s] || 0) -
-              Number(parsedSteps.load?.load_met?.[s] || 0)
-          ),
+          renewables: Number(history.totals?.renewable?.renewable_used?.[s] || 0),
+          batteries: Number(history.totals?.battery?.discharge_amount?.[s] || 0),
+          grid: Number(history.totals?.grid?.grid_import?.[s] || 0),
+          unmet: Number(history.totals?.balancing?.loss_load?.[s] || 0),
         }));
         setCoverData(cover);
-        setRewardHist(stepList.map((s) => Number(parsedSteps.balance?.reward?.[s] || 0)));
+        setRewardHist(
+          stepList.map((s) => Number(history.totals?.balance?.reward?.[s] || 0))
+        );
 
         setTotals({
           exported: Number(parsedTotals.grid?.grid_export || 0),
