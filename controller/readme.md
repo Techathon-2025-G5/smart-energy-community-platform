@@ -55,6 +55,8 @@ La selección y configuración del controlador se realiza a través del endpoint
 
 `RLController` permite emplear modelos de aprendizaje por refuerzo mediante la librería `stable-baselines3`.
 
+Para utilizar esta funcionalidad debes instalar primero `stable-baselines3>=2.6`.
+
 ### Uso básico
 
 ```python
