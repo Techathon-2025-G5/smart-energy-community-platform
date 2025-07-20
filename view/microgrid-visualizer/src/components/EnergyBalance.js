@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import { useAppState } from '../context/AppState';
-import { parseLog } from '../utils/log';
+import { splitLogLatest } from '../utils/log';
 import './EnergyBalance.css';
 
 export default function EnergyBalance({ step }) {
@@ -15,8 +15,8 @@ export default function EnergyBalance({ step }) {
   useEffect(() => {
     const fetchData = () => {
       try {
-        const parsed = parseLog(logData || {});
-        const bal = parsed.balance?.[0] || {};
+        const { history: hist } = splitLogLatest(logData || {});
+        const bal = hist.balance?.[0] || {};
         const gens = bal.overall_provided_to_microgrid || {};
         const cons = bal.overall_absorbed_from_microgrid || {};
         const steps = Object.keys(gens)
