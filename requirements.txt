@@ -5,7 +5,7 @@ PyYAML
 pandas
 numpy
 requests
-pymgrid
+python-microgrid>=1.4.0
 pytest
 pytest-asyncio
 stable-baselines3>=2.6

@@ -69,8 +69,8 @@ class RuleBasedController:
         """Run a single rule based control step."""
         if not self.rbc:
             raise RuntimeError("Controller not initialized")
-        action = self.rbc._get_action()  # type: ignore[attr-defined]
-        obs, reward, done, info = microgrid.microgrid.run(action, normalized=False)
+        action = self.rbc.get_action()  # type: ignore[attr-defined]
+        obs, reward, done, info = microgrid.microgrid.step(action, normalized=False)
         result = {
             "action": action,
             "observation": obs,

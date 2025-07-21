@@ -4,6 +4,7 @@ import pandas as pd
 import json
 from pymgrid import Microgrid
 from pymgrid import modules as mod
+import inspect
 from data import data_generator
 
 class MicrogridModel:
@@ -67,6 +68,7 @@ class MicrogridModel:
                 config = yaml.safe_load(config)
         self.config = config
         modules = []
+        horizon = config.get("horizon")
         for comp in config.get("components", []):
             comp_type = comp.get("type")
             params = comp.get("params", {})
@@ -105,8 +107,12 @@ class MicrogridModel:
                 params[ts_key] = self._load_profile(params.pop(profile_key))
             if ts_key in params:
                 import numpy as np
-
                 params[ts_key] = np.array(params[ts_key])
+
+            if horizon is not None:
+                sig = inspect.signature(cls.__init__)
+                if "final_step" in sig.parameters and "final_step" not in params:
+                    params["final_step"] = horizon
             # UnbalancedEnergyModule is now configured outside of components
             if cls is mod.UnbalancedEnergyModule:
                 # support legacy configs but skip adding as regular module
@@ -154,7 +160,8 @@ class MicrogridModel:
         """Return current state of the microgrid as a dictionary."""
         if not self.microgrid:
             return {}
-        status = self.microgrid.state_dict
+        status_attr = self.microgrid.state_dict
+        status = status_attr() if callable(status_attr) else status_attr
 
         total_load = 0
         for load in status.get("load", []):
@@ -254,7 +261,7 @@ class MicrogridModel:
         """Run one simulation step with provided actions."""
         if not self.microgrid:
             raise RuntimeError("Microgrid is not initialized")
-        obs, reward, done, info = self.microgrid.run(actions, normalized=False)
+        obs, reward, done, info = self.microgrid.step(actions, normalized=False)
         result = {
             "observation": obs,
             "reward": reward,
@@ -273,7 +280,7 @@ class MicrogridModel:
 
         # Clone current microgrid so state is not modified
         mg_copy = copy.deepcopy(self.microgrid)
-        mg_copy.run(actions, normalized=False)
+        mg_copy.step(actions, normalized=False)
 
         df = mg_copy.get_log(as_frame=True, drop_singleton_key=drop_singleton_key)
 

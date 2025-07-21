@@ -17,7 +17,10 @@ class ManualController:
         """Run one simulation step using *actions*."""
         if microgrid.microgrid is None:
             raise RuntimeError("Microgrid is not initialized")
-        obs, reward, done, info = microgrid.microgrid.run(actions, normalized=False)
+        full_action = microgrid.microgrid.get_empty_action()
+        for key, val in actions.items():
+            full_action[key] = val
+        obs, reward, done, info = microgrid.microgrid.step(full_action, normalized=False)
         result = {
             "action": actions,
             "observation": obs,
